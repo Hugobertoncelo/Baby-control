@@ -1,0 +1,78 @@
+.activity-tile-group {
+  background-color: white;
+  position: relative;
+}
+
+.activity-tile-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-image: linear-gradient(
+    to right,
+    rgba(13, 148, 136, 1) 0%,
+    rgba(15, 118, 110, 1) 100%
+  );
+
+  clip-path: polygon(0 0, 100% 0, 100% 25%, 0 50%);
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 25%, 0 50%);
+  pointer-events: none;
+}
+
+.activity-tile-group > * {
+  position: relative;
+  z-index: 1;
+}
+
+html.dark .activity-tile-group {
+  background-color: #1f2937 !important;
+}
+
+html.dark .activity-tile-group::before {
+  background-image: linear-gradient(
+    to right,
+    rgba(13, 148, 136, 1) 0%,
+    rgba(15, 118, 110, 1) 100%
+  ) !important;
+  clip-path: polygon(0 0, 100% 0, 100% 25%, 0 50%) !important;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 25%, 0 50%) !important;
+}
+
+html.dark .activity-dropdown-item {
+  color: #e5e7eb !important;
+}
+
+html.dark .activity-dropdown-item:hover {
+  background-color: #374151 !important;
+}
+
+html.dark .activity-dropdown-item-drag-button {
+  color: #9ca3af !important;
+}
+
+html.dark .activity-dropdown-item-drag-button:hover {
+  background-color: #4b5563 !important;
+}
+
+html.dark .draggable-highlight {
+  background-color: rgba(6, 78, 59, 0.2) !important;
+}
+
+html.dark .hover-background:hover {
+  background-color: #374151 !important;
+}
+
+html.dark .icon-text {
+  color: #9ca3af !important;
+}
+
+html.dark .draggable-background {
+  background-color: #374151 !important;
+}
+
+html.dark .hover-emerald {
+  background-color: rgba(6, 78, 59, 0.2) !important;
+}

@@ -1,0 +1,148 @@
+.dark .accounts-layout .from-slate-50.to-slate-100 {
+  --tw-gradient-from: #0f172a;
+  --tw-gradient-to: #1e293b;
+}
+
+.dark .accounts-layout .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .accounts-layout .border-slate-200 {
+  border-color: #334155;
+}
+
+.dark .accounts-layout .text-slate-800 {
+  color: #e2e8f0;
+}
+
+.dark .accounts-layout .text-slate-600 {
+  color: #94a3b8;
+}
+
+.dark .accounts-layout .text-slate-500 {
+  color: #94a3b8;
+}
+
+.dark .accounts-layout .text-slate-700 {
+  color: #cbd5e1;
+}
+
+.dark .accounts-layout .bg-slate-50 {
+  background-color: #334155;
+}
+
+.dark .accounts-layout .bg-slate-200 {
+  background-color: #475569;
+}
+
+.dark .payment-success-layout {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+}
+
+.dark .payment-success-layout .from-teal-50 {
+  --tw-gradient-from: transparent;
+}
+
+.dark .payment-success-layout .to-blue-50 {
+  --tw-gradient-to: transparent;
+}
+
+.dark .payment-success-layout .bg-white {
+  background-color: rgba(31, 41, 55, 0.95) !important;
+}
+
+.dark .payment-success-layout .text-gray-900 {
+  color: #e5e7eb;
+}
+
+.dark .payment-success-layout .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .payment-success-layout .text-gray-500 {
+  color: #9ca3af;
+}
+
+.dark .payment-success-layout .bg-green-500 {
+  background-color: #10b981;
+}
+
+.dark .payment-success-layout .bg-teal-100 {
+  background-color: #134e4a;
+}
+
+.dark .payment-success-layout .text-teal-600 {
+  color: #5eead4;
+}
+
+.dark .payment-success-layout .bg-teal-50 {
+  background-color: rgba(20, 184, 166, 0.15);
+}
+
+.dark .payment-success-layout .text-teal-700 {
+  color: #5eead4;
+}
+
+.dark .payment-success-layout .bg-teal-200 {
+  background-color: #134e4a;
+}
+
+.dark .payment-success-layout .bg-teal-600 {
+  background-color: #14b8a6;
+}
+
+.dark .payment-success-layout .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.2);
+}
+
+.dark .payment-success-layout .text-amber-600 {
+  color: #fbbf24;
+}
+
+.dark .payment-cancelled-layout {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+}
+
+.dark .payment-cancelled-layout .from-gray-50 {
+  --tw-gradient-from: transparent;
+}
+
+.dark .payment-cancelled-layout .to-slate-50 {
+  --tw-gradient-to: transparent;
+}
+
+.dark .payment-cancelled-layout .bg-white {
+  background-color: rgba(31, 41, 55, 0.95) !important;
+}
+
+.dark .payment-cancelled-layout .text-gray-900 {
+  color: #e5e7eb;
+}
+
+.dark .payment-cancelled-layout .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .payment-cancelled-layout .text-gray-500 {
+  color: #9ca3af;
+}
+
+.dark .payment-cancelled-layout .text-gray-700 {
+  color: #d1d5db;
+}
+
+.dark .payment-cancelled-layout .bg-gray-400 {
+  background-color: #6b7280;
+}
+
+.dark .payment-cancelled-layout .bg-gray-50 {
+  background-color: rgba(75, 85, 99, 0.2);
+}
+
+.dark .payment-cancelled-layout .bg-gray-200 {
+  background-color: #374151;
+}
+
+.dark .payment-cancelled-layout .bg-gray-600 {
+  background-color: #4b5563;
+}

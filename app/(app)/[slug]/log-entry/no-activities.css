@@ -1,0 +1,20 @@
+html.dark .no-activities-container {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+html.dark .no-activities-icon-container {
+  background-color: #312e81 !important;
+}
+
+html.dark .no-activities-icon {
+  color: #818cf8 !important;
+}
+
+html.dark .no-activities-title {
+  color: #f9fafb !important;
+}
+
+html.dark .no-activities-text {
+  color: #9ca3af !important;
+}

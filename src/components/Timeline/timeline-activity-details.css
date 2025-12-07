@@ -1,0 +1,8 @@
+/* Dark mode overrides for TimelineActivityDetails component */
+html.dark .timeline-details-label {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+html.dark .timeline-details-value {
+  color: #e5e7eb !important; /* gray-200 */
+}
