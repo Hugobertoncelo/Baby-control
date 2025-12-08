@@ -1,3 +1,4 @@
+#!/bin/sh
 mkdir -p /db
 
 mkdir -p /app
