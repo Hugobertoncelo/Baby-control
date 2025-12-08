@@ -259,34 +259,7 @@ const home = () => {
       </section>
 
       <section className="saas-main-demo">
-        <div className="saas-main-demo-content">
-          <div className="saas-main-demo-video">
-            <div
-              style={{
-                borderRadius: "5px",
-                backgroundColor: "#0d9488",
-                overflow: "hidden",
-              }}
-            >
-              <video
-                src={
-                  theme === "dark" ? "/DemoMainDark.mp4" : "/DemoMainLight.mp4"
-                }
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  border: "none",
-                }}
-              >
-                Seu navegador não suporta a tag de vídeo.
-              </video>
-            </div>
-          </div>
-        </div>
+        <div className="saas-main-demo-content"></div>
       </section>
 
       <section className="saas-transition-section">
@@ -363,35 +336,7 @@ const home = () => {
               <div className="absolute bottom-16 -right-12 z-0">
                 <Users size={200} className="text-teal-500 opacity-20" />
               </div>
-              <div className="relative z-10 max-w-sm mx-auto">
-                <div className="saas-demo-phone-video">
-                  <video
-                    key={`${theme}-${currentCaretakerVideo}`}
-                    src={
-                      theme === "dark"
-                        ? currentCaretakerVideo === 0
-                          ? "/AddCaretakerDark.mp4"
-                          : "/LoginDark.mp4"
-                        : currentCaretakerVideo === 0
-                        ? "/AddCaretakerLight.mp4"
-                        : "/LoginLight.mp4"
-                    }
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      opacity: isCaretakerTransitioning ? 0 : 1,
-                      transition: "opacity 400ms ease-in-out",
-                    }}
-                  >
-                    Seu navegador não suporta a tag de vídeo.
-                  </video>
-                </div>
-              </div>
+              <div className="relative z-10 max-w-sm mx-auto"></div>
             </div>
           </div>
         </div>
@@ -407,28 +352,7 @@ const home = () => {
                   className="text-emerald-500 opacity-20"
                 />
               </div>
-              <div className="relative z-10 max-w-sm mx-auto">
-                <div className="saas-demo-phone-video">
-                  <video
-                    src={
-                      theme === "dark"
-                        ? "/BabyInfoButtonDark.mp4"
-                        : "/BabyInfoButtonLight.mp4"
-                    }
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  >
-                    Seu navegador não suporta a tag de vídeo.
-                  </video>
-                </div>
-              </div>
+              <div className="relative z-10 max-w-sm mx-auto"></div>
             </div>
             <div>
               <h3 className="saas-feature-title">
@@ -491,28 +415,7 @@ const home = () => {
               <div className="absolute bottom-16 -right-12 z-0">
                 <BarChart3 size={200} className="text-teal-600 opacity-20" />
               </div>
-              <div className="relative z-10 max-w-sm mx-auto">
-                <div className="saas-demo-phone-video">
-                  <video
-                    src={
-                      theme === "dark"
-                        ? "/DailyStatsDark.mp4"
-                        : "/DailyStatsLight.mp4"
-                    }
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  >
-                    Seu navegador não suporta a tag de vídeo.
-                  </video>
-                </div>
-              </div>
+              <div className="relative z-10 max-w-sm mx-auto"></div>
             </div>
           </div>
         </div>
@@ -525,28 +428,7 @@ const home = () => {
               <div className="absolute bottom-16 -left-12 z-0">
                 <Calendar size={200} className="text-teal-600 opacity-20" />
               </div>
-              <div className="relative z-10 max-w-sm mx-auto">
-                <div className="saas-demo-phone-video">
-                  <video
-                    src={
-                      theme === "dark"
-                        ? "/CalendarDark.mp4"
-                        : "/CalendarLight.mp4"
-                    }
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  >
-                    Seu navegador não suporta a tag de vídeo.
-                  </video>
-                </div>
-              </div>
+              <div className="relative z-10 max-w-sm mx-auto"></div>
             </div>
             <div>
               <h3 className="saas-feature-title">

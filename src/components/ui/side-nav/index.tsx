@@ -451,7 +451,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                         >
                           Ending:{" "}
                           {new Date(accountStatus.trialEnds).toLocaleDateString(
-                            "en-US",
+                            "pt-BR",
                             {
                               month: "short",
                               day: "numeric",

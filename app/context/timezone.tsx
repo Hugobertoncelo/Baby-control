@@ -111,7 +111,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
 
   const isDaylightSavingTime = (date: Date, timezone: string): boolean => {
     try {
-      const formatted = new Intl.DateTimeFormat("en-US", {
+      const formatted = new Intl.DateTimeFormat("pt-BR", {
         timeZone: timezone,
         timeZoneName: "long",
       }).format(date);
@@ -139,7 +139,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
 
       const dateIsDST = isDaylightSavingTime(date, userTimezone);
 
-      const formatter = new Intl.DateTimeFormat("en-US", {
+      const formatter = new Intl.DateTimeFormat("pt-BR", {
         ...formatOptions,
         timeZone: userTimezone,
       });
@@ -223,7 +223,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
 
       const today = new Date();
 
-      const formatter = new Intl.DateTimeFormat("en-US", {
+      const formatter = new Intl.DateTimeFormat("pt-BR", {
         year: "numeric",
         month: "numeric",
         day: "numeric",
@@ -247,7 +247,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      const formatter = new Intl.DateTimeFormat("en-US", {
+      const formatter = new Intl.DateTimeFormat("pt-BR", {
         year: "numeric",
         month: "numeric",
         day: "numeric",
@@ -290,7 +290,7 @@ export function TimezoneProvider({ children }: { children: ReactNode }) {
       const utcDate = new Date(isoString);
       if (isNaN(utcDate.getTime())) return null;
 
-      const formatter = new Intl.DateTimeFormat("en-US", {
+      const formatter = new Intl.DateTimeFormat("pt-BR", {
         timeZone: userTimezone,
         year: "numeric",
         month: "numeric",

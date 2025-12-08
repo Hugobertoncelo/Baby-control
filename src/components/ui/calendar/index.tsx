@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
-import './calendar.css'; // Import the CSS file with dark mode overrides
+import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/src/lib/utils";
+import "./calendar.css"; // Import the CSS file with dark mode overrides
 
 import {
   calendarVariants,
@@ -13,14 +13,14 @@ import {
   calendarDayVariants,
   calendarDayNamesVariants,
   calendarDayNameVariants,
-} from './calendar.styles';
-import { CalendarProps, CalendarPage } from './calendar.types';
-import { MonthSelectorPage } from './MonthSelectorPage';
-import { YearSelectorPage } from './YearSelectorPage';
+} from "./calendar.styles";
+import { CalendarProps, CalendarPage } from "./calendar.types";
+import { MonthSelectorPage } from "./MonthSelectorPage";
+import { YearSelectorPage } from "./YearSelectorPage";
 
 /**
  * Calendar component
- * 
+ *
  * A custom calendar component with styled appearance that follows the project's design system.
  * Now uses a page-based navigation system instead of dropdowns for month/year selection.
  *
@@ -36,14 +36,14 @@ import { YearSelectorPage } from './YearSelectorPage';
  * @example
  * ```tsx
  * // Single date selection
- * <Calendar 
+ * <Calendar
  *   selected={selectedDate}
  *   onSelect={setSelectedDate}
  *   variant="default"
  * />
- * 
+ *
  * // Date range selection
- * <Calendar 
+ * <Calendar
  *   mode="range"
  *   rangeFrom={fromDate}
  *   rangeTo={toDate}
@@ -55,36 +55,39 @@ import { YearSelectorPage } from './YearSelectorPage';
  * ```
  */
 const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
-  ({ 
-    className,
-    variant = "default",
-    selected,
-    onSelect,
-    rangeFrom,
-    rangeTo,
-    onRangeChange,
-    mode = "single",
-    month: monthProp,
-    minDate,
-    maxDate,
-    disabledDates = [],
-    isDateDisabled,
-    initialFocus,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      variant = "default",
+      selected,
+      onSelect,
+      rangeFrom,
+      rangeTo,
+      onRangeChange,
+      mode = "single",
+      month: monthProp,
+      minDate,
+      maxDate,
+      disabledDates = [],
+      isDateDisabled,
+      initialFocus,
+      ...props
+    },
+    ref
+  ) => {
     // State for the currently displayed month
     const [month, setMonth] = React.useState(() => {
-      return monthProp || (selected || rangeFrom || new Date());
+      return monthProp || selected || rangeFrom || new Date();
     });
-    
+
     // State for range selection
-    const [rangeSelectionState, setRangeSelectionState] = React.useState<'start' | 'end'>(
-      rangeFrom && !rangeTo ? 'end' : 'start'
-    );
-    
+    const [rangeSelectionState, setRangeSelectionState] = React.useState<
+      "start" | "end"
+    >(rangeFrom && !rangeTo ? "end" : "start");
+
     // State for page navigation
-    const [currentPage, setCurrentPage] = React.useState<CalendarPage>('dates');
-    
+    const [currentPage, setCurrentPage] = React.useState<CalendarPage>("dates");
+
     // State for year selector pagination
     const [yearDecadeStart, setYearDecadeStart] = React.useState(() => {
       return Math.floor(month.getFullYear() / 12) * 12;
@@ -99,19 +102,23 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
 
     // Get the first day of the month
     const firstDayOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-    
+
     // Get the last day of the month
-    const lastDayOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-    
+    const lastDayOfMonth = new Date(
+      month.getFullYear(),
+      month.getMonth() + 1,
+      0
+    );
+
     // Get the day of the week for the first day (0 = Sunday, 1 = Monday, etc.)
     const firstDayOfWeek = firstDayOfMonth.getDay();
-    
+
     // Calculate days from previous month to display
     const daysFromPrevMonth = firstDayOfWeek;
-    
+
     // Calculate total days in the current month
     const daysInMonth = lastDayOfMonth.getDate();
-    
+
     // Calculate how many days to show from the next month to complete the grid
     const daysFromNextMonth = 42 - daysFromPrevMonth - daysInMonth;
 
@@ -129,7 +136,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
     const isDisabled = (date: Date) => {
       // Check if date is in disabledDates array
       const isInDisabledDates = disabledDates.some(
-        disabledDate => 
+        (disabledDate) =>
           disabledDate.getFullYear() === date.getFullYear() &&
           disabledDate.getMonth() === date.getMonth() &&
           disabledDate.getDate() === date.getDate()
@@ -142,9 +149,16 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
       const isAfterMaxDate = maxDate ? date > maxDate : false;
 
       // Check if date is disabled by custom function
-      const isDisabledByFunction = isDateDisabled ? isDateDisabled(date) : false;
+      const isDisabledByFunction = isDateDisabled
+        ? isDateDisabled(date)
+        : false;
 
-      return isInDisabledDates || isBeforeMinDate || isAfterMaxDate || isDisabledByFunction;
+      return (
+        isInDisabledDates ||
+        isBeforeMinDate ||
+        isAfterMaxDate ||
+        isDisabledByFunction
+      );
     };
 
     // Function to check if a date is today
@@ -158,7 +172,10 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
     };
 
     // Helper to compare dates (ignoring time)
-    const isSameDay = (date1: Date | null | undefined, date2: Date | null | undefined): boolean => {
+    const isSameDay = (
+      date1: Date | null | undefined,
+      date2: Date | null | undefined
+    ): boolean => {
       if (!date1 || !date2) return false;
       return (
         date1.getFullYear() === date2.getFullYear() &&
@@ -166,7 +183,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         date1.getDate() === date2.getDate()
       );
     };
-    
+
     // Function to check if a date is selected (for single date mode OR first click in range mode)
     const isSelected = (date: Date) => {
       if (mode === "single") {
@@ -177,52 +194,60 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
       }
       return false;
     };
-    
+
     // Function to check if a date is the range start (only when range is complete)
     const isRangeStart = (date: Date) => {
-      return mode === "range" && rangeFrom && rangeTo && isSameDay(date, rangeFrom);
+      return (
+        mode === "range" && rangeFrom && rangeTo && isSameDay(date, rangeFrom)
+      );
     };
-    
+
     // Function to check if a date is the range end (only when range is complete)
     const isRangeEnd = (date: Date) => {
-      return mode === "range" && rangeFrom && rangeTo && isSameDay(date, rangeTo);
+      return (
+        mode === "range" && rangeFrom && rangeTo && isSameDay(date, rangeTo)
+      );
     };
-    
+
     // Function to check if a date is in the middle of the range (only when range is complete)
     const isInRange = (date: Date) => {
       if (mode !== "range" || !rangeFrom || !rangeTo) return false;
-      
+
       // Ensure dates are compared without time
       const normalizedDate = new Date(date);
       normalizedDate.setHours(0, 0, 0, 0);
-      
+
       const normalizedFrom = new Date(rangeFrom);
       normalizedFrom.setHours(0, 0, 0, 0);
-      
+
       const normalizedTo = new Date(rangeTo);
       normalizedTo.setHours(0, 0, 0, 0);
-      
+
       return normalizedDate > normalizedFrom && normalizedDate < normalizedTo;
     };
 
     // Function to format date for display
     const formatDate = (date: Date | null | undefined) => {
-      if (!date) return '';
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      if (!date) return "";
+      return date.toLocaleDateString("pt-BR", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
     };
 
     // Function to handle month selection
     const handleMonthSelect = (monthIndex: number) => {
       const newMonth = new Date(month.getFullYear(), monthIndex, 1);
       setMonth(newMonth);
-      setCurrentPage('dates'); // Return to dates view after selection
+      setCurrentPage("dates"); // Return to dates view after selection
     };
-    
+
     // Function to handle year selection
     const handleYearSelect = (year: number) => {
       const newMonth = new Date(year, month.getMonth(), 1);
       setMonth(newMonth);
-      setCurrentPage('dates'); // Return to dates view after selection
+      setCurrentPage("dates"); // Return to dates view after selection
     };
 
     // Functions for year decade navigation
@@ -248,11 +273,12 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         const clickedDay = new Date(date);
         clickedDay.setHours(0, 0, 0, 0);
 
-        if (rangeSelectionState === 'start') {
+        if (rangeSelectionState === "start") {
           // First click: Set the start date, clear the end date
           onRangeChange(clickedDay, null);
-          setRangeSelectionState('end'); // Move to selecting the end date
-        } else { // rangeSelectionState === 'end'
+          setRangeSelectionState("end"); // Move to selecting the end date
+        } else {
+          // rangeSelectionState === 'end'
           // Second click: Set the end date
           if (rangeFrom) {
             const normalizedFrom = new Date(rangeFrom);
@@ -261,17 +287,17 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
             // Only set the end date if it's strictly after the start date
             if (clickedDay > normalizedFrom) {
               onRangeChange(rangeFrom, clickedDay);
-              setRangeSelectionState('start'); // Reset to start selection for next range
+              setRangeSelectionState("start"); // Reset to start selection for next range
             } else if (isSameDay(clickedDay, normalizedFrom)) {
               // If the same day is clicked again, reset the selection
               onRangeChange(null, null);
-              setRangeSelectionState('start');
+              setRangeSelectionState("start");
             }
             // If clickedDay < normalizedFrom, do nothing (as per requirement 3)
           } else {
             // Should not happen if logic is correct, but as a fallback, start a new range
             onRangeChange(clickedDay, null);
-            setRangeSelectionState('end');
+            setRangeSelectionState("end");
           }
         }
       }
@@ -280,12 +306,20 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
     // Generate days for the calendar
     const days = React.useMemo(() => {
       const result = [];
-      
+
       // Add days from previous month
       const prevMonth = new Date(month.getFullYear(), month.getMonth() - 1, 1);
-      const daysInPrevMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate();
-      
-      for (let i = daysInPrevMonth - daysFromPrevMonth + 1; i <= daysInPrevMonth; i++) {
+      const daysInPrevMonth = new Date(
+        prevMonth.getFullYear(),
+        prevMonth.getMonth() + 1,
+        0
+      ).getDate();
+
+      for (
+        let i = daysInPrevMonth - daysFromPrevMonth + 1;
+        i <= daysInPrevMonth;
+        i++
+      ) {
         const date = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), i);
         result.push({
           date,
@@ -295,11 +329,11 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           isToday: isToday(date),
           isSelected: isSelected(date), // Will highlight 'from' date when 'to' is null
           isRangeStart: isRangeStart(date), // Only true when range is complete
-          isRangeEnd: isRangeEnd(date),     // Only true when range is complete
-          isInRange: isInRange(date),       // Only true when range is complete
+          isRangeEnd: isRangeEnd(date), // Only true when range is complete
+          isInRange: isInRange(date), // Only true when range is complete
         });
       }
-      
+
       // Add days from current month
       for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(month.getFullYear(), month.getMonth(), i);
@@ -311,14 +345,14 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           isToday: isToday(date),
           isSelected: isSelected(date), // Will highlight 'from' date when 'to' is null
           isRangeStart: isRangeStart(date), // Only true when range is complete
-          isRangeEnd: isRangeEnd(date),     // Only true when range is complete
-          isInRange: isInRange(date),       // Only true when range is complete
+          isRangeEnd: isRangeEnd(date), // Only true when range is complete
+          isInRange: isInRange(date), // Only true when range is complete
         });
       }
-      
+
       // Add days from next month
       const nextMonth = new Date(month.getFullYear(), month.getMonth() + 1, 1);
-      
+
       for (let i = 1; i <= daysFromNextMonth; i++) {
         const date = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), i);
         result.push({
@@ -329,55 +363,77 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           isToday: isToday(date),
           isSelected: isSelected(date), // Will highlight 'from' date when 'to' is null
           isRangeStart: isRangeStart(date), // Only true when range is complete
-          isRangeEnd: isRangeEnd(date),     // Only true when range is complete
-          isInRange: isInRange(date),       // Only true when range is complete
+          isRangeEnd: isRangeEnd(date), // Only true when range is complete
+          isInRange: isInRange(date), // Only true when range is complete
         });
       }
-      
+
       return result;
-    }, [month, selected, rangeFrom, rangeTo, disabledDates, minDate, maxDate, isDateDisabled, mode, rangeSelectionState]);
+    }, [
+      month,
+      selected,
+      rangeFrom,
+      rangeTo,
+      disabledDates,
+      minDate,
+      maxDate,
+      isDateDisabled,
+      mode,
+      rangeSelectionState,
+    ]);
 
     // Day names for the calendar header
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     // Render different content areas based on currentPage state
     const renderContentArea = () => {
       switch (currentPage) {
-        case 'months':
+        case "months":
           return (
             <MonthSelectorPage
               currentMonth={month.getMonth()}
               currentYear={month.getFullYear()}
-              variant={variant || 'default'}
+              variant={variant || "default"}
               onMonthSelect={handleMonthSelect}
             />
           );
-          
-        case 'years':
+
+        case "years":
           return (
             <YearSelectorPage
               currentYear={month.getFullYear()}
-              variant={variant || 'default'}
+              variant={variant || "default"}
               onYearSelect={handleYearSelect}
               minYear={1975}
               maxYear={new Date().getFullYear()}
               decadeStart={yearDecadeStart}
             />
           );
-          
+
         default:
-        case 'dates':
+        case "dates":
           return (
             <>
               {/* Day Names */}
-              <div className={cn(calendarDayNamesVariants({ variant }), "calendar-day-names")}>
+              <div
+                className={cn(
+                  calendarDayNamesVariants({ variant }),
+                  "calendar-day-names"
+                )}
+              >
                 {dayNames.map((day) => (
-                  <div key={day} className={cn(calendarDayNameVariants({ variant }), "calendar-day-name")}>
+                  <div
+                    key={day}
+                    className={cn(
+                      calendarDayNameVariants({ variant }),
+                      "calendar-day-name"
+                    )}
+                  >
                     {day}
                   </div>
                 ))}
               </div>
-              
+
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-0 calendar-grid">
                 {days.map((day, index) => (
@@ -390,7 +446,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
                       calendarDayVariants({
                         variant,
                         // Apply 'selected' style if it's the single selected date OR the 'from' date when 'to' is not yet selected
-                        selected: day.isSelected, 
+                        selected: day.isSelected,
                         // Apply range styles only when both from and to are selected
                         rangeStart: day.isRangeStart,
                         rangeEnd: day.isRangeEnd,
@@ -410,8 +466,19 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
                       day.isOutsideMonth && "calendar-day-outside"
                     )}
                     aria-label={day.date.toLocaleDateString()}
-                    aria-selected={(day.isSelected || day.isRangeStart || day.isRangeEnd) ? "true" : undefined}
-                    tabIndex={day.isSelected || day.isRangeStart || day.isRangeEnd || (initialFocus && index === 0) ? 0 : -1}
+                    aria-selected={
+                      day.isSelected || day.isRangeStart || day.isRangeEnd
+                        ? "true"
+                        : undefined
+                    }
+                    tabIndex={
+                      day.isSelected ||
+                      day.isRangeStart ||
+                      day.isRangeEnd ||
+                      (initialFocus && index === 0)
+                        ? 0
+                        : -1
+                    }
                   >
                     {day.dayOfMonth}
                   </button>
@@ -433,51 +500,65 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
           <div className="px-3 pt-2 pb-4 text-sm text-gray-700 flex justify-between items-center">
             <div className="flex flex-col">
               <span className="text-xs text-gray-500 font-medium">From</span>
-              <span className="font-semibold">{formatDate(rangeFrom) || '—'}</span>
+              <span className="font-semibold">
+                {formatDate(rangeFrom) || "—"}
+              </span>
             </div>
             <div className="h-px w-4 bg-gray-300 mx-2"></div>
             <div className="flex flex-col">
               <span className="text-xs text-gray-500 font-medium">To</span>
-              <span className="font-semibold">{formatDate(rangeTo) || '—'}</span>
+              <span className="font-semibold">
+                {formatDate(rangeTo) || "—"}
+              </span>
             </div>
           </div>
         )}
-        
+
         {/* Static Calendar Header - Always visible */}
-        <div className={cn(calendarHeaderVariants({ variant }), "calendar-header")}>
+        <div
+          className={cn(calendarHeaderVariants({ variant }), "calendar-header")}
+        >
           <button
             type="button"
-            onClick={currentPage === 'dates' ? handlePrevMonth : currentPage === 'years' ? handlePrevYearDecade : undefined}
-            disabled={currentPage === 'months'}
+            onClick={
+              currentPage === "dates"
+                ? handlePrevMonth
+                : currentPage === "years"
+                ? handlePrevYearDecade
+                : undefined
+            }
+            disabled={currentPage === "months"}
             className={cn(
-              calendarNavButtonVariants({ variant }), 
+              calendarNavButtonVariants({ variant }),
               "calendar-nav-button",
-              currentPage === 'months' && "opacity-50 cursor-not-allowed"
+              currentPage === "months" && "opacity-50 cursor-not-allowed"
             )}
-            aria-label={currentPage === 'years' ? "Previous years" : "Previous month"}
+            aria-label={
+              currentPage === "years" ? "Previous years" : "Previous month"
+            }
             tabIndex={-1} // Prevent default focus
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          
+
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => setCurrentPage('months')}
+              onClick={() => setCurrentPage("months")}
               className={cn(
-                calendarMonthSelectVariants({ variant }), 
+                calendarMonthSelectVariants({ variant }),
                 "calendar-month-select px-2 py-1 rounded cursor-pointer"
               )}
               aria-label="Select month"
             >
-              {month.toLocaleDateString('en-US', { month: 'long' })}
+              {month.toLocaleDateString("pt-BR", { month: "long" })}
             </button>
-            
+
             <button
               type="button"
-              onClick={() => setCurrentPage('years')}
+              onClick={() => setCurrentPage("years")}
               className={cn(
-                calendarMonthSelectVariants({ variant }), 
+                calendarMonthSelectVariants({ variant }),
                 "calendar-year-select px-2 py-1 rounded cursor-pointer"
               )}
               aria-label="Select year"
@@ -485,23 +566,29 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
               {month.getFullYear()}
             </button>
           </div>
-          
+
           <button
             type="button"
-            onClick={currentPage === 'dates' ? handleNextMonth : currentPage === 'years' ? handleNextYearDecade : undefined}
-            disabled={currentPage === 'months'}
+            onClick={
+              currentPage === "dates"
+                ? handleNextMonth
+                : currentPage === "years"
+                ? handleNextYearDecade
+                : undefined
+            }
+            disabled={currentPage === "months"}
             className={cn(
-              calendarNavButtonVariants({ variant }), 
+              calendarNavButtonVariants({ variant }),
               "calendar-nav-button",
-              currentPage === 'months' && "opacity-50 cursor-not-allowed"
+              currentPage === "months" && "opacity-50 cursor-not-allowed"
             )}
-            aria-label={currentPage === 'years' ? "Next years" : "Next month"}
+            aria-label={currentPage === "years" ? "Next years" : "Next month"}
             tabIndex={-1} // Prevent default focus
           >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
-        
+
         {/* Dynamic Content Area */}
         {renderContentArea()}
       </div>

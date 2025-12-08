@@ -616,7 +616,7 @@ export default function FamilyManagerPage() {
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-US", {
+    return new Date(dateString).toLocaleString("pt-BR", {
       year: "numeric",
       month: "short",
       day: "numeric",

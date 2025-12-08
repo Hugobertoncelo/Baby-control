@@ -85,7 +85,7 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
   // Format date range for display
   const formatDateRange = () => {
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString("en-US", {
+      return date.toLocaleDateString("pt-BR", {
         month: "2-digit",
         day: "2-digit",
         year: "numeric",
