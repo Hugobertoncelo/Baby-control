@@ -15,7 +15,8 @@
     "prisma:studio": "prisma studio",
     "prisma:studio:log": "prisma studio --schema=prisma/log-schema.prisma",
     "prisma:seed": "ts-node --project prisma/tsconfig.json prisma/seed.ts",
-    "postinstall": "npm install next"
+    "postinstall": "npm install next",
+    "prepare": "npm install"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
