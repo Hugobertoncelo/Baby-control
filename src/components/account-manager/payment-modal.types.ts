@@ -17,7 +17,7 @@ export interface PricingPlan {
   name: string;
   description: string;
   price: number;
-  interval: 'month' | 'year' | 'lifetime';
+  interval: "month" | "year" | "lifetime";
   features: string[];
   highlighted?: boolean;
   stripePriceId: string;

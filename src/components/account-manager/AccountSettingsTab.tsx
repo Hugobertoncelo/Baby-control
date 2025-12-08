@@ -27,22 +27,15 @@ import {
   Receipt,
 } from "lucide-react";
 
-/**
- * AccountSettingsTab Component
- *
- * First tab of the account manager that handles account and family settings
- */
 const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
   accountStatus,
   familyData,
   onDataRefresh,
 }) => {
-  // Edit states
   const [editingAccount, setEditingAccount] = useState(false);
   const [editingFamily, setEditingFamily] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // Form data states
   const [accountFormData, setAccountFormData] = useState({
     firstName: accountStatus.firstName,
     lastName: accountStatus.lastName || "",
@@ -54,21 +47,18 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     slug: familyData?.slug || "",
   });
 
-  // Password change form data
   const [passwordFormData, setPasswordFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  // Password change states
   const [passwordStep, setPasswordStep] = useState<"confirm" | "change">(
     "confirm"
   );
   const [changingPasswordLoading, setChangingPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
 
-  // Account closure states
   const [confirmingClosure, setConfirmingClosure] = useState(false);
   const [closurePasswordLoading, setClosurePasswordLoading] = useState(false);
   const [closurePasswordMessage, setClosurePasswordMessage] = useState("");
@@ -78,7 +68,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
   const [accountClosed, setAccountClosed] = useState(false);
   const [logoutCountdown, setLogoutCountdown] = useState(5);
 
-  // Password validation state for real-time feedback
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     lowercase: false,
@@ -87,27 +76,21 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     special: false,
   });
 
-  // Loading and error states
   const [savingAccount, setSavingAccount] = useState(false);
   const [savingFamily, setSavingFamily] = useState(false);
   const [downloadingData, setDownloadingData] = useState(false);
   const [closingAccount, setClosingAccount] = useState(false);
 
-  // Validation states
   const [slugError, setSlugError] = useState("");
   const [checkingSlug, setCheckingSlug] = useState(false);
 
-  // Success/error messages
   const [accountMessage, setAccountMessage] = useState("");
   const [familyMessage, setFamilyMessage] = useState("");
 
-  // Payment modal state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  // Payment history modal state
   const [showPaymentHistory, setShowPaymentHistory] = useState(false);
 
-  // Subscription status state
   const [subscriptionStatus, setSubscriptionStatus] = useState<{
     isActive: boolean;
     planType: string | null;
@@ -122,7 +105,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     useState(false);
   const [renewingSubscription, setRenewingSubscription] = useState(false);
 
-  // Check slug uniqueness
   const checkSlugUniqueness = useCallback(
     async (slug: string) => {
       if (
@@ -149,20 +131,19 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         const data = await response.json();
 
         if (response.status === 400) {
-          // Validation error (format or reserved word)
-          setSlugError(data.error || "Invalid slug format");
+          setSlugError(data.error || "Formato de slug inválido");
         } else if (
           data.success &&
           data.data &&
           data.data.id !== familyData.id
         ) {
-          setSlugError("This slug is already taken");
+          setSlugError("Essa lesma já foi escolhida.");
         } else {
           setSlugError("");
         }
       } catch (error) {
         console.error("Error checking slug:", error);
-        setSlugError("Error checking slug availability");
+        setSlugError("Erro ao verificar a disponibilidade do slug");
       } finally {
         setCheckingSlug(false);
       }
@@ -170,7 +151,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     [familyData?.id, familyData?.slug]
   );
 
-  // Handle account form submission
   const handleAccountSave = async () => {
     setSavingAccount(true);
     setAccountMessage("");
@@ -194,26 +174,26 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
 
       if (data.success) {
         setEditingAccount(false);
-        setAccountMessage("Account information updated successfully");
+        setAccountMessage("Informações da conta atualizadas com sucesso");
         onDataRefresh();
 
-        // Clear message after 3 seconds
         setTimeout(() => setAccountMessage(""), 3000);
       } else {
-        setAccountMessage(`Error: ${data.error || "Failed to update account"}`);
+        setAccountMessage(
+          `Error: ${data.error || "Falha ao atualizar a conta"}`
+        );
       }
     } catch (error) {
       console.error("Error updating account:", error);
-      setAccountMessage("Error: Failed to update account");
+      setAccountMessage("Erro: Falha ao atualizar a conta");
     } finally {
       setSavingAccount(false);
     }
   };
 
-  // Handle family form submission
   const handleFamilySave = async () => {
     if (slugError) {
-      setFamilyMessage("Please fix the slug error before saving");
+      setFamilyMessage("Por favor, corrija o erro de slug antes de salvar.");
       return;
     }
 
@@ -238,23 +218,23 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
 
       if (data.success) {
         setEditingFamily(false);
-        setFamilyMessage("Family information updated successfully");
+        setFamilyMessage("Informações da família atualizadas com sucesso");
         onDataRefresh();
 
-        // Clear message after 3 seconds
         setTimeout(() => setFamilyMessage(""), 3000);
       } else {
-        setFamilyMessage(`Error: ${data.error || "Failed to update family"}`);
+        setFamilyMessage(
+          `Error: ${data.error || "Não foi possível atualizar a família"}`
+        );
       }
     } catch (error) {
       console.error("Error updating family:", error);
-      setFamilyMessage("Error: Failed to update family");
+      setFamilyMessage("Erro: Falha ao atualizar a família");
     } finally {
       setSavingFamily(false);
     }
   };
 
-  // Handle data download
   const handleDataDownload = async () => {
     setDownloadingData(true);
 
@@ -279,17 +259,16 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         document.body.removeChild(a);
       } else {
         const data = await response.json();
-        alert(`Error: ${data.error || "Failed to download data"}`);
+        alert(`Error: ${data.error || "Falha ao baixar os dados"}`);
       }
     } catch (error) {
       console.error("Error downloading data:", error);
-      alert("Error: Failed to download data");
+      alert("Erro: Falha ao baixar os dados");
     } finally {
       setDownloadingData(false);
     }
   };
 
-  // Fetch subscription status
   const fetchSubscriptionStatus = useCallback(async () => {
     if (!accountStatus.subscriptionId || accountStatus.planType !== "sub") {
       return;
@@ -318,7 +297,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     }
   }, [accountStatus.subscriptionId, accountStatus.planType]);
 
-  // Fetch subscription status on mount and when account status changes
   React.useEffect(() => {
     if (
       accountStatus.subscriptionActive &&
@@ -334,19 +312,16 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     fetchSubscriptionStatus,
   ]);
 
-  // Handle renewing a cancelled subscription
   const handleRenewSubscription = async () => {
     setRenewingSubscription(true);
     try {
       const authToken = localStorage.getItem("authToken");
 
-      // Check if subscription is still valid (before period end)
       if (subscriptionStatus?.currentPeriodEnd) {
         const periodEndDate = new Date(subscriptionStatus.currentPeriodEnd);
         const now = new Date();
 
         if (now < periodEndDate) {
-          // Subscription is still active, just reactivate it
           const response = await fetch(
             "/api/accounts/payments/reactivate-subscription",
             {
@@ -363,27 +338,22 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
             await fetchSubscriptionStatus();
             onDataRefresh();
           } else {
-            alert(
-              `Error: ${data.error || "Failed to reactivate subscription"}`
-            );
+            alert(`Error: ${data.error || "Falha ao reativar a assinatura"}`);
           }
         } else {
-          // Subscription has ended, redirect to payment modal to create new subscription
           setShowPaymentModal(true);
         }
       } else {
-        // No period end info, redirect to payment modal
         setShowPaymentModal(true);
       }
     } catch (error) {
       console.error("Error renewing subscription:", error);
-      alert("Error: Failed to renew subscription");
+      alert("Erro: Falha ao renovar a assinatura");
     } finally {
       setRenewingSubscription(false);
     }
   };
 
-  // Real-time password validation for visual feedback
   const updatePasswordValidation = (password: string) => {
     setPasswordValidation({
       length: password.length >= 8,
@@ -394,10 +364,9 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     });
   };
 
-  // Handle password change step 1: confirm current password
   const handlePasswordConfirm = async () => {
     if (!passwordFormData.currentPassword) {
-      setPasswordMessage("Please enter your current password");
+      setPasswordMessage("Por favor, insira sua senha atual.");
       return;
     }
 
@@ -414,7 +383,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         },
         body: JSON.stringify({
           currentPassword: passwordFormData.currentPassword,
-          newPassword: passwordFormData.currentPassword, // Dummy new password for validation
+          newPassword: passwordFormData.currentPassword,
         }),
       });
 
@@ -422,34 +391,31 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
 
       if (
         response.status === 400 &&
-        data.error === "New password must be different from current password"
+        data.error === "A nova senha deve ser diferente da senha atual."
       ) {
-        // This means current password is correct, proceed to step 2
         setPasswordStep("change");
         setPasswordMessage("");
       } else if (
         response.status === 400 &&
-        data.error === "Current password is incorrect"
+        data.error === "A senha atual está incorreta"
       ) {
-        setPasswordMessage("Current password is incorrect");
+        setPasswordMessage("A senha atual está incorreta");
       } else if (!data.success) {
         setPasswordMessage(
-          `Error: ${data.error || "Failed to verify password"}`
+          `Error: ${data.error || "Falha ao verificar a senha"}`
         );
       }
     } catch (error) {
       console.error("Error verifying password:", error);
-      setPasswordMessage("Error: Failed to verify password");
+      setPasswordMessage("Erro: Falha ao verificar a senha");
     } finally {
       setChangingPasswordLoading(false);
     }
   };
 
-  // Handle password change step 2: set new password
   const handlePasswordChange = async () => {
-    // Validate new password
     if (!passwordFormData.newPassword) {
-      setPasswordMessage("Please enter a new password");
+      setPasswordMessage("Por favor, insira uma nova senha.");
       return;
     }
 
@@ -460,19 +426,17 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
       !passwordValidation.number ||
       !passwordValidation.special
     ) {
-      setPasswordMessage("New password does not meet the requirements");
+      setPasswordMessage("A nova senha não atende aos requisitos.");
       return;
     }
 
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
-      setPasswordMessage("Passwords do not match");
+      setPasswordMessage("As senhas não coincidem.");
       return;
     }
 
     if (passwordFormData.currentPassword === passwordFormData.newPassword) {
-      setPasswordMessage(
-        "New password must be different from current password"
-      );
+      setPasswordMessage("A nova senha deve ser diferente da senha atual.");
       return;
     }
 
@@ -496,7 +460,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        setPasswordMessage("Password changed successfully");
+        setPasswordMessage("Senha alterada com sucesso");
         setChangingPassword(false);
         setPasswordStep("confirm");
         setPasswordFormData({
@@ -512,22 +476,20 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
           special: false,
         });
 
-        // Clear message after 3 seconds
         setTimeout(() => setPasswordMessage(""), 3000);
       } else {
         setPasswordMessage(
-          `Error: ${data.error || "Failed to change password"}`
+          `Error: ${data.error || "Falha ao alterar a senha"}`
         );
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      setPasswordMessage("Error: Failed to change password");
+      setPasswordMessage("Erro: Falha ao alterar a senha");
     } finally {
       setChangingPasswordLoading(false);
     }
   };
 
-  // Handle cancel password change
   const handlePasswordCancel = () => {
     setChangingPassword(false);
     setPasswordStep("confirm");
@@ -546,11 +508,10 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
     setPasswordMessage("");
   };
 
-  // Handle closure password confirmation and account closure in one step
   const handleClosurePasswordConfirm = async () => {
     if (!closurePasswordData.password) {
       setClosurePasswordMessage(
-        "Please enter your password to confirm account closure"
+        "Por favor, insira sua senha para confirmar o encerramento da conta."
       );
       return;
     }
@@ -575,17 +536,14 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        // Set account as closed and start countdown
         setAccountClosed(true);
         setClosurePasswordLoading(false);
         setClosingAccount(false);
 
-        // Start countdown timer
         const countdownInterval = setInterval(() => {
           setLogoutCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(countdownInterval);
-              // Clear authentication and redirect
               localStorage.removeItem("authToken");
               localStorage.removeItem("accountUser");
               localStorage.removeItem("unlockTime");
@@ -599,27 +557,25 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         }, 1000);
       } else {
         setClosurePasswordMessage(
-          `Error: ${data.error || "Failed to close account"}`
+          `Error: ${data.error || "Falha ao fechar a conta"}`
         );
         setClosurePasswordLoading(false);
         setClosingAccount(false);
       }
     } catch (error) {
       console.error("Error closing account:", error);
-      setClosurePasswordMessage("Error: Failed to close account");
+      setClosurePasswordMessage("Erro: Falha ao fechar a conta");
       setClosurePasswordLoading(false);
       setClosingAccount(false);
     }
   };
 
-  // Handle cancel closure
   const handleClosureCancel = () => {
     setConfirmingClosure(false);
     setClosurePasswordData({ password: "" });
     setClosurePasswordMessage("");
   };
 
-  // Handle slug input change with debounced validation
   React.useEffect(() => {
     if (
       familyData &&
@@ -636,7 +592,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Account Information Section */}
       <div
         className={cn(styles.sectionBorder, "account-manager-section-border")}
       >
@@ -644,7 +599,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
           <h3
             className={cn(styles.sectionTitle, "account-manager-section-title")}
           >
-            Account Information
+            Informações da conta
           </h3>
           {!editingAccount && !changingPassword && (
             <div className="flex flex-col gap-2">
@@ -657,7 +612,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 }}
               >
                 <Edit className="h-4 w-4 mr-2" />
-                Edit
+                Editar
               </Button>
             </div>
           )}
@@ -669,7 +624,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               <div
                 className={cn(styles.formField, "account-manager-form-field")}
               >
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">Primeiro nome</Label>
                 <Input
                   id="firstName"
                   value={accountFormData.firstName}
@@ -685,7 +640,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               <div
                 className={cn(styles.formField, "account-manager-form-field")}
               >
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Sobrenome</Label>
                 <Input
                   id="lastName"
                   value={accountFormData.lastName}
@@ -700,7 +655,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               </div>
             </div>
             <div className={cn(styles.formField, "account-manager-form-field")}>
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Endereço de email</Label>
               <Input
                 id="email"
                 type="email"
@@ -720,12 +675,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 {savingAccount ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
+                    Salvando...
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Save
+                    Salvar
                   </>
                 )}
               </Button>
@@ -743,7 +698,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 disabled={savingAccount}
               >
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                Cancelar
               </Button>
             </div>
           </div>
@@ -752,16 +707,16 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
             {passwordStep === "confirm" ? (
               <>
                 <h4 className="text-lg font-medium mb-3">
-                  Confirm Current Password
+                  Confirme a senha atual
                 </h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  Please enter your current password to confirm you want to
-                  change it.
+                  Por favor, insira sua senha atual para confirmar que deseja
+                  alterá-la.
                 </p>
                 <div
                   className={cn(styles.formField, "account-manager-form-field")}
                 >
-                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Label htmlFor="currentPassword">Senha atual</Label>
                   <Input
                     id="currentPassword"
                     type="password"
@@ -773,7 +728,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       }))
                     }
                     disabled={changingPasswordLoading}
-                    placeholder="Enter your current password"
+                    placeholder="Digite sua senha atual"
                   />
                 </div>
 
@@ -788,12 +743,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     {changingPasswordLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Verifying...
+                        Verificando...
                       </>
                     ) : (
                       <>
                         <Key className="h-4 w-4 mr-2" />
-                        Continue
+                        Continuar
                       </>
                     )}
                   </Button>
@@ -803,22 +758,22 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     disabled={changingPasswordLoading}
                   >
                     <X className="h-4 w-4 mr-2" />
-                    Cancel
+                    Cancelar
                   </Button>
                 </div>
               </>
             ) : (
               <>
-                <h4 className="text-lg font-medium mb-3">Set New Password</h4>
+                <h4 className="text-lg font-medium mb-3">Definir nova senha</h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  Enter your new password. It must meet all the requirements
-                  below.
+                  Digite sua nova senha. Ela deve atender a todos os requisitos
+                  abaixo.
                 </p>
 
                 <div
                   className={cn(styles.formField, "account-manager-form-field")}
                 >
-                  <Label htmlFor="newPassword">New Password</Label>
+                  <Label htmlFor="newPassword">Nova Senha</Label>
                   <Input
                     id="newPassword"
                     type="password"
@@ -829,14 +784,14 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       updatePasswordValidation(newPassword);
                     }}
                     disabled={changingPasswordLoading}
-                    placeholder="Enter new password"
+                    placeholder="Digite a nova senha"
                   />
                 </div>
 
                 <div
                   className={cn(styles.formField, "account-manager-form-field")}
                 >
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Label htmlFor="confirmPassword">Confirme a nova senha</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -848,14 +803,13 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       }))
                     }
                     disabled={changingPasswordLoading}
-                    placeholder="Confirm new password"
+                    placeholder="Confirme a nova senha"
                   />
                 </div>
 
-                {/* Password Requirements */}
                 <div className="mt-3 space-y-2">
                   <p className="text-xs font-medium text-gray-700 mb-2">
-                    Password Requirements:
+                    Requisitos de senha:
                   </p>
                   <div className="grid grid-cols-1 gap-1 text-xs">
                     <div
@@ -874,7 +828,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       >
                         {passwordValidation.length && "✓"}
                       </span>
-                      At least 8 characters
+                      Pelo menos 8 caracteres
                     </div>
                     <div
                       className={`flex items-center gap-2 ${
@@ -892,7 +846,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       >
                         {passwordValidation.lowercase && "✓"}
                       </span>
-                      One lowercase letter (a-z)
+                      Uma letra minúscula (a-z)
                     </div>
                     <div
                       className={`flex items-center gap-2 ${
@@ -910,7 +864,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       >
                         {passwordValidation.uppercase && "✓"}
                       </span>
-                      One uppercase letter (A-Z)
+                      Uma letra maiúscula (A-Z)
                     </div>
                     <div
                       className={`flex items-center gap-2 ${
@@ -928,7 +882,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       >
                         {passwordValidation.number && "✓"}
                       </span>
-                      One number (0-9)
+                      Um número (0-9)
                     </div>
                     <div
                       className={`flex items-center gap-2 ${
@@ -946,7 +900,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       >
                         {passwordValidation.special && "✓"}
                       </span>
-                      One special character (!@#$%^&*)
+                      Um caractere especial (!@#$%^&*)
                     </div>
                   </div>
                 </div>
@@ -963,12 +917,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     {changingPasswordLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Changing Password...
+                        Alterando senha...
                       </>
                     ) : (
                       <>
                         <Save className="h-4 w-4 mr-2" />
-                        Change Password
+                        Alterar a senha
                       </>
                     )}
                   </Button>
@@ -978,7 +932,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     disabled={changingPasswordLoading}
                   >
                     <X className="h-4 w-4 mr-2" />
-                    Cancel
+                    Cancelar
                   </Button>
                 </div>
               </>
@@ -1012,7 +966,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 className="self-start"
               >
                 <Key className="h-4 w-4 mr-2" />
-                Reset Password
+                Redefinir senha
               </Button>
             </div>
           </div>
@@ -1041,7 +995,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         )}
       </div>
 
-      {/* Account Status Section */}
       <div
         className={cn(styles.sectionBorder, "account-manager-section-border")}
       >
@@ -1049,7 +1002,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
           <h3
             className={cn(styles.sectionTitle, "account-manager-section-title")}
           >
-            Account Status
+            Status da conta
           </h3>
         </div>
 
@@ -1062,16 +1015,16 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 </div>
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-purple-800 mb-2">
-                    Beta Participant
+                    Participante Beta
                   </h4>
                   <p className="text-purple-700 mb-3">
-                    Thank you for being a beta participant and helping Baby
-                    Control grow! You have full access to all features and
-                    functionality.
+                    Obrigado por participar do programa beta e ajudar o Baby
+                    Control a crescer! Você tem acesso completo a todos os
+                    recursos e funcionalidades.
                   </p>
                   <div className="flex items-center gap-2 text-sm text-purple-600">
                     <Shield className="h-4 w-4" />
-                    <span className="font-medium">Full Access</span>
+                    <span className="font-medium">Acesso total</span>
                   </div>
                 </div>
               </div>
@@ -1085,15 +1038,15 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   </div>
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                      No Family Created Yet
+                      Nenhuma família criada ainda
                     </h4>
                     <p className="text-blue-700 mb-3">
-                      Get started by creating your family to begin tracking
-                      activities.
+                      Comece criando sua família para começar a registrar as
+                      atividades.
                     </p>
                     {accountStatus.trialEnds && (
                       <p className="text-sm text-blue-600 mb-3">
-                        You have a trial that expires on{" "}
+                        Você tem um período de teste que expira em{" "}
                         {new Date(accountStatus.trialEnds).toLocaleDateString()}
                         .
                       </p>
@@ -1110,14 +1063,14 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   className="flex-1"
                 >
                   <Home className="h-4 w-4 mr-2" />
-                  Create Family
+                  Criar família
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowPaymentModal(true)}
                 >
                   <Crown className="h-4 w-4 mr-2" />
-                  Upgrade Plan
+                  Plano de atualização
                 </Button>
               </div>
             </div>
@@ -1141,7 +1094,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   )}
                 />
                 <Label className="font-medium capitalize">
-                  {accountStatus.accountStatus.replace("_", " ")} Account
+                  {accountStatus.accountStatus.replace("_", " ")} Conta
                 </Label>
               </div>
 
@@ -1180,7 +1133,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-gray-500" />
                       <Label className="text-sm">
-                        Trial ends{" "}
+                        O teste termina{" "}
                         {new Date(accountStatus.trialEnds).toLocaleDateString()}
                       </Label>
                     </div>
@@ -1190,7 +1143,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       className="mt-2"
                     >
                       <Crown className="h-4 w-4 mr-2" />
-                      Upgrade
+                      Atualizar
                     </Button>
                   </>
                 )}
@@ -1201,7 +1154,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
                     <Label className="text-sm">
-                      Subscription ends{" "}
+                      A assinatura termina{" "}
                       {new Date(accountStatus.planExpires).toLocaleDateString()}
                     </Label>
                   </div>
@@ -1229,8 +1182,8 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   >
                     <Crown className="h-4 w-4 mr-2" />
                     {accountStatus.trialEnds
-                      ? "Subscribe Now"
-                      : "Renew Subscription"}
+                      ? "Assine agora"
+                      : "Renovar assinatura"}
                   </Button>
                 </div>
               )}
@@ -1251,7 +1204,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                         className="self-start"
                       >
                         <CreditCard className="h-4 w-4 mr-2" />
-                        Manage Subscription
+                        Gerenciar assinatura
                       </Button>
                     )}
                   {subscriptionStatus?.cancelAtPeriodEnd && (
@@ -1265,12 +1218,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                       {renewingSubscription ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Renewing...
+                          Renovando...
                         </>
                       ) : (
                         <>
                           <Crown className="h-4 w-4 mr-2" />
-                          Renew Subscription
+                          Renovar assinatura
                         </>
                       )}
                     </Button>
@@ -1282,7 +1235,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     className="self-start"
                   >
                     <Receipt className="h-4 w-4 mr-2" />
-                    Payment History
+                    Histórico de pagamentos
                   </Button>
                 </div>
               )}
@@ -1291,7 +1244,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         </div>
       </div>
 
-      {/* Family Information Section - Only show if family data exists */}
       {familyData && (
         <div
           className={cn(styles.sectionBorder, "account-manager-section-border")}
@@ -1303,7 +1255,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 "account-manager-section-title"
               )}
             >
-              Family Information
+              Informações familiares
             </h3>
             {!editingFamily && (
               <Button
@@ -1315,7 +1267,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 }}
               >
                 <Edit className="h-4 w-4 mr-2" />
-                Edit
+                Editar
               </Button>
             )}
           </div>
@@ -1325,7 +1277,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               <div
                 className={cn(styles.formField, "account-manager-form-field")}
               >
-                <Label htmlFor="familyName">Family Name</Label>
+                <Label htmlFor="familyName">Nome de família</Label>
                 <Input
                   id="familyName"
                   value={familyFormData.name}
@@ -1341,7 +1293,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               <div
                 className={cn(styles.formField, "account-manager-form-field")}
               >
-                <Label htmlFor="familySlug">Family URL Slug</Label>
+                <Label htmlFor="familySlug">Slug de URL da família</Label>
                 <div className="relative">
                   <Input
                     id="familySlug"
@@ -1359,12 +1311,11 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     <Loader2 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
                   )}
                 </div>
-                {/* Validation feedback */}
                 <div className="min-h-[20px] mt-1">
                   {checkingSlug && (
                     <div className="flex items-center gap-1 text-blue-600 text-sm">
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      Checking availability...
+                      Verificando disponibilidade...
                     </div>
                   )}
                   {slugError && (
@@ -1379,12 +1330,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                     familyFormData.slug !== familyData?.slug && (
                       <div className="flex items-center gap-1 text-green-600 text-sm">
                         <span className="h-3 w-3 rounded-full bg-green-600"></span>
-                        URL is available
+                        O URL está disponível
                       </div>
                     )}
                 </div>
                 <p className="text-sm text-gray-500 mt-1 account-manager-info-text">
-                  This is your family's unique URL identifier
+                  Este é o identificador de URL exclusivo da sua família.
                 </p>
               </div>
 
@@ -1396,12 +1347,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   {savingFamily ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      Salvando...
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      Save
+                      Salvar
                     </>
                   )}
                 </Button>
@@ -1419,7 +1370,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   disabled={savingFamily}
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  Cancelar
                 </Button>
               </div>
             </div>
@@ -1458,7 +1409,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         </div>
       )}
 
-      {/* Data Download Section - Only show if family data exists */}
       {familyData && (
         <div
           className={cn(styles.sectionBorder, "account-manager-section-border")}
@@ -1470,7 +1420,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 "account-manager-section-title"
               )}
             >
-              Download Your Data
+              Baixe seus dados
             </h3>
           </div>
 
@@ -1483,12 +1433,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               {downloadingData ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Preparing Download...
+                  Preparando o download...
                 </>
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Download Data
+                  Baixar dados
                 </>
               )}
             </Button>
@@ -1496,7 +1446,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         </div>
       )}
 
-      {/* Account Closure Section */}
       <div
         className={cn(styles.sectionBorder, "account-manager-section-border")}
       >
@@ -1507,7 +1456,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               "account-manager-section-title text-red-700"
             )}
           >
-            Close Account
+            Fechar conta
           </h3>
         </div>
 
@@ -1520,11 +1469,10 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 </div>
               </div>
               <h4 className="text-xl font-semibold text-gray-800 mb-2">
-                Account Closed Successfully
+                Conta encerrada com sucesso.
               </h4>
               <p className="text-gray-600 mb-4">
-                Your account has been closed and a confirmation email has been
-                sent.
+                Sua conta foi encerrada e um e-mail de confirmação foi enviado.
               </p>
 
               <div className="bg-red-50 rounded-lg p-6 mb-4 max-w-md mx-auto">
@@ -1534,7 +1482,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                   </div>
                 </div>
                 <p className="text-red-700 font-medium mb-3">
-                  Logging out in {logoutCountdown} second
+                  Efetuando logout {logoutCountdown} segundo
                   {logoutCountdown !== 1 ? "s" : ""}...
                 </p>
                 <div className="w-full bg-red-200 rounded-full h-3">
@@ -1546,22 +1494,24 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
               </div>
 
               <div className="text-sm text-gray-500">
-                <p>Thank you for using Baby Control.</p>
-                <p>You will be redirected to the home page automatically.</p>
+                <p>Obrigado por usar o Baby Control.</p>
+                <p>
+                  Você será redirecionado automaticamente para a página inicial.
+                </p>
               </div>
             </div>
           </div>
         ) : confirmingClosure ? (
           <div className={cn(styles.formGroup, "account-manager-form-group")}>
             <h4 className="text-lg font-medium mb-3 text-red-700">
-              Confirm Account Closure
+              Confirmar encerramento da conta
             </h4>
             <p className="text-sm text-gray-600 mb-4">
-              Please enter your password to confirm you want to permanently
-              close your account.
+              Por favor, insira sua senha para confirmar que deseja encerrar
+              permanentemente sua conta.
             </p>
             <div className={cn(styles.formField, "account-manager-form-field")}>
-              <Label htmlFor="closurePassword">Password</Label>
+              <Label htmlFor="closurePassword">Senha</Label>
               <Input
                 id="closurePassword"
                 type="password"
@@ -1590,12 +1540,12 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 {closurePasswordLoading || closingAccount ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {closingAccount ? "Closing Account..." : "Verifying..."}
+                    {closingAccount ? "Fechando conta..." : "Verificando..."}
                   </>
                 ) : (
                   <>
                     <AlertTriangle className="h-4 w-4 mr-2" />
-                    Close Account
+                    Fechar conta
                   </>
                 )}
               </Button>
@@ -1605,7 +1555,7 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
                 disabled={closurePasswordLoading || closingAccount}
               >
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                Cancelar
               </Button>
             </div>
 
@@ -1635,22 +1585,22 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
           <div className={styles.formGroup}>
             <p className="text-sm text-gray-600 mb-4 account-manager-info-text">
               <AlertTriangle className="h-4 w-4 inline mr-1" />
-              Warning: Closing your account will permanently disable access to
-              your {familyData ? "family" : "account"} data. This action cannot
-              be undone. Please download your data first if you want to keep it.
+              Aviso: O encerramento da sua conta desativará permanentemente o
+              acesso a sua {familyData ? "family" : "account"} data. Esta ação
+              não pode ser desfeita. Faça o download dos seus dados primeiro se
+              quiser mantê-los.
             </p>
             <Button
               onClick={() => setConfirmingClosure(true)}
               variant="destructive"
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
-              Close Account
+              Fechar conta
             </Button>
           </div>
         )}
       </div>
 
-      {/* Payment Modal */}
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
@@ -1668,7 +1618,6 @@ const AccountSettingsTab: React.FC<AccountSettingsTabProps> = ({
         }}
       />
 
-      {/* Payment History Modal */}
       <PaymentHistory
         isOpen={showPaymentHistory}
         onClose={() => setShowPaymentHistory(false)}

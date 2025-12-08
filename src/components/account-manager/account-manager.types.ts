@@ -1,25 +1,7 @@
-/**
- * Types for the AccountManager component
- */
-
-/**
- * Props for the AccountManager component
- */
 export interface AccountManagerProps {
-  /**
-   * Whether the form is open
-   */
   isOpen: boolean;
-  
-  /**
-   * Function to call when the form should be closed
-   */
   onClose: () => void;
 }
-
-/**
- * Account status data structure
- */
 export interface AccountStatus {
   accountId: string;
   email: string;
@@ -37,12 +19,15 @@ export interface AccountStatus {
   trialEnds?: string;
   subscriptionActive: boolean;
   subscriptionId?: string;
-  accountStatus: 'active' | 'inactive' | 'trial' | 'expired' | 'closed' | 'no_family';
+  accountStatus:
+    | "active"
+    | "inactive"
+    | "trial"
+    | "expired"
+    | "closed"
+    | "no_family";
 }
 
-/**
- * Family data structure
- */
 export interface FamilyData {
   id: string;
   name: string;
@@ -51,45 +36,19 @@ export interface FamilyData {
   createdAt: string;
   updatedAt: string;
 }
-
-/**
- * Props for the AccountSettingsTab component
- */
 export interface AccountSettingsTabProps {
-  /**
-   * Account status data
-   */
   accountStatus: AccountStatus;
-  
-  /**
-   * Family data (optional - may be null if no family exists)
-   */
+
   familyData: FamilyData | null;
-  
-  /**
-   * Function to call when data needs to be refreshed
-   */
+
   onDataRefresh: () => void;
 }
 
-/**
- * Props for the FamilyPeopleTab component
- */
 export interface FamilyPeopleTabProps {
-  /**
-   * Family data
-   */
   familyData: FamilyData;
-  
-  /**
-   * Function to call when data needs to be refreshed
-   */
+
   onDataRefresh: () => void;
 }
-
-/**
- * Baby data structure for display
- */
 export interface BabyData {
   id: string;
   firstName: string;
@@ -102,9 +61,6 @@ export interface BabyData {
   age?: string;
 }
 
-/**
- * Caretaker data structure for display
- */
 export interface CaretakerData {
   id: string;
   loginId: string;
@@ -114,10 +70,6 @@ export interface CaretakerData {
   inactive: boolean;
   securityPin?: string;
 }
-
-/**
- * Contact data structure for display
- */
 export interface ContactData {
   id: string;
   name: string;

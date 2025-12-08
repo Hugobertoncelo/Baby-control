@@ -24,28 +24,27 @@ const TimelineV2ActivityList = ({
 
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Group activities by time of day
   const getTimeOfDay = (date: Date): string => {
     const hour = date.getHours();
     if (hour >= 0 && hour < 6) return "early-morning";
     if (hour >= 6 && hour < 12) return "morning";
     if (hour >= 12 && hour < 17) return "afternoon";
     if (hour >= 17 && hour < 21) return "evening";
-    return "night"; // 21:00 (9 PM) to 23:59 (11:59 PM)
+    return "night";
   };
 
   const getTimeOfDayLabel = (timeOfDay: string): string => {
     switch (timeOfDay) {
       case "early-morning":
-        return "Early Morning";
+        return "De manhã cedo";
       case "morning":
-        return "Morning";
+        return "Manhã";
       case "afternoon":
-        return "Afternoon";
+        return "Tarde";
       case "evening":
-        return "Evening";
+        return "Noite";
       case "night":
-        return "Night";
+        return "Noite";
       default:
         return timeOfDay;
     }
@@ -63,7 +62,6 @@ const TimelineV2ActivityList = ({
     activities.forEach((activity) => {
       let groupingTime: Date;
 
-      // Special logic for sleep activities
       if (
         "duration" in activity &&
         "startTime" in activity &&
@@ -99,7 +97,6 @@ const TimelineV2ActivityList = ({
       groups[timeOfDay].push(activity);
     });
 
-    // Sort activities within each group (newest first)
     Object.keys(groups).forEach((key) => {
       groups[key].sort((a, b) => {
         const timeA = new Date(getActivityTime(a));
@@ -108,7 +105,6 @@ const TimelineV2ActivityList = ({
       });
     });
 
-    // Return groups in order: night (9 PM-12 AM), evening, afternoon, morning, early-morning (12 AM-6 AM)
     return [
       { timeOfDay: "night", activities: groups.night },
       { timeOfDay: "evening", activities: groups.evening },
@@ -120,18 +116,14 @@ const TimelineV2ActivityList = ({
 
   return (
     <>
-      {/* Scrollable Content */}
       <div
         className="flex-1 overflow-y-auto relative bg-white timeline-activity-scroll-container"
         ref={contentRef}
       >
-        {/* Timeline View */}
         <div className="min-h-full bg-white relative timeline-activity-list px-5 pb-5">
-          {/* Fade gradient at top - from white to transparent */}
           <div className="absolute position: sticky top-0 left-0 right-0 h-2 bg-gradient-to-b from-white to-transparent pointer-events-none z-20 timeline-top-gradient"></div>
           {activities.length > 0 ? (
             <div className="relative">
-              {/* Timeline vertical line */}
               <div className="border-l-2 border-gray-200 pl-5 ml-2.5 timeline-container">
                 <AnimatePresence>
                   {groupedActivities.map((group, groupIndex) => (
@@ -150,14 +142,12 @@ const TimelineV2ActivityList = ({
                           : { duration: 0 }
                       }
                     >
-                      {/* Time of Day Header */}
                       <div className="flex items-center mb-3 ml-2">
                         <div className="text-sm font-semibold text-gray-500">
                           {getTimeOfDayLabel(group.timeOfDay)}
                         </div>
                       </div>
 
-                      {/* Activities in this time period */}
                       <div className="space-y-0 pb-4">
                         {group.activities.map((activity, activityIndex) => {
                           const style = getActivityStyle(activity);
@@ -201,7 +191,6 @@ const TimelineV2ActivityList = ({
                               );
 
                               if (isOvernight) {
-                                // Show dates for overnight entries
                                 const startDateFormatted =
                                   startTime.toLocaleDateString("pt-BR", {
                                     month: "short",
@@ -241,39 +230,38 @@ const TimelineV2ActivityList = ({
                                 "bg-gradient-to-br from-gray-400"
                               )
                             )
-                              return "#9ca3af"; // gray-400 - matches old timeline
+                              return "#9ca3af";
                             if (bgClass.includes("bg-sky-200"))
-                              return "#7dd3fc"; // sky-300 - matches old timeline
+                              return "#7dd3fc";
                             if (
                               bgClass.includes("bg-gradient-to-r from-teal-600")
                             )
-                              return "#0d9488"; // teal-600 - matches old timeline
+                              return "#0d9488";
                             if (bgClass.includes("bg-[#FFFF99]"))
-                              return "#fef08a"; // yellow-200 - matches old timeline
+                              return "#fef08a";
                             if (
                               bgClass.includes(
                                 "bg-gradient-to-r from-orange-400"
                               )
                             )
-                              return "#fb923c"; // orange-400 - matches old timeline
+                              return "#fb923c";
                             if (
                               bgClass.includes(
                                 "bg-gradient-to-r from-purple-200"
                               )
                             )
-                              return "#c084fc"; // purple-400 - matches old timeline
+                              return "#c084fc";
                             if (bgClass.includes("bg-[#4875EC]"))
-                              return "#4875EC"; // blue - matches old timeline
+                              return "#4875EC";
                             if (bgClass.includes("bg-[#EA6A5E]"))
-                              return "#EA6A5E"; // red - matches old timeline
+                              return "#EA6A5E";
                             if (bgClass.includes("bg-[#43B755]"))
-                              return "#43B755"; // green - matches old timeline
-                            return "#9ca3af"; // default gray
+                              return "#43B755";
+                            return "#9ca3af";
                           };
 
                           const activityColor = getActivityColor(style.bg);
 
-                          // Determine activity type class for styling
                           let activityTypeClass = "";
                           if ("duration" in activity)
                             activityTypeClass = "sleep";
@@ -335,14 +323,12 @@ const TimelineV2ActivityList = ({
                                 }
                               }
                             >
-                              {/* Event Icon */}
                               <div
                                 className={`flex-shrink-0 event-icon ${activityTypeClass}`}
                               >
                                 {getActivityIcon(activity)}
                               </div>
 
-                              {/* Event Content */}
                               <div className="flex-1 min-w-0 event-content">
                                 <Label className="text-sm font-semibold text-gray-900 mb-0.5 event-title">
                                   {description.type}
@@ -375,7 +361,7 @@ const TimelineV2ActivityList = ({
                                         parts.push("Still asleep");
                                       return parts.length > 0
                                         ? parts.join(" • ")
-                                        : "Sleep activity";
+                                        : "Atividade de sono";
                                     }
 
                                     if ("amount" in activity) {
@@ -442,7 +428,7 @@ const TimelineV2ActivityList = ({
                                       }
                                       return details.length > 0
                                         ? details.join(" • ")
-                                        : "Diaper change";
+                                        : "Troca de fralda";
                                     }
 
                                     if ("content" in activity) {
@@ -455,7 +441,7 @@ const TimelineV2ActivityList = ({
                                     if ("soapUsed" in activity) {
                                       const details = [];
                                       if (activity.soapUsed)
-                                        details.push("Soap");
+                                        details.push("Sabão");
                                       if (activity.shampooUsed)
                                         details.push("Shampoo");
                                       if (details.length === 0)
@@ -565,7 +551,6 @@ const TimelineV2ActivityList = ({
                                 </div>
                               </div>
 
-                              {/* Event Time */}
                               <div className="flex-shrink-0 text-xs text-gray-500 event-time">
                                 {timeStr}
                               </div>
@@ -586,17 +571,17 @@ const TimelineV2ActivityList = ({
                     <BabyIcon className="h-8 w-8 text-indigo-600" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-1 timeline-empty-state">
-                    No activities recorded
+                    Nenhuma atividade registrada
                   </h3>
                   <p className="text-sm text-gray-500 timeline-empty-description">
-                    Activities will appear here once you start tracking
+                    As atividades aparecerão aqui assim que você começar a
+                    registrá-las.
                   </p>
                 </div>
               </div>
             )
           )}
         </div>
-        {/* Loading State */}
         {isLoading && activities.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center h-full">
             <div className="text-center p-6">
@@ -604,7 +589,7 @@ const TimelineV2ActivityList = ({
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-1 timeline-empty-state">
-                Loading activities...
+                Carregando atividades...
               </h3>
             </div>
           </div>

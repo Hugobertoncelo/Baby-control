@@ -51,34 +51,38 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
 
   // Define filter types and their icons
   const filterOptions = [
-    { type: "sleep", icon: <Moon className="h-4 w-4" />, label: "Sleep" },
+    { type: "sleep", icon: <Moon className="h-4 w-4" />, label: "Dormir" },
     {
       type: "feed",
       icon: <Icon iconNode={bottleBaby} className="h-4 w-4" />,
-      label: "Feed",
+      label: "Alimentar",
     },
     {
       type: "diaper",
       icon: <Icon iconNode={diaper} className="h-4 w-4" />,
-      label: "Diaper",
+      label: "Fralda",
     },
-    { type: "bath", icon: <Bath className="h-4 w-4" />, label: "Bath" },
-    { type: "note", icon: <Edit className="h-4 w-4" />, label: "Note" },
-    { type: "pump", icon: <LampWallDown className="h-4 w-4" />, label: "Pump" },
+    { type: "bath", icon: <Bath className="h-4 w-4" />, label: "Banho" },
+    { type: "note", icon: <Edit className="h-4 w-4" />, label: "Observação" },
+    {
+      type: "pump",
+      icon: <LampWallDown className="h-4 w-4" />,
+      label: "Bombear",
+    },
     {
       type: "milestone",
       icon: <Trophy className="h-4 w-4" />,
-      label: "Milestone",
+      label: "Marco",
     },
     {
       type: "measurement",
       icon: <Ruler className="h-4 w-4" />,
-      label: "Measurement",
+      label: "Medição",
     },
     {
       type: "medicine",
       icon: <PillBottle className="h-4 w-4" />,
-      label: "Medicine",
+      label: "Medicamento",
     },
   ] as const;
 
@@ -178,7 +182,6 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
         </div>
       </div>
 
-      {/* Filters Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -186,7 +189,7 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
             size="sm"
             className="flex items-center gap-1 h-7 text-sm font-medium text-white hover:bg-transparent hover:text-white/90 p-0"
           >
-            Filters <ChevronDown className="h-4 w-4 ml-1" />
+            Filtros <ChevronDown className="h-4 w-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

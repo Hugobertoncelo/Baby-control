@@ -757,7 +757,7 @@ export const getActivityDescription = (
         ? activity.content.substring(0, 50) + "..."
         : activity.content;
     return {
-      type: activity.category || "Note",
+      type: activity.category || "Observação",
       details: `${time} - ${truncatedContent}`,
     };
   }
@@ -785,7 +785,7 @@ export const getActivityDescription = (
     }
 
     return {
-      type: "Bath",
+      type: "Banho",
       details: `${time} - ${bathDetails}${notesText}`,
     };
   }
@@ -841,7 +841,7 @@ export const getActivityDescription = (
       }
 
       return {
-        type: "Breast Pumping",
+        type: "Bombeamento de mama",
         details,
       };
     }
@@ -904,7 +904,7 @@ export const getActivityDescription = (
   }
 
   return {
-    type: "Activity",
+    type: "Atividade",
     details: "logged",
   };
 };

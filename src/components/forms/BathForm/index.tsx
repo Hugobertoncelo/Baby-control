@@ -37,15 +37,13 @@ export default function BathForm({
   const { showToast } = useToast();
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(() => {
     try {
-      // Try to parse the initialTime
       const date = new Date(initialTime);
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
-        return new Date(); // Fallback to current date if invalid
+        return new Date();
       }
       return date;
     } catch (error) {
-      return new Date(); // Fallback to current date
+      return new Date();
     }
   });
   const [formData, setFormData] = useState({
@@ -60,17 +58,14 @@ export default function BathForm({
 
   useEffect(() => {
     if (isOpen) {
-      // Only initialize if not already initialized, or if activity ID changed (switching between edit/new/different activities)
       const currentActivityId = activity?.id || null;
       const shouldInitialize =
         !isInitialized || currentActivityId !== lastActivityId;
 
       if (shouldInitialize) {
         if (activity) {
-          // Editing mode - populate with activity data
           try {
             const activityDate = new Date(activity.time);
-            // Check if the date is valid
             if (!isNaN(activityDate.getTime())) {
               setSelectedDateTime(activityDate);
             }
@@ -81,35 +76,28 @@ export default function BathForm({
             notes: activity.notes || "",
           });
 
-          // Store the initial time used for editing
           setInitializedTime(activity.time);
         } else {
-          // New entry mode - initialize from initialTime prop
           try {
             const initialDate = new Date(initialTime);
-            // Check if the date is valid
             if (!isNaN(initialDate.getTime())) {
               setSelectedDateTime(initialDate);
             }
           } catch (error) {}
 
-          // Store the initial time used for new entry
           setInitializedTime(initialTime);
         }
 
-        // Mark as initialized and track activity ID
         setIsInitialized(true);
         setLastActivityId(currentActivityId);
       }
     } else if (!isOpen) {
-      // Reset initialization flag and stored time when form closes
       setIsInitialized(false);
       setInitializedTime(null);
       setLastActivityId(null);
     }
   }, [isOpen, activity, initialTime, isInitialized, lastActivityId]);
 
-  // Handle date/time change
   const handleDateTimeChange = (date: Date) => {
     setSelectedDateTime(date);
   };
@@ -135,21 +123,18 @@ export default function BathForm({
     setLoading(true);
 
     try {
-      // Convert local time to UTC ISO string
       const utcTimeString = toUTCString(selectedDateTime);
 
       const payload = {
         babyId,
-        time: utcTimeString, // Send the UTC ISO string instead of local time
+        time: utcTimeString,
         soapUsed: formData.soapUsed,
         shampooUsed: formData.shampooUsed,
         notes: formData.notes || null,
       };
 
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
-      // Determine if we're creating a new record or updating an existing one
       const url = activity
         ? `/api/bath-log?id=${activity.id}`
         : "/api/bath-log";
@@ -165,7 +150,6 @@ export default function BathForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
@@ -173,27 +157,24 @@ export default function BathForm({
             "tracking baths"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
             showToast({
               variant: "error",
               title: "Error",
-              message: errorData.error || "Failed to save bath log",
+              message: errorData.error || "Falha ao salvar o registro de banho",
               duration: 5000,
             });
             return;
           }
         }
 
-        // For other errors, parse and show error message
         const errorData = await response.json();
         showToast({
           variant: "error",
           title: "Error",
-          message: errorData.error || "Failed to save bath log",
+          message: errorData.error || "Falha ao salvar o registro de banho",
           duration: 5000,
         });
         return;
@@ -202,14 +183,13 @@ export default function BathForm({
       const data = await response.json();
 
       if (data.success) {
-        // Close the form and trigger the success callback
         onClose();
         if (onSuccess) onSuccess();
       } else {
         showToast({
           variant: "error",
           title: "Error",
-          message: data.error || "Failed to save bath log",
+          message: data.error || "Falha ao salvar o registro de banho",
           duration: 5000,
         });
       }
@@ -217,7 +197,7 @@ export default function BathForm({
       showToast({
         variant: "error",
         title: "Error",
-        message: "An unexpected error occurred. Please try again.",
+        message: "Ocorreu um erro inesperado. Tente novamente.",
         duration: 5000,
       });
     } finally {
@@ -229,25 +209,23 @@ export default function BathForm({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={activity ? "Edit Bath" : "New Bath"}
+      title={activity ? "Editar Banho" : "Banho Novo"}
     >
       <FormPageContent>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Date/Time Input */}
             <div className="space-y-2">
-              <Label>Date & Time</Label>
+              <Label>Data e hora</Label>
               <DateTimePicker
                 value={selectedDateTime}
                 onChange={handleDateTimeChange}
                 disabled={loading}
-                placeholder="Select bath time..."
+                placeholder="Selecione a hora do banho..."
               />
             </div>
 
-            {/* Bath Options */}
             <div className="space-y-2">
-              <Label>Bath Options</Label>
+              <Label>Opções de Banho</Label>
               <div className="flex flex-col space-y-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -259,7 +237,7 @@ export default function BathForm({
                     variant="success"
                   />
                   <Label htmlFor="soapUsed" className="cursor-pointer">
-                    Soap Used
+                    Sabão usado
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -272,19 +250,18 @@ export default function BathForm({
                     variant="success"
                   />
                   <Label htmlFor="shampooUsed" className="cursor-pointer">
-                    Shampoo Used
+                    Shampoo usado
                   </Label>
                 </div>
               </div>
             </div>
 
-            {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">Notas</Label>
               <Textarea
                 id="notes-bath-form"
                 name="notes"
-                placeholder="Enter any notes about the bath"
+                placeholder="Insira quaisquer observações sobre o banho."
                 value={formData.notes}
                 onChange={handleInputChange}
                 rows={3}
@@ -302,10 +279,10 @@ export default function BathForm({
             onClick={onClose}
             disabled={loading}
           >
-            Cancel
+            Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : activity ? "Update" : "Save"}
+            {loading ? "Salvando..." : activity ? "Atualizar" : "Salvar"}
           </Button>
         </div>
       </FormPageFooter>

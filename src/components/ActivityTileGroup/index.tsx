@@ -457,7 +457,7 @@ export function ActivityTileGroup({
               }
               title={
                 selectedBaby?.id && sleepingBabies.has(selectedBaby.id)
-                  ? "End Sleep"
+                  ? "Fim do sono"
                   : "Dormir"
               }
               variant="sleep"

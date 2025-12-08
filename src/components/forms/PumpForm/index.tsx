@@ -8,13 +8,6 @@ import { Textarea } from "@/src/components/ui/textarea";
 import { Label } from "@/src/components/ui/label";
 import { DateTimePicker } from "@/src/components/ui/date-time-picker";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
-import {
   FormPage,
   FormPageContent,
   FormPageFooter,
@@ -49,35 +42,31 @@ export default function PumpForm({
   const [selectedStartDateTime, setSelectedStartDateTime] = useState<Date>(
     () => {
       try {
-        // Initialize with current time - 15 minutes as default (start time is in the past)
         const date = new Date(initialTime);
         date.setMinutes(date.getMinutes() - 15);
-        // Check if the date is valid
         if (isNaN(date.getTime())) {
           const now = new Date();
           now.setMinutes(now.getMinutes() - 15);
-          return now; // Fallback to current date - 15 min if invalid
+          return now;
         }
         return date;
       } catch (error) {
         const now = new Date();
         now.setMinutes(now.getMinutes() - 15);
-        return now; // Fallback to current date - 15 min
+        return now;
       }
     }
   );
 
   const [selectedEndDateTime, setSelectedEndDateTime] = useState<Date>(() => {
     try {
-      // Initialize with current time as default (end time is now)
       const date = new Date(initialTime);
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
-        return new Date(); // Fallback to current date if invalid
+        return new Date();
       }
       return date;
     } catch (error) {
-      return new Date(); // Fallback to current date
+      return new Date();
     }
   });
 
@@ -87,19 +76,16 @@ export default function PumpForm({
     leftAmount: "",
     rightAmount: "",
     totalAmount: "",
-    unitAbbr: "OZ", // Default unit
+    unitAbbr: "OZ",
     notes: "",
   });
   const [loading, setLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializedTime, setInitializedTime] = useState<string | null>(null);
 
-  // Handle start date/time change
   const handleStartDateTimeChange = (date: Date) => {
     setSelectedStartDateTime(date);
 
-    // Also update the time in formData for compatibility with existing code
-    // Format the date as ISO string for storage in formData
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -110,11 +96,9 @@ export default function PumpForm({
     setFormData((prev) => ({ ...prev, startTime: formattedTime }));
   };
 
-  // Handle end date/time change
   const handleEndDateTimeChange = (date: Date) => {
     setSelectedEndDateTime(date);
 
-    // Format the date as ISO string for storage in formData
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -128,15 +112,12 @@ export default function PumpForm({
   useEffect(() => {
     if (isOpen && !isInitialized) {
       if (activity) {
-        // Editing mode - populate with activity data
         try {
-          // Set the start date time
           const startDate = new Date(activity.startTime);
           if (!isNaN(startDate.getTime())) {
             setSelectedStartDateTime(startDate);
           }
 
-          // Set the end date time if it exists
           if (activity.endTime) {
             const endDate = new Date(activity.endTime);
             if (!isNaN(endDate.getTime())) {
@@ -145,7 +126,6 @@ export default function PumpForm({
           }
         } catch (error) {}
 
-        // Format the start date for the time property
         const startDate = new Date(activity.startTime);
         const startYear = startDate.getFullYear();
         const startMonth = String(startDate.getMonth() + 1).padStart(2, "0");
@@ -154,7 +134,6 @@ export default function PumpForm({
         const startMinutes = String(startDate.getMinutes()).padStart(2, "0");
         const formattedStartTime = `${startYear}-${startMonth}-${startDay}T${startHours}:${startMinutes}`;
 
-        // Format the end date for the time property if it exists
         let formattedEndTime = "";
         if (activity.endTime) {
           const endDate = new Date(activity.endTime);
@@ -176,19 +155,15 @@ export default function PumpForm({
           notes: activity.notes || "",
         });
       } else {
-        // New entry mode - initialize from initialTime prop
         try {
           const date = new Date(initialTime);
           if (!isNaN(date.getTime())) {
-            // Set start time to 15 minutes in the past
             const startDate = new Date(date);
             startDate.setMinutes(startDate.getMinutes() - 15);
             setSelectedStartDateTime(startDate);
 
-            // Set end time to current time
             setSelectedEndDateTime(date);
 
-            // Also update the times in formData
             const startYear = startDate.getFullYear();
             const startMonth = String(startDate.getMonth() + 1).padStart(
               2,
@@ -217,26 +192,21 @@ export default function PumpForm({
           }
         } catch (error) {}
 
-        // Store the initial time used for new entry
         setInitializedTime(initialTime);
       }
 
-      // Mark as initialized
       setIsInitialized(true);
     } else if (!isOpen) {
-      // Reset initialization flag and stored time when form closes
       setIsInitialized(false);
       setInitializedTime(null);
     }
   }, [isOpen, activity, initialTime]);
 
-  // Handle amount increment/decrement
   const incrementAmount = (field: "leftAmount" | "rightAmount") => {
     const currentAmount = parseFloat(formData[field] || "0");
     const step = formData.unitAbbr === "ML" ? 5 : 0.5;
-    const newAmount = (currentAmount + step).toFixed(1); // Only show one decimal place
+    const newAmount = (currentAmount + step).toFixed(1);
 
-    // Update the field and recalculate total
     updateAmountField(field, newAmount);
   };
 
@@ -244,25 +214,20 @@ export default function PumpForm({
     const currentAmount = parseFloat(formData[field] || "0");
     const step = formData.unitAbbr === "ML" ? 5 : 0.5;
     if (currentAmount >= step) {
-      const newAmount = (currentAmount - step).toFixed(1); // Only show one decimal place
+      const newAmount = (currentAmount - step).toFixed(1);
 
-      // Update the field and recalculate total
       updateAmountField(field, newAmount);
     }
   };
 
-  // Update amount field and recalculate total
   const updateAmountField = (
     field: "leftAmount" | "rightAmount" | "totalAmount",
     value: string
   ) => {
-    // For amount fields, allow any numeric values
     if (value === "" || /^\d*\.?\d*$/.test(value)) {
       if (field === "leftAmount" || field === "rightAmount") {
-        // Update the specific field
         setFormData((prev) => ({ ...prev, [field]: value }));
 
-        // Recalculate total
         const leftVal = field === "leftAmount" ? value : formData.leftAmount;
         const rightVal = field === "rightAmount" ? value : formData.rightAmount;
 
@@ -272,10 +237,9 @@ export default function PumpForm({
         setFormData((prev) => ({
           ...prev,
           [field]: value,
-          totalAmount: (leftNum + rightNum).toFixed(1), // Only show one decimal place
+          totalAmount: (leftNum + rightNum).toFixed(1),
         }));
       } else {
-        // Just update the total field directly
         setFormData((prev) => ({ ...prev, totalAmount: value }));
       }
     }
@@ -306,22 +270,19 @@ export default function PumpForm({
     setLoading(true);
 
     try {
-      // Calculate duration between start and end times
       let duration: number | undefined = undefined;
       duration = Math.round(
         (selectedEndDateTime.getTime() - selectedStartDateTime.getTime()) /
           60000
-      ); // Convert ms to minutes
+      );
 
-      // Convert local times to UTC ISO strings using the selectedDateTime objects
       const utcStartTime = toUTCString(selectedStartDateTime);
 
-      // Convert end time to UTC
       const utcEndTime = toUTCString(selectedEndDateTime);
 
       const payload = {
         babyId,
-        startTime: utcStartTime, // Send the UTC ISO string instead of local time
+        startTime: utcStartTime,
         endTime: utcEndTime,
         duration,
         leftAmount: formData.leftAmount
@@ -337,13 +298,11 @@ export default function PumpForm({
         notes: formData.notes || undefined,
       };
 
-      // Determine if we're creating a new record or updating an existing one
       const url = activity
         ? `/api/pump-log?id=${activity.id}`
         : "/api/pump-log";
       const method = activity ? "PUT" : "POST";
 
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
       const response = await fetch(url, {
@@ -356,25 +315,22 @@ export default function PumpForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError } = await handleExpirationError(
             response,
             showToast,
-            "logging pump sessions"
+            "registrando sessões de bomba"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
         }
 
-        // For other errors, parse and display
         const data = await response.json();
         showToast({
           variant: "error",
           title: "Error",
-          message: data.error || "Failed to save pump log",
+          message: data.error || "Falha ao salvar o registro da bomba",
           duration: 5000,
         });
         return;
@@ -383,14 +339,13 @@ export default function PumpForm({
       const data = await response.json();
 
       if (data.success) {
-        // Close the form and trigger the success callback
         onClose();
         if (onSuccess) onSuccess();
       } else {
         showToast({
           variant: "error",
           title: "Error",
-          message: data.error || "Failed to save pump log",
+          message: data.error || "Falha ao salvar o registro da bomba",
           duration: 5000,
         });
       }
@@ -398,7 +353,7 @@ export default function PumpForm({
       showToast({
         variant: "error",
         title: "Error",
-        message: "An unexpected error occurred. Please try again.",
+        message: "Ocorreu um erro inesperado. Tente novamente.",
         duration: 5000,
       });
     } finally {
@@ -410,41 +365,38 @@ export default function PumpForm({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={activity ? "Edit Pump" : "New Pump"}
+      title={activity ? "Editar bomba" : "Nova Bomba"}
       description={
         activity
-          ? "Update details about your pumping session"
-          : "Record details about your pumping session"
+          ? "Atualize os detalhes sobre sua sessão de extração de leite."
+          : "Anote os detalhes da sua sessão de extração de leite."
       }
     >
       <FormPageContent>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Start Time Input */}
             <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time</Label>
+              <Label htmlFor="startTime">Hora de início</Label>
               <DateTimePicker
                 value={selectedStartDateTime}
                 onChange={handleStartDateTimeChange}
                 disabled={loading}
-                placeholder="Select start time..."
+                placeholder="Selecione o horário de início..."
               />
             </div>
 
-            {/* End Time Input */}
             <div className="space-y-2">
-              <Label htmlFor="endTime">End Time</Label>
+              <Label htmlFor="endTime">Hora de término</Label>
               <DateTimePicker
                 value={selectedEndDateTime}
                 onChange={handleEndDateTimeChange}
                 disabled={loading}
-                placeholder="Select end time..."
+                placeholder="Selecione o horário de término..."
               />
             </div>
 
-            {/* Unit Selection with Buttons - Moved above amount inputs */}
             <div className="space-y-2">
-              <Label htmlFor="unitAbbr">Unit</Label>
+              <Label htmlFor="unitAbbr">Unidade</Label>
               <div className="flex space-x-2">
                 <Button
                   type="button"
@@ -455,7 +407,7 @@ export default function PumpForm({
                   }
                   disabled={loading}
                 >
-                  oz
+                  l
                 </Button>
                 <Button
                   type="button"
@@ -471,9 +423,8 @@ export default function PumpForm({
               </div>
             </div>
 
-            {/* Left Amount Input - Now on its own row */}
             <div className="space-y-2">
-              <Label htmlFor="leftAmount">Left Amount</Label>
+              <Label htmlFor="leftAmount">Valor restante</Label>
               <div className="flex items-center">
                 <Button
                   type="button"
@@ -513,9 +464,8 @@ export default function PumpForm({
               </div>
             </div>
 
-            {/* Right Amount Input - Now on its own row */}
             <div className="space-y-2">
-              <Label htmlFor="rightAmount">Right Amount</Label>
+              <Label htmlFor="rightAmount">Quantidade certa</Label>
               <div className="flex items-center">
                 <Button
                   type="button"
@@ -555,9 +505,8 @@ export default function PumpForm({
               </div>
             </div>
 
-            {/* Total Amount */}
             <div className="space-y-2">
-              <Label htmlFor="totalAmount">Total Amount</Label>
+              <Label htmlFor="totalAmount">Montante total</Label>
               <div className="flex">
                 <Input
                   id="totalAmount"
@@ -575,13 +524,12 @@ export default function PumpForm({
               </div>
             </div>
 
-            {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">Notas</Label>
               <Textarea
                 id="notes-pump-form"
                 name="notes"
-                placeholder="Enter any notes about the pumping session"
+                placeholder="Insira quaisquer observações sobre a sessão de bombeamento."
                 value={formData.notes}
                 onChange={handleInputChange}
                 rows={3}
@@ -599,10 +547,10 @@ export default function PumpForm({
             onClick={onClose}
             disabled={loading}
           >
-            Cancel
+            Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : activity ? "Update" : "Save"}
+            {loading ? "Salvando..." : activity ? "Atualizar" : "Salvar"}
           </Button>
         </div>
       </FormPageFooter>

@@ -432,7 +432,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                     "calendar-day-view-group-title"
                   )}
                 >
-                  Evening
+                  Noite
                 </h3>
               </div>
 

@@ -230,7 +230,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (totalSleepMinutes > 0) {
       tiles.push({
         filter: "sleep",
-        label: "Total Sleep",
+        label: "Sono total",
         value: formatMinutes(totalSleepMinutes),
         icon: <Moon className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -278,7 +278,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (diaperCount > 0) {
       tiles.push({
         filter: "diaper",
-        label: "Diapers",
+        label: "Fraldas",
         value: diaperCount.toString(),
         icon: <Icon iconNode={diaper} className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -291,7 +291,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (poopCount > 0) {
       tiles.push({
         filter: "poop",
-        label: "Poops",
+        label: "Cocô",
         value: poopCount.toString(),
         icon: <Icon iconNode={diaper} className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -304,7 +304,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (medicineCount > 0) {
       tiles.push({
         filter: "medicine",
-        label: "Medicine",
+        label: "Medicamento",
         value: `${medicineCount}x`,
         icon: <PillBottle className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -317,7 +317,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (noteCount > 0) {
       tiles.push({
         filter: "note",
-        label: "Notes",
+        label: "Notas",
         value: noteCount.toString(),
         icon: <Edit className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -330,7 +330,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (bathCount > 0) {
       tiles.push({
         filter: "bath",
-        label: "Baths",
+        label: "Banhos",
         value: bathCount.toString(),
         icon: <Bath className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -343,7 +343,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (pumpCount > 0) {
       tiles.push({
         filter: "pump",
-        label: "Pump",
+        label: "Bombear",
         value: pumpCount.toString(),
         icon: <LampWallDown className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -356,7 +356,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (milestoneCount > 0) {
       tiles.push({
         filter: "milestone",
-        label: "Milestones",
+        label: "Conquistas",
         value: milestoneCount.toString(),
         icon: <Trophy className="h-full w-full" />,
         bgColor: "bg-gray-50",
@@ -369,7 +369,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (measurementCount > 0) {
       tiles.push({
         filter: "measurement",
-        label: "Measurements",
+        label: "Medições",
         value: measurementCount.toString(),
         icon: <Ruler className="h-full w-full" />,
         bgColor: "bg-gray-50",
