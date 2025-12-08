@@ -22,8 +22,7 @@ import BabyQuickInfo from "@/src/components/BabyQuickInfo";
 import SetupWizard from "@/src/components/SetupWizard";
 import { DynamicTitle } from "@/src/components/ui/dynamic-title";
 import { AccountButton } from "@/src/components/ui/account-button";
-import AccountManager from "@/src/components/account-manager";
-import PaymentModal from "@/src/components/account-manager/PaymentModal";
+
 import AccountExpirationBanner from "@/src/components/ui/account-expiration-banner";
 
 const fontSans = FontSans({
@@ -705,22 +704,6 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
       <DebugSessionTimer />
       <TimezoneDebug />
-
-      <AccountManager
-        isOpen={showAccountManager}
-        onClose={() => setShowAccountManager(false)}
-      />
-
-      {isAccountAuth && paymentAccountStatus && (
-        <PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          accountStatus={paymentAccountStatus}
-          onPaymentSuccess={() => {
-            setShowPaymentModal(false);
-          }}
-        />
-      )}
     </>
   );
 }

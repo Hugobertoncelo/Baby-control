@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChangelogModal from "@/src/components/modals/changelog";
 import FeedbackForm from "@/src/components/forms/FeedbackForm";
-import PaymentModal from "@/src/components/account-manager/PaymentModal";
 import {
   X,
   Settings,
@@ -493,47 +492,6 @@ export const SideNav: React.FC<SideNavProps> = ({
               if (!nonModal) {
                 onClose();
               }
-            }}
-          />
-        )}
-
-        {/* Payment Modal - only shown in SaaS mode */}
-        {isSaasMode && isAccountAuth && accountStatus && (
-          <PaymentModal
-            isOpen={showPaymentModal}
-            onClose={() => setShowPaymentModal(false)}
-            accountStatus={{
-              accountStatus: accountStatus.accountStatus,
-              planType: accountStatus.planType || null,
-              subscriptionActive: accountStatus.subscriptionActive,
-              trialEnds: accountStatus.trialEnds || null,
-              planExpires: accountStatus.planExpires || null,
-              subscriptionId: null,
-            }}
-            onPaymentSuccess={() => {
-              setShowPaymentModal(false);
-              const fetchAccountStatus = async () => {
-                const authToken = localStorage.getItem("authToken");
-                if (!authToken) return;
-
-                try {
-                  const response = await fetch("/api/accounts/status", {
-                    headers: {
-                      Authorization: `Bearer ${authToken}`,
-                    },
-                  });
-
-                  if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                      setAccountStatus(data.data);
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error refreshing account status:", error);
-                }
-              };
-              fetchAccountStatus();
             }}
           />
         )}

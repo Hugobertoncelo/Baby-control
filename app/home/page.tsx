@@ -5,7 +5,6 @@ import { Button } from "@/src/components/ui/button";
 import { ThemeToggle } from "@/src/components/ui/theme-toggle";
 import { AccountButton } from "@/src/components/ui/account-button";
 import AccountModal from "@/src/components/modals/AccountModal";
-import AccountManager from "@/src/components/account-manager";
 import { useTheme } from "@/src/context/theme";
 import { Github, Users, TrendingUp, Calendar, BarChart3 } from "lucide-react";
 import PrivacyPolicyModal from "@/src/components/modals/privacy-policy";
@@ -707,11 +706,6 @@ const home = () => {
       <TermsOfUseModal
         open={showTermsOfUse}
         onClose={() => setShowTermsOfUse(false)}
-      />
-
-      <AccountManager
-        isOpen={showAccountManager}
-        onClose={() => setShowAccountManager(false)}
       />
     </div>
   );
