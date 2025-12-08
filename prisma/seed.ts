@@ -7,10 +7,16 @@ type UnitData = {
 };
 
 async function main() {
+  // Check if any families exist - if not, create the initial family and system caretaker
   const familyCount = await prisma.family.count();
   let defaultFamilyId: string;
 
   if (familyCount === 0) {
+    console.log(
+      "No families found. Creating initial family and system caretaker..."
+    );
+
+    // Create the default family
     const defaultFamily = await prisma.family.create({
       data: {
         name: "My Family",
@@ -24,13 +30,14 @@ async function main() {
       `Created default family: ${defaultFamily.name} (${defaultFamily.slug})`
     );
 
+    // Create the system caretaker associated with the default family
     const systemCaretaker = await prisma.caretaker.create({
       data: {
         loginId: "00",
         name: "system",
         type: "System Administrator",
         role: "ADMIN",
-        securityPin: "111222",
+        securityPin: "111222", // Default PIN
         familyId: defaultFamilyId,
         inactive: false,
         deletedAt: null,
@@ -41,11 +48,13 @@ async function main() {
       `Created system caretaker with loginId: ${systemCaretaker.loginId}`
     );
   } else {
+    // Get the first family's ID for settings
     const firstFamily = await prisma.family.findFirst();
     defaultFamilyId = firstFamily!.id;
     console.log(`Using existing family: ${firstFamily!.name} for settings`);
   }
 
+  // Ensure default settings exist with PIN 111222
   const settingsCount = await prisma.settings.count();
   if (settingsCount === 0) {
     console.log("Creating default settings with PIN: 111222");
@@ -54,6 +63,7 @@ async function main() {
         familyId: defaultFamilyId,
         familyName: "My Family",
         securityPin: "111222",
+        // authType will be auto-detected based on caretaker existence
         defaultBottleUnit: "OZ",
         defaultSolidsUnit: "TBSP",
         defaultHeightUnit: "IN",
@@ -64,8 +74,10 @@ async function main() {
       },
     });
   } else {
+    console.log("Default settings already exist");
   }
 
+  // Define all available units with their activity types
   const unitData: UnitData[] = [
     {
       unitAbbr: "OZ",
@@ -113,14 +125,26 @@ async function main() {
     },
   ];
 
+  // Handle units separately
   await updateUnits(unitData);
+
+  console.log("Seed script completed successfully!");
 }
 
+/**
+ * Updates units in the database by checking which units exist and only adding the ones that don't exist yet.
+ * Also updates existing units with activity types if they don't have them set.
+ * @param unitData Array of unit data objects with unitAbbr, unitName, and activityTypes
+ */
 async function updateUnits(unitData: UnitData[]): Promise<void> {
+  console.log("Checking for missing units and updating activity types...");
+
+  // Get existing units from the database
   const existingUnits = await prisma.unit.findMany({
     select: { id: true, unitAbbr: true, activityTypes: true },
   });
 
+  // Create a map of existing unit abbreviations for faster lookups
   const existingUnitsMap = new Map(
     existingUnits.map((unit) => [
       unit.unitAbbr,
@@ -128,10 +152,12 @@ async function updateUnits(unitData: UnitData[]): Promise<void> {
     ])
   );
 
+  // Filter out units that already exist
   const missingUnits = unitData.filter(
     (unit) => !existingUnitsMap.has(unit.unitAbbr)
   );
 
+  // Create the missing units
   if (missingUnits.length > 0) {
     console.log(
       `Adding ${missingUnits.length} missing units: ${missingUnits
@@ -147,8 +173,10 @@ async function updateUnits(unitData: UnitData[]): Promise<void> {
       });
     }
   } else {
+    console.log("All units already exist in the database.");
   }
 
+  // Update activity types for all existing units
   const unitsToUpdate = [];
   for (const unit of unitData) {
     const existingUnit = existingUnitsMap.get(unit.unitAbbr);
@@ -178,7 +206,10 @@ async function updateUnits(unitData: UnitData[]): Promise<void> {
       });
     }
   } else {
+    console.log("No units need activity types updated.");
   }
+
+  console.log("Units update completed successfully.");
 }
 
 main()

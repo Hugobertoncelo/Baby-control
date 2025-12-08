@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../db/baby-control.db"
+  url      = env("LOG_DATABASE_URL")
 }
 
 model ApiLog {
