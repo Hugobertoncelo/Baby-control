@@ -52,8 +52,8 @@ ENV PORT=3000
 ENV TZ=UTC
 
 # Update database URLs to point to the volume
-ENV DATABASE_URL="file:/db/baby-control.db"
-ENV LOG_DATABASE_URL="file:/db/baby-control-logs.db"
+# ENV DATABASE_URL="file:/db/baby-control.db"
+# ENV LOG_DATABASE_URL="file:/db/baby-control-logs.db"
 
 # Create volume mount points
 VOLUME /db
