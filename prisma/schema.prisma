@@ -1,5 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +5,733 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                   String     @id @default(cuid())
+  email                String     @unique
+  password             String
+  firstName            String?
+  lastName             String?
+  verified             Boolean    @default(false)
+  verificationToken    String?    @unique
+  passwordResetToken   String?    @unique
+  passwordResetExpires DateTime?
+  betaparticipant      Boolean    @default(false)
+  closed               Boolean    @default(false)
+  closedAt             DateTime?
+  provider             String?
+  providerId           String?
+  stripeCustomerId     String?
+  subscriptionId       String?
+  planType             String?
+  planExpires          DateTime?
+  trialEnds            DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  familyId             String?    @unique
+  caretakerId          String?    @unique
+  caretaker            Caretaker? @relation(fields: [caretakerId], references: [id])
+  family               Family?    @relation(fields: [familyId], references: [id])
+  feedback             Feedback[]
+
+  @@index([email])
+  @@index([verified])
+  @@index([verificationToken])
+  @@index([passwordResetToken])
+}
+
+model Family {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  isActive       Boolean         @default(true)
+  accountId      String?         @unique
+  account        Account?
+  babies         Baby[]
+  bathLogs       BathLog[]
+  calendarEvents CalendarEvent[]
+  caretakers     Caretaker[]
+  contacts       Contact[]
+  diaperLogs     DiaperLog[]
+  familyMembers  FamilyMember[]
+  familySetups   FamilySetup?
+  feedLogs       FeedLog[]
+  feedback       Feedback[]
+  measurements   Measurement[]
+  medicines      Medicine[]
+  medicineLogs   MedicineLog[]
+  milestones     Milestone[]
+  moodLogs       MoodLog[]
+  notes          Note[]
+  playLogs       PlayLog[]
+  pumpLogs       PumpLog[]
+  settings       Settings[]
+  sleepLogs      SleepLog[]
+}
+
+model FamilyMember {
+  familyId    String
+  caretakerId String
+  role        String
+  joinedAt    DateTime  @default(now())
+  caretaker   Caretaker @relation(fields: [caretakerId], references: [id])
+  family      Family    @relation(fields: [familyId], references: [id])
+
+  @@id([familyId, caretakerId])
+  @@index([familyId])
+  @@index([caretakerId])
+}
+
+model Baby {
+  id                String        @id @default(uuid())
+  firstName         String
+  lastName          String
+  birthDate         DateTime
+  gender            Gender?
+  inactive          Boolean       @default(false)
+  feedWarningTime   String        @default("03:00")
+  diaperWarningTime String        @default("02:00")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+  familyId          String?
+  family            Family?       @relation(fields: [familyId], references: [id])
+  events            BabyEvent[]
+  bathLogs          BathLog[]
+  diaperLogs        DiaperLog[]
+  feedLogs          FeedLog[]
+  measurements      Measurement[]
+  medicineLogs      MedicineLog[]
+  milestones        Milestone[]
+  moodLogs          MoodLog[]
+  notes             Note[]
+  playLogs          PlayLog[]
+  pumpLogs          PumpLog[]
+  sleepLogs         SleepLog[]
+
+  @@index([birthDate])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Caretaker {
+  id            String           @id @default(uuid())
+  loginId       String
+  name          String
+  type          String?
+  role          UserRole         @default(USER)
+  inactive      Boolean          @default(false)
+  securityPin   String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+  familyId      String?
+  accountId     String?          @unique
+  account       Account?
+  bathLogs      BathLog[]
+  family        Family?          @relation(fields: [familyId], references: [id])
+  events        CaretakerEvent[]
+  diaperLogs    DiaperLog[]
+  familyMembers FamilyMember[]
+  familySetups  FamilySetup[]
+  feedLogs      FeedLog[]
+  feedback      Feedback[]
+  measurements  Measurement[]
+  medicineLogs  MedicineLog[]
+  milestones    Milestone[]
+  moodLogs      MoodLog[]
+  notes         Note[]
+  playLogs      PlayLog[]
+  pumpLogs      PumpLog[]
+  sleepLogs     SleepLog[]
+
+  @@index([deletedAt])
+  @@index([familyId])
+  @@index([accountId])
+}
+
+model SleepLog {
+  id          String        @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int?
+  type        SleepType
+  location    String?
+  quality     SleepQuality?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby          @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker?    @relation(fields: [caretakerId], references: [id])
+  family      Family?       @relation(fields: [familyId], references: [id])
+
+  @@index([startTime])
+  @@index([endTime])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Unit {
+  id            String        @id @default(uuid())
+  unitAbbr      String        @unique
+  unitName      String
+  activityTypes String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  feedLogs      FeedLog[]
+  medicines     Medicine[]
+  medicineLogs  MedicineLog[]
+  pumpLogs      PumpLog[]
+
+  @@index([unitAbbr])
+}
+
+model FeedLog {
+  id           String      @id @default(uuid())
+  time         DateTime
+  startTime    DateTime?
+  endTime      DateTime?
+  feedDuration Int?
+  type         FeedType
+  amount       Float?
+  unitAbbr     String?
+  side         BreastSide?
+  food         String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  deletedAt    DateTime?
+  familyId     String?
+  babyId       String
+  caretakerId  String?
+  baby         Baby        @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker    Caretaker?  @relation(fields: [caretakerId], references: [id])
+  family       Family?     @relation(fields: [familyId], references: [id])
+  unit         Unit?       @relation(fields: [unitAbbr], references: [unitAbbr])
+
+  @@index([time])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([unitAbbr])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model DiaperLog {
+  id          String     @id @default(uuid())
+  time        DateTime
+  type        DiaperType
+  condition   String?
+  color       String?
+  blowout     Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([time])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model MoodLog {
+  id          String     @id @default(uuid())
+  time        DateTime
+  mood        Mood
+  intensity   Int?       @default(3)
+  duration    Int?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([time])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Note {
+  id          String     @id @default(uuid())
+  time        DateTime
+  content     String
+  category    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([time])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Settings {
+  id                  String   @id @default(uuid())
+  familyName          String   @default("My Family")
+  securityPin         String   @default("111222")
+  authType            String?
+  defaultBottleUnit   String   @default("OZ")
+  defaultSolidsUnit   String   @default("TBSP")
+  defaultHeightUnit   String   @default("IN")
+  defaultWeightUnit   String   @default("LB")
+  defaultTempUnit     String   @default("F")
+  activitySettings    String?
+  enableDebugTimer    Boolean  @default(false)
+  enableDebugTimezone Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  familyId            String?
+  family              Family?  @relation(fields: [familyId], references: [id])
+
+  @@index([familyId])
+}
+
+model Milestone {
+  id          String            @id @default(uuid())
+  date        DateTime
+  title       String
+  description String?
+  category    MilestoneCategory
+  ageInDays   Int?
+  photo       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby              @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker?        @relation(fields: [caretakerId], references: [id])
+  family      Family?           @relation(fields: [familyId], references: [id])
+
+  @@index([date])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model PumpLog {
+  id          String     @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int?
+  leftAmount  Float?
+  rightAmount Float?
+  totalAmount Float?
+  unitAbbr    String?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+  unit        Unit?      @relation(fields: [unitAbbr], references: [unitAbbr])
+
+  @@index([startTime])
+  @@index([endTime])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([unitAbbr])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model PlayLog {
+  id          String     @id @default(uuid())
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int?
+  type        PlayType
+  location    String?
+  activities  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([startTime])
+  @@index([endTime])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model BathLog {
+  id          String     @id @default(uuid())
+  time        DateTime
+  soapUsed    Boolean    @default(true)
+  shampooUsed Boolean    @default(true)
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([time])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Measurement {
+  id          String          @id @default(uuid())
+  date        DateTime
+  type        MeasurementType
+  value       Float
+  unit        String
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  babyId      String
+  caretakerId String?
+  baby        Baby            @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker?      @relation(fields: [caretakerId], references: [id])
+  family      Family?         @relation(fields: [familyId], references: [id])
+
+  @@index([date])
+  @@index([type])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model Contact {
+  id        String            @id @default(uuid())
+  name      String
+  role      String
+  phone     String?
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  deletedAt DateTime?
+  familyId  String?
+  family    Family?           @relation(fields: [familyId], references: [id])
+  events    ContactEvent[]
+  medicines ContactMedicine[]
+
+  @@index([role])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model CalendarEvent {
+  id                String             @id @default(uuid())
+  title             String
+  description       String?
+  startTime         DateTime
+  endTime           DateTime?
+  allDay            Boolean            @default(false)
+  type              CalendarEventType
+  location          String?
+  color             String?
+  recurring         Boolean            @default(false)
+  recurrencePattern RecurrencePattern?
+  recurrenceEnd     DateTime?
+  customRecurrence  String?
+  reminderTime      Int?
+  notificationSent  Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
+  familyId          String?
+  babies            BabyEvent[]
+  family            Family?            @relation(fields: [familyId], references: [id])
+  caretakers        CaretakerEvent[]
+  contacts          ContactEvent[]
+
+  @@index([startTime])
+  @@index([endTime])
+  @@index([type])
+  @@index([recurring])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model BabyEvent {
+  babyId  String
+  eventId String
+  baby    Baby          @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  event   CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([babyId, eventId])
+  @@index([babyId])
+  @@index([eventId])
+}
+
+model CaretakerEvent {
+  caretakerId String
+  eventId     String
+  caretaker   Caretaker     @relation(fields: [caretakerId], references: [id], onDelete: Cascade)
+  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([caretakerId, eventId])
+  @@index([caretakerId])
+  @@index([eventId])
+}
+
+model ContactEvent {
+  contactId String
+  eventId   String
+  contact   Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  event     CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, eventId])
+  @@index([contactId])
+  @@index([eventId])
+}
+
+model Medicine {
+  id              String            @id @default(uuid())
+  name            String
+  typicalDoseSize Float?
+  unitAbbr        String?
+  doseMinTime     String?
+  notes           String?
+  active          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  familyId        String?
+  contacts        ContactMedicine[]
+  family          Family?           @relation(fields: [familyId], references: [id])
+  unit            Unit?             @relation(fields: [unitAbbr], references: [unitAbbr])
+  medicineLogs    MedicineLog[]
+
+  @@index([name])
+  @@index([active])
+  @@index([unitAbbr])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model MedicineLog {
+  id          String     @id @default(uuid())
+  time        DateTime
+  doseAmount  Float
+  unitAbbr    String?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  familyId    String?
+  medicineId  String
+  babyId      String
+  caretakerId String?
+  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
+  family      Family?    @relation(fields: [familyId], references: [id])
+  medicine    Medicine   @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  unit        Unit?      @relation(fields: [unitAbbr], references: [unitAbbr])
+
+  @@index([time])
+  @@index([medicineId])
+  @@index([babyId])
+  @@index([caretakerId])
+  @@index([unitAbbr])
+  @@index([deletedAt])
+  @@index([familyId])
+}
+
+model ContactMedicine {
+  contactId  String
+  medicineId String
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, medicineId])
+  @@index([contactId])
+  @@index([medicineId])
+}
+
+model FamilySetup {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  password  String
+  expiresAt DateTime
+  createdBy String
+  familyId  String?   @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  creator   Caretaker @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  family    Family?   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}
+
+model BetaSubscriber {
+  id             String              @id @default(cuid())
+  email          String              @unique
+  firstName      String?
+  lastName       String?
+  isOptedIn      Boolean             @default(true)
+  optedOutAt     DateTime?
+  source         String              @default("coming-soon")
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  deletedAt      DateTime?
+  campaignEmails BetaCampaignEmail[]
+
+  @@index([email])
+  @@index([isOptedIn])
+  @@index([source])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model BetaCampaign {
+  id             String              @id @default(cuid())
+  name           String
+  subject        String
+  content        String?
+  type           BetaCampaignType    @default(NOTIFICATION)
+  isActive       Boolean             @default(true)
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  deletedAt      DateTime?
+  campaignEmails BetaCampaignEmail[]
+
+  @@index([type])
+  @@index([isActive])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@index([deletedAt])
+}
+
+model BetaCampaignEmail {
+  id           String          @id @default(cuid())
+  sentAt       DateTime        @default(now())
+  deliveredAt  DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  status       BetaEmailStatus @default(SENT)
+  errorMessage String?
+  campaignId   String
+  subscriberId String
+  campaign     BetaCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber   BetaSubscriber  @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, subscriberId])
+  @@index([sentAt])
+  @@index([status])
+  @@index([campaignId])
+  @@index([subscriberId])
+}
+
+model AppConfig {
+  id          String   @id @default(cuid())
+  adminPass   String
+  rootDomain  String
+  enableHttps Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
+
+model EmailConfig {
+  id                  String            @id @default(cuid())
+  providerType        EmailProviderType @default(SENDGRID)
+  sendGridApiKey      String?
+  smtp2goApiKey       String?
+  serverAddress       String?
+  port                Int?
+  username            String?
+  password            String?
+  enableTls           Boolean           @default(true)
+  allowSelfSignedCert Boolean           @default(false)
+  updatedAt           DateTime          @updatedAt
+}
+
+model DemoTracker {
+  id             String    @id @default(cuid())
+  familyId       String    @unique
+  sourceFamilyId String
+  dateRangeStart DateTime
+  dateRangeEnd   DateTime
+  generatedAt    DateTime  @default(now())
+  lastAccessedAt DateTime?
+  accessCount    Int       @default(0)
+  notes          String?
+
+  @@index([generatedAt])
+  @@index([lastAccessedAt])
+}
+
+model Feedback {
+  id             String     @id @default(uuid())
+  subject        String
+  message        String
+  submittedAt    DateTime   @default(now())
+  viewed         Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+  familyId       String?
+  accountId      String?
+  caretakerId    String?
+  submitterName  String?
+  submitterEmail String?
+  account        Account?   @relation(fields: [accountId], references: [id])
+  caretaker      Caretaker? @relation(fields: [caretakerId], references: [id])
+  family         Family?    @relation(fields: [familyId], references: [id])
+
+  @@index([submittedAt])
+  @@index([viewed])
+  @@index([familyId])
+  @@index([accountId])
+  @@index([caretakerId])
+  @@index([deletedAt])
 }
 
 enum Gender {
@@ -77,7 +802,6 @@ enum MeasurementType {
   TEMPERATURE
 }
 
-// New enum for calendar event types
 enum CalendarEventType {
   APPOINTMENT
   CARETAKER_SCHEDULE
@@ -85,7 +809,6 @@ enum CalendarEventType {
   CUSTOM
 }
 
-// New enum for recurrence patterns
 enum RecurrencePattern {
   DAILY
   WEEKLY
@@ -93,783 +816,6 @@ enum RecurrencePattern {
   MONTHLY
   YEARLY
   CUSTOM
-}
-
-// Account model for email/password authentication
-model Account {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String   // bcrypt hashed
-  firstName     String?
-  lastName      String?
-  verified      Boolean  @default(false)
-  verificationToken String? @unique
-  passwordResetToken String? @unique
-  passwordResetExpires DateTime?
-  betaparticipant Boolean @default(false) // Beta participant flag (0 or 1)
-  closed        Boolean  @default(false) // Account closure flag
-  closedAt      DateTime? // When the account was closed
-  
-  // Future OAuth fields (ready for Phase 2)
-  provider      String?  // 'email', 'google', 'apple', 'github'
-  providerId    String?  // OAuth provider's user ID
-  
-  // Future billing fields
-  stripeCustomerId String?
-  subscriptionId   String?
-  planType         String? // 'sub', 'full'
-  planExpires      DateTime?
-  trialEnds        DateTime?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations (one-to-one with family)
-  family        Family?  @relation(fields: [familyId], references: [id])
-  familyId      String?  @unique
-  
-  // Link to admin caretaker for seamless access
-  caretaker     Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId   String?    @unique
-  
-  // Relations
-  feedback      Feedback[]
-  
-  @@index([email])
-  @@index([verified])
-  @@index([verificationToken])
-  @@index([passwordResetToken])
-}
-
-// New model for multi-family support
-model Family {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  
-  // Account ownership
-  account       Account?
-  accountId     String?  @unique
-  
-  // Relations
-  babies           Baby[]
-  caretakers       Caretaker[]
-  settings         Settings[]
-  sleepLogs        SleepLog[]
-  feedLogs         FeedLog[]
-  diaperLogs       DiaperLog[]
-  moodLogs         MoodLog[]
-  notes            Note[]
-  milestones       Milestone[]
-  pumpLogs         PumpLog[]
-  playLogs         PlayLog[]
-  bathLogs         BathLog[]
-  measurements     Measurement[]
-  medicines        Medicine[]
-  medicineLogs     MedicineLog[]
-  contacts         Contact[]
-  calendarEvents   CalendarEvent[]
-  familyMembers    FamilyMember[]
-  familySetups     FamilySetup[]
-  feedback         Feedback[]
-}
-
-// New model for family membership
-model FamilyMember {
-  family       Family    @relation(fields: [familyId], references: [id])
-  familyId     String
-  caretaker    Caretaker @relation(fields: [caretakerId], references: [id])
-  caretakerId  String
-  role         String    // e.g., "admin", "member"
-  joinedAt     DateTime  @default(now())
-  
-  @@id([familyId, caretakerId])
-  @@index([familyId])
-  @@index([caretakerId])
-}
-
-model Baby {
-  id               String        @id @default(uuid())
-  firstName        String
-  lastName         String
-  birthDate        DateTime
-  gender           Gender?
-  inactive         Boolean       @default(false)
-  feedWarningTime  String        @default("03:00") // Default 3 hours
-  diaperWarningTime String       @default("02:00") // Default 2 hours
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  deletedAt        DateTime?
-  
-  // Add family relation
-  family           Family?       @relation(fields: [familyId], references: [id])
-  familyId         String?       // Nullable initially for migration
-  
-  // Relationships
-  sleepLogs        SleepLog[]
-  feedLogs         FeedLog[]
-  diaperLogs       DiaperLog[]
-  moodLogs         MoodLog[]
-  notes            Note[]
-  milestones       Milestone[]
-  pumpLogs         PumpLog[]
-  playLogs         PlayLog[]
-  bathLogs         BathLog[]
-  measurements     Measurement[]
-  events           BabyEvent[]   // New relationship for calendar events
-  medicineLogs     MedicineLog[] // New relationship for medicine logs
-  
-  @@index([birthDate])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model Caretaker {
-  id           String    @id @default(uuid())
-  loginId      String    // Two-digit login identifier for quick authentication
-  name         String
-  type         String?   // parent, daycare, nanny, grandparent, uncle, etc.
-  role         UserRole  @default(USER) // User role for authentication permissions
-  inactive     Boolean   @default(false)
-  securityPin  String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-  
-  // Add family relation
-  family       Family?   @relation(fields: [familyId], references: [id])
-  familyId     String?   // Nullable initially for migration
-  
-  // Optional account link (for account holders who are also caretakers)
-  account       Account?
-  accountId     String?  @unique
-  
-  // Relationships
-  sleepLogs    SleepLog[]
-  feedLogs     FeedLog[]
-  diaperLogs   DiaperLog[]
-  moodLogs     MoodLog[]
-  notes        Note[]
-  milestones   Milestone[]
-  pumpLogs     PumpLog[]
-  playLogs     PlayLog[]
-  bathLogs     BathLog[]
-  measurements Measurement[]
-  medicineLogs MedicineLog[] // Relation to MedicineLog model
-  events       CaretakerEvent[] // New relationship for calendar events
-  familyMembers FamilyMember[]
-  familySetups  FamilySetup[]
-  feedback     Feedback[]
-  
-  @@index([deletedAt])
-  @@index([familyId])
-  @@index([accountId])
-}
-
-model SleepLog {
-  id          String       @id @default(uuid())
-  startTime   DateTime
-  endTime     DateTime?
-  duration    Int?         // Duration in minutes, calculated from start/end
-  type        SleepType
-  location    String?
-  quality     SleepQuality?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?      @relation(fields: [familyId], references: [id])
-  familyId    String?      // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby         @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker?   @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([startTime])
-  @@index([endTime])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model Unit {
-  id          String        @id @default(uuid())
-  unitAbbr    String        @unique
-  unitName    String
-  activityTypes String?     // Comma-separated list of activity types: height, weight, temp, medicine
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-
-
-  // Relationships
-  feedLogs    FeedLog[]
-  pumpLogs    PumpLog[]
-  medicines   Medicine[]    // Relation to Medicine model
-  medicineLogs MedicineLog[] // Relation to MedicineLog model
-  
-  @@index([unitAbbr])
-}
-
-model FeedLog {
-  id           String      @id @default(uuid())
-  time         DateTime
-  startTime    DateTime?   // Used for breast feeding duration tracking
-  endTime      DateTime?   // Used for breast feeding duration tracking
-  feedDuration Int?        // Duration in seconds, useful for tracking actual feeding time
-  type         FeedType
-  amount       Float?      // Amount in specified unit
-  unit         Unit?       @relation(fields: [unitAbbr], references: [unitAbbr])
-  unitAbbr     String?
-  side         BreastSide?
-  food         String?     // Description of solid foods
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  deletedAt    DateTime?
-  
-  // Add family relation
-  family       Family?     @relation(fields: [familyId], references: [id])
-  familyId     String?     // Nullable initially for migration
-  
-  // Relationships
-  baby         Baby        @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId       String
-  caretaker    Caretaker?  @relation(fields: [caretakerId], references: [id])
-  caretakerId  String?
-  
-  @@index([time])
-  @@index([startTime])
-  @@index([endTime])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([unitAbbr])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model DiaperLog {
-  id          String     @id @default(uuid())
-  time        DateTime
-  type        DiaperType
-  condition   String?
-  color       String?
-  blowout     Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?    @relation(fields: [familyId], references: [id])
-  familyId    String?    // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby       @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([time])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model MoodLog {
-  id          String    @id @default(uuid())
-  time        DateTime
-  mood        Mood
-  intensity   Int?      @default(3) // Scale of 1-5
-  duration    Int?      // Duration in minutes
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?   @relation(fields: [familyId], references: [id])
-  familyId    String?   // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby      @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([time])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model Note {
-  id          String    @id @default(uuid())
-  time        DateTime
-  content     String    // The actual note content
-  category    String?   // Optional categorization
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?   @relation(fields: [familyId], references: [id])
-  familyId    String?   // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby      @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([time])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model Settings {
-  id                String   @id @default(uuid())
-  familyName        String   @default("My Family")
-  securityPin       String   @default("111222")
-  authType          String?  // "SYSTEM" or "CARETAKER" - determines authentication method, auto-detected if empty
-  defaultBottleUnit String   @default("OZ")    // Default unit for bottle feeding
-  defaultSolidsUnit String   @default("TBSP")  // Default unit for solid feeding
-  defaultHeightUnit String   @default("IN")    // Default unit for height measurement
-  defaultWeightUnit String   @default("LB")    // Default unit for weight measurement
-  defaultTempUnit   String   @default("F")     // Default unit for temperature
-  activitySettings  String?  // JSON string for activity order and visibility settings
-  enableDebugTimer  Boolean  @default(false)   // Enable debug session timer
-  enableDebugTimezone Boolean @default(false)  // Enable debug timezone tool
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  // Add family relation
-  family            Family?  @relation(fields: [familyId], references: [id])
-  familyId          String?  // Nullable initially for migration
-  
-  @@index([familyId])
-}
-
-// New models for additional activity logs
-
-model Milestone {
-  id          String           @id @default(uuid())
-  date        DateTime
-  title       String
-  description String?
-  category    MilestoneCategory
-  ageInDays   Int?             // Optional calculated field based on baby's birthdate
-  photo       String?          // Path to photo if you want to store milestone photos
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?          @relation(fields: [familyId], references: [id])
-  familyId    String?          // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby             @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker?       @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([date])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model PumpLog {
-  id             String         @id @default(uuid())
-  startTime      DateTime
-  endTime        DateTime?
-  duration       Int?           // Duration in minutes
-  leftAmount     Float?         // Amount in specified unit
-  rightAmount    Float?         // Amount in specified unit
-  totalAmount    Float?         // Total amount pumped
-  unit           Unit?          @relation(fields: [unitAbbr], references: [unitAbbr])
-  unitAbbr       String?
-  notes          String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
-  
-  // Add family relation
-  family         Family?        @relation(fields: [familyId], references: [id])
-  familyId       String?        // Nullable initially for migration
-  
-  // Relationships
-  baby           Baby           @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId         String
-  caretaker      Caretaker?     @relation(fields: [caretakerId], references: [id])
-  caretakerId    String?
-  
-  @@index([startTime])
-  @@index([endTime])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([unitAbbr])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model PlayLog {
-  id          String    @id @default(uuid())
-  startTime   DateTime
-  endTime     DateTime?
-  duration    Int?      // Duration in minutes
-  type        PlayType
-  location    String?
-  activities  String?   // Description of activities during play
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?   @relation(fields: [familyId], references: [id])
-  familyId    String?   // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby      @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([startTime])
-  @@index([endTime])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model BathLog {
-  id              String           @id @default(uuid())
-  time            DateTime         // Single time when the bath occurred
-  soapUsed        Boolean          @default(true)
-  shampooUsed     Boolean          @default(true)
-  notes           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
-  
-  // Add family relation
-  family          Family?          @relation(fields: [familyId], references: [id])
-  familyId        String?          // Nullable initially for migration
-  
-  // Relationships
-  baby            Baby             @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId          String
-  caretaker       Caretaker?       @relation(fields: [caretakerId], references: [id])
-  caretakerId     String?
-  
-  @@index([time])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-model Measurement {
-  id          String           @id @default(uuid())
-  date        DateTime
-  type        MeasurementType
-  value       Float
-  unit        String           // Unit of measurement (in, cm, lb, kg, etc.)
-  notes       String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?          @relation(fields: [familyId], references: [id])
-  familyId    String?          // Nullable initially for migration
-  
-  // Relationships
-  baby        Baby             @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  caretaker   Caretaker?       @relation(fields: [caretakerId], references: [id])
-  caretakerId String?
-  
-  @@index([date])
-  @@index([type])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-// New model for contacts (doctors, teachers, etc.)
-model Contact {
-  id          String    @id @default(uuid())
-  name        String
-  role        String    // doctor, teacher, family member, etc.
-  phone       String?
-  email       String?
-  address     String?
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  
-  // Add family relation
-  family      Family?   @relation(fields: [familyId], references: [id])
-  familyId    String?   // Nullable initially for migration
-  
-  // Relationships
-  events      ContactEvent[] // Events associated with this contact
-  medicines   ContactMedicine[] // Medicines associated with this medicine
-  
-  @@index([role])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-// New model for calendar events
-model CalendarEvent {
-  id                String           @id @default(uuid())
-  title             String
-  description       String?
-  startTime         DateTime
-  endTime           DateTime?
-  allDay            Boolean          @default(false)
-  type              CalendarEventType
-  location          String?
-  color             String?          // For custom color coding
-  
-  // Recurrence fields
-  recurring         Boolean          @default(false)
-  recurrencePattern RecurrencePattern? 
-  recurrenceEnd     DateTime?        // When the recurrence ends
-  customRecurrence  String?          // JSON string for custom recurrence rules
-  
-  // Notification fields
-  reminderTime      Int?             // Minutes before event to send reminder
-  notificationSent  Boolean          @default(false)
-  
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  deletedAt         DateTime?
-  
-  // Add family relation
-  family            Family?          @relation(fields: [familyId], references: [id])
-  familyId          String?          // Nullable initially for migration
-  
-  // Relationships - multiple babies and caretakers can be associated with an event
-  babies            BabyEvent[]
-  caretakers        CaretakerEvent[]
-  contacts          ContactEvent[]   // Many-to-many with contacts
-  
-  @@index([startTime])
-  @@index([endTime])
-  @@index([type])
-  @@index([recurring])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-// Junction table for many-to-many relationship between babies and events
-model BabyEvent {
-  baby        Baby          @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId      String
-  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId     String
-  
-  @@id([babyId, eventId])
-  @@index([babyId])
-  @@index([eventId])
-}
-
-// Junction table for many-to-many relationship between caretakers and events
-model CaretakerEvent {
-  caretaker   Caretaker     @relation(fields: [caretakerId], references: [id], onDelete: Cascade)
-  caretakerId String
-  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId     String
-  
-  @@id([caretakerId, eventId])
-  @@index([caretakerId])
-  @@index([eventId])
-}
-
-// Junction table for many-to-many relationship between contacts and events
-model ContactEvent {
-  contact     Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  contactId   String
-  event       CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId     String
-  
-  @@id([contactId, eventId])
-  @@index([contactId])
-  @@index([eventId])
-}
-
-// Medicine table to track available medicines
-model Medicine {
-  id              String           @id @default(uuid())
-  name            String
-  typicalDoseSize Float?
-  unitAbbr        String?
-  doseMinTime     String?          // Minimum time between doses (format: "HH:MM")
-  notes           String?          // Additional notes about the medicine
-  active          Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
-  
-  // Add family relation
-  family          Family?          @relation(fields: [familyId], references: [id])
-  familyId        String?          // Nullable initially for migration
-  
-  // Relationships
-  medicineLogs    MedicineLog[]    // Logs of medicine administration
-  contacts        ContactMedicine[] // Contacts associated with this medicine
-  unit            Unit?            @relation(fields: [unitAbbr], references: [unitAbbr])
-  
-  @@index([name])
-  @@index([active])
-  @@index([unitAbbr])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-// Medicine log table to track medicine administration
-model MedicineLog {
-  id              String           @id @default(uuid())
-  time            DateTime
-  doseAmount      Float
-  unitAbbr        String?
-  notes           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  deletedAt       DateTime?
-  
-  // Add family relation
-  family          Family?          @relation(fields: [familyId], references: [id])
-  familyId        String?          // Nullable initially for migration
-  
-  // Relationships
-  medicine        Medicine         @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  medicineId      String
-  baby            Baby             @relation(fields: [babyId], references: [id], onDelete: Cascade)
-  babyId          String
-  caretaker       Caretaker?       @relation(fields: [caretakerId], references: [id])
-  caretakerId     String?
-  unit            Unit?            @relation(fields: [unitAbbr], references: [unitAbbr])
-  
-  @@index([time])
-  @@index([medicineId])
-  @@index([babyId])
-  @@index([caretakerId])
-  @@index([unitAbbr])
-  @@index([deletedAt])
-  @@index([familyId])
-}
-
-// Junction table for many-to-many relationship between contacts and medicines
-model ContactMedicine {
-  contact         Contact          @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  contactId       String
-  medicine        Medicine         @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  medicineId      String
-  
-  @@id([contactId, medicineId])
-  @@index([contactId])
-  @@index([medicineId])
-}
-
-// New model for family setup invitations
-model FamilySetup {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  password  String   // Password for token-based authentication
-  expiresAt DateTime
-  createdBy String   // ID of the admin Caretaker who initiated the setup
-  familyId  String?  @unique // Linked to the Family record upon creation
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  creator   Caretaker @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  family    Family?   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-
-  @@index([createdBy])
-}
-
-// Beta subscriber for coming soon page signups
-model BetaSubscriber {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  firstName   String?
-  lastName    String?
-  isOptedIn   Boolean  @default(true)
-  optedOutAt  DateTime?
-  source      String   @default("coming-soon")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
-  
-  // Future-proofing: relationship to campaigns
-  campaignEmails BetaCampaignEmail[]
-  
-  @@index([email])
-  @@index([isOptedIn])
-  @@index([source])
-  @@index([createdAt])
-  @@index([deletedAt])
-}
-
-// Future-proof campaign system
-model BetaCampaign {
-  id          String   @id @default(cuid())
-  name        String
-  subject     String
-  content     String?
-  type        BetaCampaignType @default(NOTIFICATION)
-  isActive    Boolean  @default(true)
-  scheduledAt DateTime?
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
-  
-  campaignEmails BetaCampaignEmail[]
-  
-  @@index([type])
-  @@index([isActive])
-  @@index([scheduledAt])
-  @@index([createdAt])
-  @@index([deletedAt])
-}
-
-model BetaCampaignEmail {
-  id            String   @id @default(cuid())
-  sentAt        DateTime @default(now())
-  deliveredAt   DateTime?
-  openedAt      DateTime?
-  clickedAt     DateTime?
-  status        BetaEmailStatus @default(SENT)
-  errorMessage  String?
-  
-  campaign      BetaCampaign     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId    String
-  subscriber    BetaSubscriber   @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
-  subscriberId  String
-  
-  @@unique([campaignId, subscriberId])
-  @@index([sentAt])
-  @@index([status])
-  @@index([campaignId])
-  @@index([subscriberId])
 }
 
 enum BetaCampaignType {
@@ -892,76 +838,4 @@ enum EmailProviderType {
   MANUAL_SFTP
   SENDGRID
   SMTP2GO
-}
-
-// Application configuration settings
-model AppConfig {
-  id          String   @id @default(cuid())
-  adminPass   String   // Sitewide admin password
-  rootDomain  String   // Root domain for the application
-  enableHttps Boolean  @default(false) // Whether HTTPS is enabled (0/1)
-  updatedAt   DateTime @updatedAt
-}
-
-model EmailConfig {
-  id                  String            @id @default(cuid())
-  providerType        EmailProviderType @default(SENDGRID)
-  sendGridApiKey      String?
-  smtp2goApiKey       String?
-  serverAddress       String?
-  port                Int?
-  username            String?
-  password            String?
-  enableTls           Boolean           @default(true)
-  allowSelfSignedCert Boolean           @default(false)
-  updatedAt           DateTime          @updatedAt
-}
-
-// Demo family tracking for automated demo regeneration
-model DemoTracker {
-  id                String   @id @default(cuid())
-  familyId          String   @unique // ID of the current demo family
-  sourceFamilyId    String   // ID of the family used as source data
-  dateRangeStart    DateTime // Start of the 30-day period used from source
-  dateRangeEnd      DateTime // End of the 30-day period used from source
-  generatedAt       DateTime @default(now())
-  lastAccessedAt    DateTime?
-  accessCount       Int      @default(0)
-  notes             String?  // Any notes about this demo generation
-  
-  @@index([generatedAt])
-  @@index([lastAccessedAt])
-}
-
-// Feedback model for user feedback and support requests
-model Feedback {
-  id          String    @id @default(uuid())
-  subject     String
-  message     String
-  submittedAt DateTime  @default(now())
-  viewed      Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  
-  // Relations to capture submitter information
-  family      Family?   @relation(fields: [familyId], references: [id])
-  familyId    String?   // Family context for the feedback
-  
-  account     Account?  @relation(fields: [accountId], references: [id])
-  accountId   String?   // Account that submitted the feedback (for email)
-  
-  caretaker   Caretaker? @relation(fields: [caretakerId], references: [id])
-  caretakerId String?   // Caretaker that submitted the feedback (for name)
-  
-  // Denormalized fields for easier querying (populated from relations)
-  submitterName  String? // Name from caretaker or account
-  submitterEmail String? // Email from account
-  
-  @@index([submittedAt])
-  @@index([viewed])
-  @@index([familyId])
-  @@index([accountId])
-  @@index([caretakerId])
-  @@index([deletedAt])
 }
