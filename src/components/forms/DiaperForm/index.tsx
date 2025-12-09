@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { DiaperType } from "@prisma/client";
 import { DiaperLogResponse } from "@/app/api/types";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { DateTimePicker } from "@/src/components/ui/date-time-picker";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import {
@@ -197,7 +196,7 @@ export default function DiaperForm({
           }
         }
 
-        throw new Error("Failed to save diaper log");
+        throw new Error("Falha ao salvar o registro de fraldas");
       }
 
       onClose();
@@ -238,7 +237,7 @@ export default function DiaperForm({
                 value={selectedDateTime}
                 onChange={handleDateTimeChange}
                 disabled={loading}
-                placeholder="Select diaper change time..."
+                placeholder="Selecione o horário da troca de fraldas..."
               />
             </div>
 
@@ -262,7 +261,6 @@ export default function DiaperForm({
               </Select>
             </div>
 
-            {/* Blowout/Leakage checkbox - visible for all diaper types */}
             {formData.type && (
               <div className="flex items-center space-x-3">
                 <Checkbox

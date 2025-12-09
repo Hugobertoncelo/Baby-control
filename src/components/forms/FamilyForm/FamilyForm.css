@@ -1,80 +1,71 @@
-/* FamilyForm Dark Mode Styles */
-
-/* Radio button labels - match the label component dark mode colors */
 html.dark .family-form-radio-label {
-  color: #e5e7eb !important; /* gray-200 - matches label.css */
+  color: #e5e7eb !important;
 }
 
 html.dark .family-form-radio-label:hover {
-  color: #f3f4f6 !important; /* gray-100 - slightly lighter on hover */
+  color: #f3f4f6 !important;
 }
 
-/* For disabled radio buttons */
 html.dark .family-form-radio-label.disabled {
-  color: #9ca3af !important; /* gray-400 - matches label.css disabled state */
+  color: #9ca3af !important;
 }
 
-/* Headings and text */
 html.dark .family-form-heading {
-  color: #f3f4f6 !important; /* gray-200 */
+  color: #f3f4f6 !important;
 }
 
 html.dark .family-form-text {
-  color: #e5e7eb !important; /* gray-300 */
+  color: #e5e7eb !important;
 }
 
 html.dark .family-form-text-muted {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .family-form-text-secondary {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
-/* Success states */
 html.dark .family-form-success-bg {
-  background-color: rgba(6, 78, 59, 0.2) !important; /* green-900/20 */
+  background-color: rgba(6, 78, 59, 0.2) !important;
 }
 
 html.dark .family-form-success-border {
-  border-color: #047857 !important; /* green-700 */
+  border-color: #047857 !important;
 }
 
 html.dark .family-form-success-heading {
-  color: #6ee7b7 !important; /* green-200 */
+  color: #6ee7b7 !important;
 }
 
 html.dark .family-form-success-text {
-  color: #a7f3d0 !important; /* green-300 */
+  color: #a7f3d0 !important;
 }
 
 html.dark .family-form-success-text-muted {
-  color: #10b981 !important; /* green-400 */
+  color: #10b981 !important;
 }
 
-/* Error states */
 html.dark .family-form-error-bg {
-  background-color: rgba(127, 29, 29, 0.2) !important; /* red-900/20 */
+  background-color: rgba(127, 29, 29, 0.2) !important;
 }
 
 html.dark .family-form-error-border {
-  border-color: #b91c1c !important; /* red-700 */
+  border-color: #b91c1c !important;
 }
 
 html.dark .family-form-error-text {
-  color: #f87171 !important; /* red-400 */
+  color: #f87171 !important;
 }
 
-/* Caretaker list items */
 html.dark .family-form-caretaker-item {
-  background-color: #374151 !important; /* gray-800 */
+  background-color: #374151 !important;
 }
 
 html.dark .family-form-caretaker-text-muted {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
-/* Border styles */
 html.dark .family-form-border {
-  border-color: #4b5563 !important; /* gray-700 */
+  border-color: #4b5563 !important;
 }

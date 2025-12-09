@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { FeedType, BreastSide } from "@prisma/client";
 import { FeedLogResponse } from "@/app/api/types";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { DateTimePicker } from "@/src/components/ui/date-time-picker";
 import {
   FormPage,
@@ -334,22 +333,18 @@ export default function FeedForm({
     e.preventDefault();
     if (!babyId) return;
 
-    // Clear any previous validation errors
     setValidationError("");
 
-    // Validate required fields
     if (!formData.type) {
       setValidationError("Por favor, selecione um tipo de alimentação");
       return;
     }
 
-    // Validate date time
     if (!selectedDateTime || isNaN(selectedDateTime.getTime())) {
       setValidationError("Por favor, selecione uma data e hora válidas");
       return;
     }
 
-    // For breast feeding, at least one side must have a duration
     if (
       formData.type === "BREAST" &&
       formData.leftDuration === 0 &&
@@ -381,7 +376,6 @@ export default function FeedForm({
       return;
     }
 
-    // Stop timer if it's running
     if (isTimerRunning) {
       stopTimer();
     }
@@ -390,26 +384,20 @@ export default function FeedForm({
 
     try {
       if (formData.type === "BREAST" && !activity) {
-        // For new breast feeding entries, create entries for both sides if they have durations
         if (formData.leftDuration > 0 && formData.rightDuration > 0) {
-          // Create entries for both sides
           await createBreastFeedingEntries();
         } else if (formData.leftDuration > 0) {
-          // Create only left side entry
           await createSingleFeedEntry("LEFT");
         } else if (formData.rightDuration > 0) {
-          // Create only right side entry
           await createSingleFeedEntry("RIGHT");
         }
       } else {
-        // For editing or non-breast feeding entries, use the single entry method
         await createSingleFeedEntry(formData.side as BreastSide);
       }
 
       onClose();
       onSuccess?.();
 
-      // Reset form data
       setSelectedDateTime(new Date(initialTime));
       setFormData({
         time: initialTime,
@@ -425,39 +413,30 @@ export default function FeedForm({
       });
     } catch (error) {
       console.error("Error saving feed log:", error);
-      // If it's an expiration error, don't close the form (already handled by handleExpirationError)
       if (error instanceof Error && error.message === "EXPIRATION_ERROR") {
         return;
       }
-      // Other errors are already handled with toast in createSingleFeedEntry
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to create entries for both breast sides
   const createBreastFeedingEntries = async () => {
-    // Create left side entry
     if (formData.leftDuration > 0) {
       await createSingleFeedEntry("LEFT");
     }
 
-    // Create right side entry
     if (formData.rightDuration > 0) {
       await createSingleFeedEntry("RIGHT");
     }
   };
 
-  // Helper function to create a single feed entry
   const createSingleFeedEntry = async (breastSide?: BreastSide) => {
-    // For breast feeding, use the provided side or the form data side
     const side =
       formData.type === "BREAST" ? breastSide || formData.side : undefined;
 
-    // Calculate start and end times for breastfeeding based on feedDuration
     let startTime, endTime, duration;
     if (formData.type === "BREAST") {
-      // Use the appropriate duration based on the side
       duration =
         side === "LEFT"
           ? formData.leftDuration
@@ -471,17 +450,16 @@ export default function FeedForm({
       }
     }
 
-    // Convert local time to UTC ISO string
     const localDate = new Date(formData.time);
     const utcTimeString = toUTCString(localDate);
 
     console.log("Original time (local):", formData.time);
     console.log("Converted time (UTC):", utcTimeString);
-    console.log("Unit being sent:", formData.unit); // Debug log for unit
+    console.log("Unit being sent:", formData.unit);
 
     const payload = {
       babyId,
-      time: utcTimeString, // Send the UTC ISO string instead of local time
+      time: utcTimeString,
       type: formData.type,
       ...(formData.type === "BREAST" &&
         side && {
@@ -493,15 +471,14 @@ export default function FeedForm({
       ...((formData.type === "BOTTLE" || formData.type === "SOLIDS") &&
         formData.amount && {
           amount: parseFloat(formData.amount),
-          unitAbbr: formData.unit, // This should correctly send 'TBSP' or 'G'
+          unitAbbr: formData.unit,
         }),
       ...(formData.type === "SOLIDS" &&
         formData.food && { food: formData.food }),
     };
 
-    console.log("Payload being sent:", payload); // Debug log for payload
+    console.log("Payload being sent:", payload);
 
-    // Get auth token from localStorage
     const authToken = localStorage.getItem("authToken");
 
     const response = await fetch(
@@ -517,26 +494,25 @@ export default function FeedForm({
     );
 
     if (!response.ok) {
-      // Check if this is an account expiration error
       if (response.status === 403) {
         const { isExpirationError, errorData } = await handleExpirationError(
           response,
           showToast,
-          "logging feedings"
+          "registrando alimentação"
         );
         if (isExpirationError) {
-          // Don't close the form, let user see the error
           throw new Error("EXPIRATION_ERROR");
         }
-        // If it's a 403 but not an expiration error, handle it normally
         if (errorData) {
           showToast({
             variant: "error",
-            title: "Error",
-            message: errorData.error || "Failed to save feed log",
+            title: "Erro",
+            message: errorData.error || "Falha ao salvar o registro de feeds",
             duration: 5000,
           });
-          throw new Error(errorData.error || "Failed to save feed log");
+          throw new Error(
+            errorData.error || "Falha ao salvar o registro de feeds"
+          );
         }
       }
 
@@ -544,19 +520,16 @@ export default function FeedForm({
       const errorData = await response.json();
       showToast({
         variant: "error",
-        title: "Error",
-        message: errorData.error || "Failed to save feed log",
+        title: "Erro",
+        message: errorData.error || "Falha ao salvar o registro de feeds",
         duration: 5000,
       });
-      throw new Error(errorData.error || "Failed to save feed log");
+      throw new Error(errorData.error || "Falha ao salvar o registro de feeds");
     }
 
     return response;
   };
 
-  // This section is now handled in the createSingleFeedEntry and createBreastFeedingEntries functions
-
-  // Timer functionality
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -564,7 +537,6 @@ export default function FeedForm({
     if (!isTimerRunning) {
       setIsTimerRunning(true);
 
-      // Set the active breast if provided
       if (breast) {
         setFormData((prev) => ({
           ...prev,
@@ -574,7 +546,6 @@ export default function FeedForm({
 
       timerRef.current = setInterval(() => {
         setFormData((prev) => {
-          // Update the appropriate duration based on active breast
           if (prev.activeBreast === "LEFT") {
             return {
               ...prev,
@@ -586,7 +557,6 @@ export default function FeedForm({
               rightDuration: prev.rightDuration + 1,
             };
           } else {
-            // This case shouldn't happen with the simplified UI
             return prev;
           }
         });
@@ -601,14 +571,12 @@ export default function FeedForm({
     }
     setIsTimerRunning(false);
 
-    // Reset active breast when stopping timer
     setFormData((prev) => ({
       ...prev,
       activeBreast: "",
     }));
   };
 
-  // Format time as hh:mm:ss
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -621,17 +589,13 @@ export default function FeedForm({
     ].join(":");
   };
 
-  // Enhanced close handler that resets form state
   const handleClose = () => {
-    // Stop any running timer
     if (isTimerRunning) {
       stopTimer();
     }
 
-    // Clear validation errors
     setValidationError("");
 
-    // Reset form data to initial state
     const resetDateTime = new Date(initialTime);
     setSelectedDateTime(resetDateTime);
     setFormData({
@@ -647,14 +611,11 @@ export default function FeedForm({
       activeBreast: "",
     });
 
-    // Reset initialization flag
     setIsInitialized(false);
 
-    // Call the original onClose
     onClose();
   };
 
-  // Clean up timer on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -677,14 +638,12 @@ export default function FeedForm({
       <FormPageContent className="overflow-y-auto">
         <form onSubmit={handleSubmit} className="h-full flex flex-col">
           <div className="space-y-4 pb-20">
-            {/* Validation Error Display */}
             {validationError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                 {validationError}
               </div>
             )}
 
-            {/* Time Selection - Full width on all screens */}
             <div>
               <label className="form-label">Hora</label>
               <DateTimePicker
@@ -695,11 +654,9 @@ export default function FeedForm({
               />
             </div>
 
-            {/* Feed Type Selection - Full width on all screens */}
             <div>
               <label className="form-label">Tipo</label>
               <div className="flex justify-between items-center gap-3 mt-2">
-                {/* Breast Feed Button */}
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, type: "BREAST" })}
@@ -723,7 +680,6 @@ export default function FeedForm({
                   )}
                 </button>
 
-                {/* Bottle Feed Button */}
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, type: "BOTTLE" })}
@@ -747,7 +703,6 @@ export default function FeedForm({
                   )}
                 </button>
 
-                {/* Solids Button */}
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, type: "SOLIDS" })}

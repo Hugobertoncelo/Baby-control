@@ -154,7 +154,7 @@ export default function BathForm({
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
             showToast,
-            "tracking baths"
+            "banhos de rastreamento"
           );
           if (isExpirationError) {
             return;
@@ -162,7 +162,7 @@ export default function BathForm({
           if (errorData) {
             showToast({
               variant: "error",
-              title: "Error",
+              title: "Erro",
               message: errorData.error || "Falha ao salvar o registro de banho",
               duration: 5000,
             });
@@ -173,7 +173,7 @@ export default function BathForm({
         const errorData = await response.json();
         showToast({
           variant: "error",
-          title: "Error",
+          title: "Erro",
           message: errorData.error || "Falha ao salvar o registro de banho",
           duration: 5000,
         });
@@ -188,7 +188,7 @@ export default function BathForm({
       } else {
         showToast({
           variant: "error",
-          title: "Error",
+          title: "Erro",
           message: data.error || "Falha ao salvar o registro de banho",
           duration: 5000,
         });
@@ -196,7 +196,7 @@ export default function BathForm({
     } catch (error) {
       showToast({
         variant: "error",
-        title: "Error",
+        title: "Erro",
         message: "Ocorreu um erro inesperado. Tente novamente.",
         duration: 5000,
       });

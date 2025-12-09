@@ -24,12 +24,6 @@ import { Button } from "@/src/components/ui/button";
 import { useToast } from "@/src/components/ui/toast";
 import { handleExpirationError } from "@/src/lib/expiration-error-handler";
 
-/**
- * ContactForm Component
- *
- * A form for creating and editing contacts.
- * Includes fields for contact details and role.
- */
 const ContactForm: React.FC<ContactFormProps> = ({
   isOpen,
   onClose,
@@ -39,28 +33,23 @@ const ContactForm: React.FC<ContactFormProps> = ({
   isLoading: externalIsLoading = false,
 }) => {
   const { showToast } = useToast();
-  // Local loading state
   const [isLoading, setIsLoading] = useState(externalIsLoading);
 
-  // Update local loading state when external loading state changes
   useEffect(() => {
     setIsLoading(externalIsLoading);
   }, [externalIsLoading]);
 
-  // Initialize form data
   const [formData, setFormData] = useState<ContactFormData>(() => {
     if (contact) {
-      // Convert from Contact type to ContactFormData type
       return {
         id: contact.id,
         name: contact.name,
         role: contact.role,
-        phone: contact.phone || undefined, // Convert null to undefined
-        email: contact.email || undefined, // Convert null to undefined
+        phone: contact.phone || undefined,
+        email: contact.email || undefined,
       };
     }
 
-    // Default values for new contact
     return {
       name: "",
       role: "",
@@ -69,19 +58,16 @@ const ContactForm: React.FC<ContactFormProps> = ({
     };
   });
 
-  // Update form data when contact changes or when form opens/closes
   useEffect(() => {
     if (contact && isOpen && !isLoading) {
-      // Convert from Contact type to ContactFormData type
       setFormData({
         id: contact.id,
         name: contact.name,
         role: contact.role,
-        phone: contact.phone || undefined, // Convert null to undefined
-        email: contact.email || undefined, // Convert null to undefined
+        phone: contact.phone || undefined,
+        email: contact.email || undefined,
       });
     } else if (!isOpen && !isLoading) {
-      // Reset form data for new contact
       setFormData({
         name: "",
         role: "",
@@ -89,31 +75,25 @@ const ContactForm: React.FC<ContactFormProps> = ({
         email: undefined,
       });
     }
-    // Also reset errors when form data changes
     if (!isLoading) {
       setErrors({});
     }
-  }, [contact?.id, isOpen, isLoading]); // Use contact.id instead of full contact object to prevent unnecessary resets
+  }, [contact?.id, isOpen, isLoading]);
 
-  // Form validation errors
   const [errors, setErrors] = useState<ContactFormErrors>({});
 
-  // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error for the field
     if (errors[name as keyof ContactFormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  // Validate form before submission
   const validateForm = (): boolean => {
     const newErrors: ContactFormErrors = {};
 
-    // Required fields
     if (!formData.name.trim()) {
       newErrors.name = "Nome é obrigatório";
     }
@@ -122,12 +102,10 @@ const ContactForm: React.FC<ContactFormProps> = ({
       newErrors.role = "Cargo é obrigatório";
     }
 
-    // Email validation
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Por favor, insira um endereço de e-mail válido";
     }
 
-    // Phone validation (simple check for now)
     if (formData.phone && !/^[0-9+\-() ]{7,}$/.test(formData.phone)) {
       newErrors.phone = "Por favor, insira um número de telefone válido";
     }
@@ -136,7 +114,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -145,7 +122,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
     setIsLoading(true);
 
     try {
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
       if (!authToken) {
@@ -153,15 +129,12 @@ const ContactForm: React.FC<ContactFormProps> = ({
         return;
       }
 
-      // Determine if this is a create or update operation
       const isUpdate = !!formData.id;
 
-      // Prepare request URL and method
       const url = isUpdate ? `/api/contact?id=${formData.id}` : "/api/contact";
 
       const method = isUpdate ? "PUT" : "POST";
 
-      // Prepare request payload
       const payload = {
         name: formData.name,
         role: formData.role,
@@ -169,7 +142,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
         email: formData.email || undefined,
       };
 
-      // Send request to API
       const response = await fetch(url, {
         method,
         headers: {
@@ -180,7 +152,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
@@ -188,10 +159,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
             "gerenciar contatos"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
             showToast({
               variant: "error",
@@ -203,7 +172,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           }
         }
 
-        // For other errors, parse and show toast
         const errorData = await response.json();
         showToast({
           variant: "error",
@@ -217,10 +185,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
       const result = await response.json();
 
       if (result.success) {
-        // Call the onSave callback with the saved contact
         onSave(result.data);
 
-        // Reset form data to defaults
         setFormData({
           name: "",
           role: "",
@@ -228,7 +194,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           email: undefined,
         });
 
-        // Close the form
         onClose();
       } else {
         showToast({
@@ -241,13 +206,11 @@ const ContactForm: React.FC<ContactFormProps> = ({
       }
     } catch (error) {
       console.error("Erro ao salvar contato:", error);
-      // Error toast already shown above for API errors
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle contact deletion
   const handleDelete = async () => {
     if (!contact?.id || !onDelete) {
       return;
@@ -256,7 +219,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
     setIsLoading(true);
 
     try {
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
       if (!authToken) {
@@ -264,7 +226,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
         return;
       }
 
-      // Send delete request to API
       const response = await fetch(`/api/contact?id=${contact.id}`, {
         method: "DELETE",
         headers: {
@@ -273,7 +234,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
@@ -281,10 +241,8 @@ const ContactForm: React.FC<ContactFormProps> = ({
             "gerenciar contatos"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
             showToast({
               variant: "error",
@@ -296,7 +254,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
           }
         }
 
-        // For other errors, parse and show toast
         const errorData = await response.json();
         showToast({
           variant: "error",
@@ -307,12 +264,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
         throw new Error(errorData.error || "Falha ao excluir contato");
       }
 
-      // Handle 204 No Content response (successful deletion)
       if (response.status === 204) {
-        // Call the onDelete callback
         onDelete(contact.id);
 
-        // Reset form data to defaults
         setFormData({
           name: "",
           role: "",
@@ -320,17 +274,13 @@ const ContactForm: React.FC<ContactFormProps> = ({
           email: undefined,
         });
 
-        // Close the form
         onClose();
       } else {
-        // Handle other success responses with JSON body
         const result = await response.json();
 
         if (result.success) {
-          // Call the onDelete callback
           onDelete(contact.id);
 
-          // Reset form data to defaults
           setFormData({
             name: "",
             role: "",
@@ -338,7 +288,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
             email: undefined,
           });
 
-          // Close the form
           onClose();
         } else {
           showToast({
@@ -352,7 +301,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
       }
     } catch (error) {
       console.error("Erro ao excluir contato:", error);
-      // Error toast already shown above for API errors
     } finally {
       setIsLoading(false);
     }
@@ -373,11 +321,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
       <div className="h-full flex flex-col">
         <FormPageContent className="overflow-y-auto">
           <div className="space-y-6">
-            {/* Contact details section */}
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>Detalhes do Contato</h3>
 
-              {/* Name */}
               <div className={styles.fieldGroup}>
                 <label htmlFor="name" className="form-label">
                   Nome
@@ -403,7 +349,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
                 )}
               </div>
 
-              {/* Role */}
               <div className={styles.fieldGroup}>
                 <label htmlFor="role" className="form-label">
                   Cargo
@@ -429,7 +374,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
                 )}
               </div>
 
-              {/* Phone */}
               <div className={styles.fieldGroup}>
                 <label htmlFor="phone" className="form-label">
                   Número de Telefone
@@ -454,7 +398,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
                 )}
               </div>
 
-              {/* Email */}
               <div className={styles.fieldGroup}>
                 <label htmlFor="email" className="form-label">
                   Endereço de E-mail
@@ -484,7 +427,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
 
         <FormPageFooter>
           <div className="flex justify-between w-full">
-            {/* Delete button (only shown when editing) */}
             {contact && onDelete && (
               <Button
                 type="button"
@@ -497,7 +439,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
               </Button>
             )}
 
-            {/* Right-aligned buttons */}
             <div className="flex space-x-2 ml-auto">
               <Button
                 type="button"

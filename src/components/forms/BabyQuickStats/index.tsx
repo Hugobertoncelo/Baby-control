@@ -4,9 +4,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import { BabyQuickStatsProps, TimePeriod } from "./baby-quick-stats.types";
 import {
   quickStatsContainer,
-  babyInfoHeader,
-  babyNameHeading,
-  babyAgeText,
   placeholderText,
   closeButtonContainer,
   timePeriodSelectorContainer,
@@ -21,15 +18,13 @@ import FormPage, {
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import CardVisual from "@/src/components/reporting/CardVisual";
-import { Clock, Moon, Sun, Utensils, Droplet, Loader2 } from "lucide-react";
-import { diaper } from "@lucide/lab";
+import { Loader2 } from "lucide-react";
 import { useFamily } from "@/src/context/family";
 
 export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
   isOpen,
   onClose,
   selectedBaby,
-  calculateAge,
   activities: initialActivities = [],
 }) => {
   const { family } = useFamily();
@@ -93,16 +88,16 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
             );
           } else {
             setActivities([]);
-            setError(data.message || "Failed to fetch activities");
+            setError(data.message || "Falha ao buscar atividades");
           }
         } else {
           setActivities([]);
-          setError("Failed to fetch activities");
+          setError("Falha ao buscar atividades");
         }
       } catch (err) {
-        console.error("Error fetching activities:", err);
+        console.error("Erro ao buscar atividades:", err);
         setActivities([]);
-        setError("Error fetching activities");
+        setError("Erro ao buscar atividades");
       } finally {
         setIsLoading(false);
       }
@@ -258,9 +253,9 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
     const activitiesByDay: Record<string, any[]> = {};
     filteredActivities.forEach((activity) => {
       const time =
-        "time" in activity
+        "tempo" in activity
           ? new Date(activity.time)
-          : "startTime" in activity
+          : "hora de início" in activity
           ? new Date(activity.startTime)
           : null;
 
@@ -275,13 +270,13 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
 
     Object.values(activitiesByDay).forEach((dayActivities) => {
       const nightSleepEvents = dayActivities.filter((a) => {
-        if (!("startTime" in a)) return false;
+        if (!("hora de início" in a)) return false;
         const startTime = new Date(a.startTime);
         const startHour = startTime.getHours();
 
         const isNightByStart = startHour >= 19 || startHour < 7;
 
-        if ("endTime" in a && a.endTime) {
+        if ("hora final" in a && a.endTime) {
           const endTime = new Date(a.endTime);
           const endHour = endTime.getHours();
           const isNightByEnd = endHour >= 19 || endHour < 7;
@@ -293,7 +288,8 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
       });
 
       nightSleepEvents.forEach((a) => {
-        if (!("startTime" in a) || !("endTime" in a) || !a.endTime) return;
+        if (!("hora de início" in a) || !("hora final" in a) || !a.endTime)
+          return;
 
         const startTime = new Date(a.startTime);
         const startHour = startTime.getHours();
@@ -301,10 +297,10 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
 
         let nightKey;
         if (startHour >= 19) {
-          nightKey = sleepDate.toISOString().split("T")[0] + "-night";
+          nightKey = sleepDate.toISOString().split("T")[0] + "-noite";
         } else if (startHour < 7) {
           sleepDate.setDate(sleepDate.getDate() - 1);
-          nightKey = sleepDate.toISOString().split("T")[0] + "-night";
+          nightKey = sleepDate.toISOString().split("T")[0] + "-noite";
         } else {
           return;
         }
@@ -355,14 +351,14 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
       });
 
       const napActivities = dayActivities.filter((a) => {
-        if (!("startTime" in a && "endTime" in a)) return false;
+        if (!("hora de início" in a && "hora final" in a)) return false;
         const time = new Date(a.startTime);
         const hour = time.getHours();
         return hour >= 7 && hour < 19;
       });
 
       napActivities.forEach((a) => {
-        if ("startTime" in a && "endTime" in a && a.endTime) {
+        if ("hora de início" in a && "hora final" in a && a.endTime) {
           const startTime = new Date(a.startTime).getTime();
           const endTime = new Date(a.endTime).getTime();
           const napDurationMinutes = Math.round(
@@ -434,7 +430,7 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={`${selectedBaby?.firstName}'s Quick Stats`}
+      title={`${selectedBaby?.firstName}'s Estatísticas rápidas`}
     >
       <FormPageContent>
         <div className={quickStatsContainer()}>
@@ -489,7 +485,7 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-teal-600 mb-2" />
-                  <p className="text-gray-600">Loading statistics...</p>
+                  <p className="text-gray-600">Carregando estatísticas...</p>
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center py-8">
@@ -519,7 +515,7 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
                   />
 
                   <CardVisual
-                    title="Avg Nap Time"
+                    title="Tempo médio de soneca"
                     mainValue={formatMinutes(mainStats.avgNapTime)}
                     comparativeValue={formatMinutes(compareStats.avgNapTime)}
                     trend={
@@ -530,7 +526,7 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
                   />
 
                   <CardVisual
-                    title="Avg Night Sleep"
+                    title="Média de sono noturno"
                     mainValue={formatMinutes(mainStats.avgNightSleepTime)}
                     comparativeValue={formatMinutes(
                       compareStats.avgNightSleepTime
@@ -544,7 +540,7 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
                   />
 
                   <CardVisual
-                    title="Avg Night Wakings"
+                    title="Média de despertares noturnos"
                     mainValue={mainStats.avgNightWakings.toFixed(1)}
                     comparativeValue={compareStats.avgNightWakings.toFixed(1)}
                     trend={
@@ -555,14 +551,14 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
                   />
 
                   <CardVisual
-                    title="Avg Feedings"
+                    title="Alimentação média"
                     mainValue={mainStats.avgFeedings.toFixed(1)}
                     comparativeValue={compareStats.avgFeedings.toFixed(1)}
                     trend="neutral"
                   />
 
                   <CardVisual
-                    title="Avg Feed Amount"
+                    title="Quantidade média de comida"
                     mainValue={mainStats.avgFeedAmount.toFixed(1) + " oz"}
                     comparativeValue={
                       compareStats.avgFeedAmount.toFixed(1) + " oz"
@@ -575,14 +571,14 @@ export const BabyQuickStats: React.FC<BabyQuickStatsProps> = ({
                   />
 
                   <CardVisual
-                    title="Avg Diaper Changes"
+                    title="Trocas de fraldas em média"
                     mainValue={mainStats.avgDiaperChanges.toFixed(1)}
                     comparativeValue={compareStats.avgDiaperChanges.toFixed(1)}
                     trend="neutral"
                   />
 
                   <CardVisual
-                    title="Avg Poops"
+                    title="Cocôs médios"
                     mainValue={mainStats.avgPoops.toFixed(1)}
                     comparativeValue={compareStats.avgPoops.toFixed(1)}
                     trend="neutral"

@@ -1,29 +1,33 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Calendar } from 'lucide-react';
-import { Baby, Gender } from '@prisma/client';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
-import { Calendar as CalendarComponent } from '@/src/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/src/components/ui/popover';
+import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { Calendar } from "lucide-react";
+import { Baby, Gender } from "@prisma/client";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Calendar as CalendarComponent } from "@/src/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/src/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/src/components/ui/select';
-import { 
-  FormPage, 
-  FormPageContent, 
-  FormPageFooter 
-} from '@/src/components/ui/form-page';
-import { cn } from '@/src/lib/utils';
-import { babyFormStyles } from './baby-form.styles';
-import { useToast } from '@/src/components/ui/toast';
-import { handleExpirationError } from '@/src/lib/expiration-error-handler';
+} from "@/src/components/ui/select";
+import {
+  FormPage,
+  FormPageContent,
+  FormPageFooter,
+} from "@/src/components/ui/form-page";
+import { cn } from "@/src/lib/utils";
+import { babyFormStyles } from "./baby-form.styles";
+import { useToast } from "@/src/components/ui/toast";
+import { handleExpirationError } from "@/src/lib/expiration-error-handler";
 
 interface BabyFormProps {
   isOpen: boolean;
@@ -34,13 +38,13 @@ interface BabyFormProps {
 }
 
 const defaultFormData = {
-  firstName: '',
-  lastName: '',
+  firstName: "",
+  lastName: "",
   birthDate: undefined as Date | undefined,
-  gender: '',
+  gender: "",
   inactive: false,
-  feedWarningTime: '03:00',
-  diaperWarningTime: '02:00',
+  feedWarningTime: "03:00",
+  diaperWarningTime: "02:00",
 };
 
 export default function BabyForm({
@@ -54,26 +58,26 @@ export default function BabyForm({
   const [formData, setFormData] = useState(defaultFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset form when form opens/closes or baby changes
   useEffect(() => {
     if (baby && isOpen && !isSubmitting) {
-      const birthDate = baby.birthDate instanceof Date 
-        ? baby.birthDate
-        : new Date(baby.birthDate as string);
+      const birthDate =
+        baby.birthDate instanceof Date
+          ? baby.birthDate
+          : new Date(baby.birthDate as string);
 
       setFormData({
         firstName: baby.firstName,
         lastName: baby.lastName,
         birthDate,
-        gender: baby.gender || '',
+        gender: baby.gender || "",
         inactive: baby.inactive || false,
-        feedWarningTime: baby.feedWarningTime || '03:00',
-        diaperWarningTime: baby.diaperWarningTime || '02:00',
+        feedWarningTime: baby.feedWarningTime || "03:00",
+        diaperWarningTime: baby.diaperWarningTime || "02:00",
       });
     } else if (!isOpen && !isSubmitting) {
       setFormData(defaultFormData);
     }
-  }, [baby?.id, isOpen, isSubmitting]); // Use baby.id instead of full baby object to prevent unnecessary resets
+  }, [baby?.id, isOpen, isSubmitting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,19 +85,18 @@ export default function BabyForm({
 
     try {
       setIsSubmitting(true);
-      
-      // Get auth token for API request
-      const authToken = localStorage.getItem('authToken');
+
+      const authToken = localStorage.getItem("authToken");
       const headers: HeadersInit = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
-      
+
       if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
+        headers["Authorization"] = `Bearer ${authToken}`;
       }
-      
-      const response = await fetch('/api/baby', {
-        method: isEditing ? 'PUT' : 'POST',
+
+      const response = await fetch("/api/baby", {
+        method: isEditing ? "PUT" : "POST",
         headers,
         body: JSON.stringify({
           ...formData,
@@ -104,75 +107,76 @@ export default function BabyForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError } = await handleExpirationError(
-            response, 
-            showToast, 
-            'managing babies'
+            response,
+            showToast,
+            "managing babies"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
         }
-        
-        // For other errors, throw as before
-        throw new Error('Failed to save baby');
+
+        throw new Error("Não conseguiram salvar o bebê.");
       }
 
       if (onBabyChange) {
         onBabyChange();
       }
-      
+
       onClose();
     } catch (error) {
-      console.error('Error saving baby:', error);
+      console.error("Error saving baby:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <FormPage 
-      isOpen={isOpen} 
+    <FormPage
+      isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? 'Edit Baby' : 'Add New Baby'}
-      description={isEditing 
-        ? "Update your baby's information" 
-        : "Enter your baby's information to start tracking"
+      title={isEditing ? "Editar bebê" : "Adicionar novo bebê"}
+      description={
+        isEditing
+          ? "Atualize as informações do seu bebê."
+          : "Insira as informações do seu bebê para começar o acompanhamento."
       }
     >
-      <form onSubmit={handleSubmit} className="h-full flex flex-col overflow-hidden">
+      <form
+        onSubmit={handleSubmit}
+        className="h-full flex flex-col overflow-hidden"
+      >
         <FormPageContent className={babyFormStyles.content}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">First Name</label>
+              <label className="form-label">Primeiro nome</label>
               <Input
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
                 className="w-full"
-                placeholder="Enter first name"
+                placeholder="Digite o primeiro nome"
                 required
               />
             </div>
             <div>
-              <label className="form-label">Last Name</label>
+              <label className="form-label">Sobrenome</label>
               <Input
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
                 className="w-full"
-                placeholder="Enter last name"
+                placeholder="Digite o sobrenome"
                 required
               />
             </div>
           </div>
           <div>
-            <label className="form-label">Birth Date</label>
+            <label className="form-label">Data de nascimento</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -183,22 +187,26 @@ export default function BabyForm({
                   )}
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  {formData.birthDate ? format(formData.birthDate, "PPP") : "Select date"}
+                  {formData.birthDate
+                    ? format(formData.birthDate, "PPP")
+                    : "Selecione a data"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 z-[100]" align="start">
                 <CalendarComponent
                   mode="single"
                   selected={formData.birthDate}
-                  onSelect={(date) => setFormData({ ...formData, birthDate: date })}
-                  maxDate={new Date()} // Can't select future dates
+                  onSelect={(date) =>
+                    setFormData({ ...formData, birthDate: date })
+                  }
+                  maxDate={new Date()}
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
           </div>
           <div>
-            <label className="form-label">Gender</label>
+            <label className="form-label">Gênero</label>
             <Select
               value={formData.gender}
               onValueChange={(value) =>
@@ -206,17 +214,19 @@ export default function BabyForm({
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select gender" />
+                <SelectValue placeholder="Selecione o sexo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MALE">Male</SelectItem>
-                <SelectItem value="FEMALE">Female</SelectItem>
+                <SelectItem value="MALE">Masculino</SelectItem>
+                <SelectItem value="FEMALE">Feminino</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Feed Warning Time (hh:mm)</label>
+              <label className="form-label">
+                Tempo de aviso de feed (hh:mm)
+              </label>
               <Input
                 type="text"
                 pattern="[0-9]{2}:[0-9]{2}"
@@ -230,13 +240,18 @@ export default function BabyForm({
               />
             </div>
             <div>
-              <label className="form-label">Diaper Warning Time (hh:mm)</label>
+              <label className="form-label">
+                Horário de aviso para troca de fralda (hh:mm)
+              </label>
               <Input
                 type="text"
                 pattern="[0-9]{2}:[0-9]{2}"
                 value={formData.diaperWarningTime}
                 onChange={(e) =>
-                  setFormData({ ...formData, diaperWarningTime: e.target.value })
+                  setFormData({
+                    ...formData,
+                    diaperWarningTime: e.target.value,
+                  })
                 }
                 className="w-full"
                 placeholder="02:00"
@@ -255,7 +270,7 @@ export default function BabyForm({
                     setFormData({ ...formData, inactive: e.target.checked })
                   }
                 />
-                <span className="ml-2">Mark as inactive</span>
+                <span className="ml-2">Marcar como inativo</span>
               </label>
             </div>
           )}
@@ -268,13 +283,10 @@ export default function BabyForm({
               onClick={onClose}
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : isEditing ? 'Update' : 'Save'}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : isEditing ? "Atualizar" : "Salvar"}
             </Button>
           </div>
         </FormPageFooter>

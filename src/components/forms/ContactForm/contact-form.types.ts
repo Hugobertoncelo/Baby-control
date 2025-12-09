@@ -1,44 +1,14 @@
-import { Contact } from '@/src/components/CalendarEvent/calendar-event.types';
-
-/**
- * Type definitions for the ContactForm component
- */
+import { Contact } from "@/src/components/CalendarEvent/calendar-event.types";
 
 export interface ContactFormProps {
-  /**
-   * Whether the form is open
-   */
   isOpen: boolean;
-  
-  /**
-   * Handler for when the form is closed
-   */
   onClose: () => void;
-  
-  /**
-   * The contact to edit (undefined for new contacts)
-   */
   contact?: Contact;
-  
-  /**
-   * Handler for when the form is submitted
-   */
   onSave: (contact: ContactFormData) => void;
-  
-  /**
-   * Handler for when a contact is deleted
-   */
   onDelete?: (contactId: string) => void;
-  
-  /**
-   * Whether the form is in a loading state
-   */
   isLoading?: boolean;
 }
 
-/**
- * Form data for contacts
- */
 export interface ContactFormData {
   id?: string;
   name: string;
@@ -47,9 +17,6 @@ export interface ContactFormData {
   email?: string;
 }
 
-/**
- * Form errors
- */
 export interface ContactFormErrors {
   name?: string;
   role?: string;

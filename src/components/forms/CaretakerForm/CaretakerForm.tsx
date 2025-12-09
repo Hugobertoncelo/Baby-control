@@ -310,7 +310,7 @@ export default function CaretakerForm({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? "Edit Caretaker" : "Adicionar novo cuidador"}
+      title={isEditing ? "Editar zelador" : "Adicionar novo cuidador"}
       description={
         isEditing
           ? "Atualizar informações do cuidador"

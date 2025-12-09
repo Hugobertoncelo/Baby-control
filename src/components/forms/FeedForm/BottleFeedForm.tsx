@@ -24,7 +24,6 @@ export default function BottleFeedForm({
 }: BottleFeedFormProps) {
   return (
     <div>
-      {/* Localized label and unit display */}
       <label className="form-label mb-6">
         Quantia ({unit === "ML" ? "ml" : "L"})
       </label>
@@ -60,7 +59,6 @@ export default function BottleFeedForm({
         </Button>
       </div>
       <div className="mt-2 flex space-x-2">
-        {/* Update unit selection to L and ML, localized */}
         <Button
           type="button"
           variant={unit === "L" ? "default" : "outline"}

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
-import { Plus, Minus } from 'lucide-react';
+import React from "react";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Plus, Minus } from "lucide-react";
 
 interface SolidsFeedFormProps {
   amount: string;
@@ -29,7 +29,7 @@ export default function SolidsFeedForm({
   return (
     <>
       <div>
-        <label className="form-label mb-6">Amount ({unit})</label>
+        <label className="form-label mb-6">Quantia ({unit})</label>
         <div className="flex items-center justify-center mb-6">
           <Button
             type="button"
@@ -46,7 +46,7 @@ export default function SolidsFeedForm({
             value={amount}
             onChange={(e) => onAmountChange(e.target.value)}
             className="w-24 mx-3 text-center"
-            placeholder="Amount"
+            placeholder="Quantia"
             inputMode="decimal"
             disabled={loading}
           />
@@ -64,18 +64,18 @@ export default function SolidsFeedForm({
         <div className="mt-2 flex space-x-2">
           <Button
             type="button"
-            variant={unit === 'TBSP' ? 'default' : 'outline'}
+            variant={unit === "TBSP" ? "default" : "outline"}
             className="w-full"
-            onClick={() => onUnitChange('TBSP')}
+            onClick={() => onUnitChange("TBSP")}
             disabled={loading}
           >
-            tbsp
+            colher de sopa
           </Button>
           <Button
             type="button"
-            variant={unit === 'G' ? 'default' : 'outline'}
+            variant={unit === "G" ? "default" : "outline"}
             className="w-full"
-            onClick={() => onUnitChange('G')}
+            onClick={() => onUnitChange("G")}
             disabled={loading}
           >
             g
@@ -83,12 +83,12 @@ export default function SolidsFeedForm({
         </div>
       </div>
       <div className="mb-6">
-        <label className="form-label">Food</label>
+        <label className="form-label">Comida</label>
         <Input
           value={food}
           onChange={(e) => onFoodChange(e.target.value)}
           className="w-full"
-          placeholder="Enter food"
+          placeholder="Digite a comida"
           disabled={loading}
         />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface TimerInputProps {
   hours: number;
@@ -10,7 +10,7 @@ interface TimerInputProps {
   onSave: () => void;
   disabled?: boolean;
   className?: string;
-  fieldPrefix: string; // Used to create unique field IDs
+  fieldPrefix: string;
 }
 
 export default function TimerInput({
@@ -23,12 +23,13 @@ export default function TimerInput({
   onSave,
   disabled = false,
   className = "",
-  fieldPrefix
+  fieldPrefix,
 }: TimerInputProps) {
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [placeholderFields, setPlaceholderFields] = useState<Set<string>>(new Set());
-  
-  // Initialize placeholder fields for zero values
+  const [placeholderFields, setPlaceholderFields] = useState<Set<string>>(
+    new Set()
+  );
+
   useEffect(() => {
     const fields = new Set<string>();
     if (hours === 0) fields.add(`${fieldPrefix}Hours`);
@@ -37,37 +38,33 @@ export default function TimerInput({
     setPlaceholderFields(fields);
   }, [hours, minutes, seconds, fieldPrefix]);
 
-  // Helper function to format display value based on editing state
   const getDisplayValue = (value: number, fieldId: string) => {
     if (editingField === fieldId && value === 0) {
-      return ''; // Show empty when editing a zero value
+      return "";
     }
-    if (value === 0) return '00';
+    if (value === 0) return "00";
     if (editingField === fieldId) {
-      return value.toString(); // Show raw value during editing
+      return value.toString();
     }
-    return value.toString().padStart(2, '0'); // Show formatted value when not editing
+    return value.toString().padStart(2, "0");
   };
-  
-  // Helper function to get input className
+
   const getInputClassName = (baseClassName: string) => {
     return baseClassName;
   };
-  
-  // Handle input changes with proper single digit padding
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (value: number) => void,
     max: number,
     fieldId: string
   ) => {
-    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
-    const numValue = value === '' ? 0 : parseInt(value, 10);
+    const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 2);
+    const numValue = value === "" ? 0 : parseInt(value, 10);
     if (numValue <= max) {
       setter(numValue);
-      // Remove from placeholder fields when user types
       if (numValue > 0) {
-        setPlaceholderFields(prev => {
+        setPlaceholderFields((prev) => {
           const newSet = new Set(prev);
           newSet.delete(fieldId);
           return newSet;
@@ -75,15 +72,15 @@ export default function TimerInput({
       }
     }
   };
-  
-  // Handle focus with immediate placeholder clearing
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>, fieldId: string) => {
+
+  const handleFocus = (
+    e: React.FocusEvent<HTMLInputElement>,
+    fieldId: string
+  ) => {
     setEditingField(fieldId);
-    // Always select all text so user can type anywhere and replace the whole value
     setTimeout(() => e.target.select(), 0);
   };
-  
-  // Handle blur with proper padding and placeholder restoration
+
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement>,
     setter: (value: number) => void,
@@ -91,42 +88,47 @@ export default function TimerInput({
   ) => {
     setEditingField(null);
     const value = e.target.value;
-    
-    if (value === '' || value === '0') {
+
+    if (value === "" || value === "0") {
       setter(0);
-      setPlaceholderFields(prev => new Set(prev).add(fieldId));
+      setPlaceholderFields((prev) => new Set(prev).add(fieldId));
     } else {
-      // Add leading zero for single digits
       const numValue = parseInt(value, 10);
       setter(numValue);
-      setPlaceholderFields(prev => {
+      setPlaceholderFields((prev) => {
         const newSet = new Set(prev);
         newSet.delete(fieldId);
         return newSet;
       });
     }
-    
+
     onSave();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       onSave();
     }
   };
 
   return (
-    <div className={`flex items-center text-2xl font-medium tracking-wider ${className}`}>
+    <div
+      className={`flex items-center text-2xl font-medium tracking-wider ${className}`}
+    >
       <input
         type="text"
         inputMode="numeric"
-        value={getDisplayValue(hours, `${fieldPrefix}Hours`)}
-        onChange={(e) => handleInputChange(e, onHoursChange, 23, `${fieldPrefix}Hours`)}
-        onFocus={(e) => handleFocus(e, `${fieldPrefix}Hours`)}
-        onBlur={(e) => handleBlur(e, onHoursChange, `${fieldPrefix}Hours`)}
+        value={getDisplayValue(hours, `${fieldPrefix}Horas`)}
+        onChange={(e) =>
+          handleInputChange(e, onHoursChange, 23, `${fieldPrefix}Horas`)
+        }
+        onFocus={(e) => handleFocus(e, `${fieldPrefix}Horas`)}
+        onBlur={(e) => handleBlur(e, onHoursChange, `${fieldPrefix}Horas`)}
         onKeyDown={handleKeyDown}
-        className={getInputClassName("w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1")}
+        className={getInputClassName(
+          "w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1"
+        )}
         disabled={disabled}
         placeholder=""
       />
@@ -134,12 +136,16 @@ export default function TimerInput({
       <input
         type="text"
         inputMode="numeric"
-        value={getDisplayValue(minutes, `${fieldPrefix}Minutes`)}
-        onChange={(e) => handleInputChange(e, onMinutesChange, 59, `${fieldPrefix}Minutes`)}
-        onFocus={(e) => handleFocus(e, `${fieldPrefix}Minutes`)}
-        onBlur={(e) => handleBlur(e, onMinutesChange, `${fieldPrefix}Minutes`)}
+        value={getDisplayValue(minutes, `${fieldPrefix}Minutos`)}
+        onChange={(e) =>
+          handleInputChange(e, onMinutesChange, 59, `${fieldPrefix}Minutos`)
+        }
+        onFocus={(e) => handleFocus(e, `${fieldPrefix}Minutos`)}
+        onBlur={(e) => handleBlur(e, onMinutesChange, `${fieldPrefix}Minutos`)}
         onKeyDown={handleKeyDown}
-        className={getInputClassName("w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1")}
+        className={getInputClassName(
+          "w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1"
+        )}
         disabled={disabled}
         placeholder=""
       />
@@ -147,12 +153,16 @@ export default function TimerInput({
       <input
         type="text"
         inputMode="numeric"
-        value={getDisplayValue(seconds, `${fieldPrefix}Seconds`)}
-        onChange={(e) => handleInputChange(e, onSecondsChange, 59, `${fieldPrefix}Seconds`)}
-        onFocus={(e) => handleFocus(e, `${fieldPrefix}Seconds`)}
-        onBlur={(e) => handleBlur(e, onSecondsChange, `${fieldPrefix}Seconds`)}
+        value={getDisplayValue(seconds, `${fieldPrefix}Segundos`)}
+        onChange={(e) =>
+          handleInputChange(e, onSecondsChange, 59, `${fieldPrefix}Segundos`)
+        }
+        onFocus={(e) => handleFocus(e, `${fieldPrefix}Segundos`)}
+        onBlur={(e) => handleBlur(e, onSecondsChange, `${fieldPrefix}Segundos`)}
         onKeyDown={handleKeyDown}
-        className={getInputClassName("w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1")}
+        className={getInputClassName(
+          "w-12 text-center bg-transparent border-none outline-none text-2xl font-medium cursor-pointer hover:bg-gray-50 rounded px-1"
+        )}
         disabled={disabled}
         placeholder=""
       />

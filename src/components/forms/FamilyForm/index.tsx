@@ -924,7 +924,7 @@ export default function FamilyForm({
                               });
                             }
                           }}
-                          placeholder="e.g., 01, 12, 99"
+                          placeholder="Exemplo: 01, 12, 99"
                           disabled={loading}
                           maxLength={2}
                         />
@@ -944,7 +944,7 @@ export default function FamilyForm({
                           disabled={loading || caretakers.length === 0}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select role" />
+                            <SelectValue placeholder="Selecione a função" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="ADMIN">Administrador</SelectItem>
@@ -1154,12 +1154,12 @@ export default function FamilyForm({
                     disabled={loading}
                   />
                   <p className="text-xs text-gray-500 family-form-text-muted mt-1">
-                    Format: hh:mm
+                    Formato: hh:mm
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    Diaper Warning Time
+                    Tempo de aviso de fralda
                   </Label>
                   <Input
                     type="text"

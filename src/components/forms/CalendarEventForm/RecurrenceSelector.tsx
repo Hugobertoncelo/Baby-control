@@ -1,11 +1,10 @@
-import React from 'react';
-import { cn } from '@/src/lib/utils';
-import { RecurrencePattern } from '@prisma/client';
-import { calendarEventFormStyles as styles } from './calendar-event-form.styles';
-import { Repeat, AlertCircle } from 'lucide-react';
-import { Input } from '@/src/components/ui/input';
-import { Button } from '@/src/components/ui/button';
-import { Checkbox } from '@/src/components/ui/checkbox';
+import React from "react";
+import { RecurrencePattern } from "@prisma/client";
+import { calendarEventFormStyles as styles } from "./calendar-event-form.styles";
+import { Repeat, AlertCircle } from "lucide-react";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import { Checkbox } from "@/src/components/ui/checkbox";
 
 interface RecurrenceSelectorProps {
   recurring: boolean;
@@ -20,12 +19,6 @@ interface RecurrenceSelectorProps {
   };
 }
 
-/**
- * RecurrenceSelector Component
- * 
- * A subcomponent of CalendarEventForm that handles the selection of recurrence patterns
- * for recurring events.
- */
 const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
   recurring,
   recurrencePattern,
@@ -35,14 +28,14 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
   onRecurrenceEndChange,
   error,
 }) => {
-  // Format date for input
   const formatDateForInput = (date?: Date) => {
-    if (!date) return '';
-    return date.toISOString().split('T')[0];
+    if (!date) return "";
+    return date.toISOString().split("T")[0];
   };
 
-  // Handle recurrence end date change
-  const handleRecurrenceEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRecurrenceEndChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value;
     if (value) {
       onRecurrenceEndChange(new Date(value));
@@ -53,23 +46,23 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
 
   return (
     <div className={styles.recurrenceContainer}>
-      {/* Recurring checkbox */}
       <div className="flex items-center space-x-2 py-2">
         <Checkbox
           id="recurring"
           checked={recurring}
           onCheckedChange={(checked) => onRecurringChange(checked === true)}
         />
-        <label htmlFor="recurring" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+        <label
+          htmlFor="recurring"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center"
+        >
           <Repeat className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />
-          Recurring event
+          Evento recorrente
         </label>
       </div>
 
-      {/* Recurrence options (only shown if recurring is checked) */}
       {recurring && (
         <>
-          {/* Recurrence pattern */}
           <div className={styles.fieldGroup}>
             <label className="form-label">
               Recurrence Pattern
@@ -80,11 +73,14 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
                 <Button
                   key={pattern}
                   type="button"
-                  variant={recurrencePattern === pattern ? "default" : "outline"}
+                  variant={
+                    recurrencePattern === pattern ? "default" : "outline"
+                  }
                   onClick={() => onRecurrencePatternChange(pattern)}
                   className="w-full"
                 >
-                  {pattern.charAt(0) + pattern.slice(1).toLowerCase().replace('_', ' ')}
+                  {pattern.charAt(0) +
+                    pattern.slice(1).toLowerCase().replace("_", " ")}
                 </Button>
               ))}
             </div>
@@ -96,13 +92,9 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
             )}
           </div>
 
-          {/* Recurrence end date */}
           <div className={styles.fieldGroup}>
-            <label 
-              htmlFor="recurrenceEnd" 
-              className="form-label"
-            >
-              Ends On
+            <label htmlFor="recurrenceEnd" className="form-label">
+              Termina em
             </label>
             <Input
               type="date"
@@ -112,7 +104,7 @@ const RecurrenceSelector: React.FC<RecurrenceSelectorProps> = ({
               className="w-full"
             />
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Leave blank for an indefinite recurrence
+              Deixe em branco para recorrência indefinida.
             </div>
             {error?.recurrenceEnd && (
               <div className={styles.fieldError}>
