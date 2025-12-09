@@ -110,7 +110,9 @@ export default function LoginSecurity({
         <div className="text-center mt-2 mb-4">
           <div className="flex items-center justify-center gap-2">
             <h2 className="text-xl font-semibold login-title">
-              {isMounted && familyName ? familyName : "Security Check"}
+              {isMounted && familyName
+                ? familyName
+                : "Verificação de segurança"}
             </h2>
             {familySlug && familyName && loginMode === "pin" && (
               <ShareButton
@@ -162,8 +164,8 @@ export default function LoginSecurity({
                 className="text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
               >
                 {loginMode === "pin"
-                  ? "Switch to account login"
-                  : "Switch to PIN login"}
+                  ? "Mudar para login da conta"
+                  : "Mudar para login com PIN"}
               </button>
             </div>
           )}

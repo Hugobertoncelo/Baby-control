@@ -74,22 +74,18 @@ export default function FamilyForm({
     enableHttps: boolean;
   } | null>(null);
 
-  // Setup mode selection
   const [setupMode, setSetupMode] = useState<SetupMode>("manual");
 
-  // Family data
   const [familyName, setFamilyName] = useState("");
   const [familySlug, setFamilySlug] = useState("");
   const [slugError, setSlugError] = useState("");
   const [checkingSlug, setCheckingSlug] = useState(false);
   const [slugValidated, setSlugValidated] = useState(false);
 
-  // Token mode data
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
   const [tokenPassword, setTokenPassword] = useState("");
   const [confirmTokenPassword, setConfirmTokenPassword] = useState("");
 
-  // Manual mode - Security setup
   const [useSystemPin, setUseSystemPin] = useState(true);
   const [systemPin, setSystemPin] = useState("");
   const [confirmSystemPin, setConfirmSystemPin] = useState("");
@@ -102,7 +98,6 @@ export default function FamilyForm({
     securityPin: "",
   });
 
-  // Manual mode - Baby setup
   const [babyFirstName, setBabyFirstName] = useState("");
   const [babyLastName, setBabyLastName] = useState("");
   const [babyBirthDate, setBabyBirthDate] = useState<Date | null>(null);
@@ -110,10 +105,8 @@ export default function FamilyForm({
   const [feedWarningTime, setFeedWarningTime] = useState("02:00");
   const [diaperWarningTime, setDiaperWarningTime] = useState("03:00");
 
-  // Error handling
   const [error, setError] = useState("");
 
-  // Fetch app config for ShareButton
   useEffect(() => {
     const fetchAppConfig = async () => {
       try {
@@ -132,15 +125,12 @@ export default function FamilyForm({
     }
   }, [isOpen]);
 
-  // Reset form when opening/closing
   useEffect(() => {
     if (isOpen) {
       if (isEditing && family) {
-        // For editing existing family (not implementing family editing in this form)
         setFamilyName(family.name);
         setFamilySlug(family.slug);
       } else {
-        // Reset for new family
         setSetupMode("manual");
         setFamilyName("");
         setFamilySlug("");
@@ -171,7 +161,6 @@ export default function FamilyForm({
     }
   }, [isOpen, isEditing, family]);
 
-  // Get auth headers for API calls
   const getAuthHeaders = () => {
     const authToken = localStorage.getItem("authToken");
     return {
@@ -180,7 +169,6 @@ export default function FamilyForm({
     };
   };
 
-  // Generate a unique slug
   const generateSlug = async () => {
     try {
       const response = await fetch("/api/family/generate-slug", {
@@ -191,28 +179,26 @@ export default function FamilyForm({
       if (data.success && data.data.slug) {
         setFamilySlug(data.data.slug);
         setSlugError("");
-        setSlugValidated(false); // Reset validation state for new slug
+        setSlugValidated(false);
       } else {
-        setSlugError("Failed to generate unique URL");
+        setSlugError("Falha ao gerar URL única");
       }
     } catch (error) {
-      console.error("Error generating slug:", error);
-      setSlugError("Error generating URL");
+      console.error("Erro ao gerar o slug:", error);
+      setSlugError("Erro ao gerar URL");
     }
   };
 
-  // Auto-generate slug from family name
   const generateSlugFromName = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+      .replace(/[^a-z0-9\s-]/g, "")
       .trim()
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-") // Replace multiple hyphens with single
-      .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   };
 
-  // Handle slug field click - auto-generate if empty
   const handleSlugFieldClick = () => {
     if (!familySlug && familyName) {
       const autoSlug = generateSlugFromName(familyName);
@@ -222,7 +208,6 @@ export default function FamilyForm({
     }
   };
 
-  // Check slug uniqueness
   const checkSlugUniqueness = useCallback(async (slug: string) => {
     if (!slug || slug.trim() === "") {
       setSlugError("");
@@ -230,24 +215,23 @@ export default function FamilyForm({
       return;
     }
 
-    // Basic slug validation
     const slugPattern = /^[a-z0-9-]+$/;
     if (!slugPattern.test(slug)) {
       setSlugError(
-        "Slug can only contain lowercase letters, numbers, and hyphens"
+        "O termo slug só pode conter letras minúsculas, números e hífenes."
       );
       setSlugValidated(false);
       return;
     }
 
     if (slug.length < 3) {
-      setSlugError("Slug must be at least 3 characters long");
+      setSlugError("O slug deve ter pelo menos 3 caracteres.");
       setSlugValidated(false);
       return;
     }
 
     if (slug.length > 50) {
-      setSlugError("Slug must be less than 50 characters");
+      setSlugError("O slug deve ter menos de 50 caracteres.");
       setSlugValidated(false);
       return;
     }
@@ -264,22 +248,21 @@ export default function FamilyForm({
       const data = await response.json();
 
       if (data.success && data.data) {
-        setSlugError("This URL is already taken");
+        setSlugError("Este URL já está em uso.");
         setSlugValidated(false);
       } else {
         setSlugError("");
         setSlugValidated(true);
       }
     } catch (error) {
-      console.error("Error checking slug:", error);
-      setSlugError("Error checking URL availability");
+      console.error("Erro ao verificar o slug:", error);
+      setSlugError("Erro ao verificar a disponibilidade do URL");
       setSlugValidated(false);
     } finally {
       setCheckingSlug(false);
     }
   }, []);
 
-  // Debounced slug check
   useEffect(() => {
     if (familySlug) {
       const timeoutId = setTimeout(() => {
@@ -290,31 +273,29 @@ export default function FamilyForm({
     }
   }, [familySlug, checkSlugUniqueness]);
 
-  // Add caretaker to list
   const addCaretaker = () => {
-    // Validate caretaker
     if (newCaretaker.loginId.length !== 2) {
-      setError("Login ID must be exactly 2 digits");
+      setError("O ID de login deve ter exatamente 2 dígitos.");
       return;
     }
 
     if (!/^\d+$/.test(newCaretaker.loginId)) {
-      setError("Login ID must contain only digits");
+      setError("O ID de login deve conter apenas dígitos.");
       return;
     }
 
     if (newCaretaker.loginId === "00") {
-      setError('Login ID "00" is reserved for system use');
+      setError('O ID de login "00" está reservado para uso do sistema.');
       return;
     }
 
     if (caretakers.some((c) => c.loginId === newCaretaker.loginId)) {
-      setError("This Login ID is already taken");
+      setError("Este ID de login já está em uso.");
       return;
     }
 
     if (!newCaretaker.name.trim()) {
-      setError("Please enter caretaker name");
+      setError("Por favor, insira o nome do zelador.");
       return;
     }
 
@@ -322,7 +303,7 @@ export default function FamilyForm({
       newCaretaker.securityPin.length < 6 ||
       newCaretaker.securityPin.length > 10
     ) {
-      setError("PIN must be between 6 and 10 digits");
+      setError("O PIN deve ter entre 6 e 10 dígitos.");
       return;
     }
 
@@ -337,30 +318,27 @@ export default function FamilyForm({
     setError("");
   };
 
-  // Remove caretaker from list
   const removeCaretaker = (index: number) => {
     const updatedCaretakers = [...caretakers];
     updatedCaretakers.splice(index, 1);
     setCaretakers(updatedCaretakers);
   };
 
-  // Generate setup token (simplified - no family details required)
   const handleGenerateToken = async () => {
     setError("");
 
-    // Validate password
     if (!tokenPassword.trim()) {
-      setError("Please enter a setup password");
+      setError("Por favor, insira uma senha de configuração.");
       return;
     }
 
     if (tokenPassword.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
     if (tokenPassword !== confirmTokenPassword) {
-      setError("Passwords do not match");
+      setError("As senhas não coincidem.");
       return;
     }
 
@@ -376,27 +354,25 @@ export default function FamilyForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
             showToast,
-            "creating setup invitations"
+            "criando convites de configuração"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
-            setError(errorData.error || "Failed to generate setup token");
+            setError(
+              errorData.error || "Falha ao gerar o token de configuração."
+            );
             return;
           }
         }
 
-        // For other errors, parse and show error
         const errorData = await response.json();
-        setError(errorData.error || "Failed to generate setup token");
+        setError(errorData.error || "Falha ao gerar o token de configuração.");
         return;
       }
 
@@ -406,128 +382,116 @@ export default function FamilyForm({
         setGeneratedToken(data.data.setupUrl);
         onFamilyChange();
       } else {
-        setError(data.error || "Failed to generate setup token");
+        setError(data.error || "Falha ao gerar o token de configuração.");
       }
     } catch (error) {
-      console.error("Error generating setup token:", error);
-      setError("Failed to generate setup token. Please try again.");
+      console.error("Erro ao gerar o token de configuração:", error);
+      setError("Falha ao gerar o token de configuração. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle manual family creation
   const handleManualSave = async () => {
     setError("");
 
-    // Validate family data
     if (!familyName.trim()) {
-      setError("Please enter a family name");
+      setError("Por favor, insira um sobrenome.");
       return;
     }
 
     if (!familySlug.trim()) {
-      setError("Please enter a family URL");
+      setError("Por favor, insira um URL familiar.");
       return;
     }
 
-    // Force slug validation before proceeding
     if (familySlug) {
       await checkSlugUniqueness(familySlug);
     }
 
     if (slugError) {
-      setError("Please fix the URL error before proceeding");
+      setError("Por favor, corrija o erro de URL antes de prosseguir.");
       return;
     }
 
-    // Validate security setup
     if (useSystemPin) {
       if (systemPin.length < 6 || systemPin.length > 10) {
-        setError("PIN must be between 6 and 10 digits");
+        setError("O PIN deve ter entre 6 e 10 dígitos.");
         return;
       }
 
       if (systemPin !== confirmSystemPin) {
-        setError("PINs do not match");
+        setError("Os PINs não coincidem.");
         return;
       }
     } else {
       if (caretakers.length === 0) {
-        setError("Please add at least one caretaker");
+        setError("Por favor, adicione pelo menos um cuidador.");
         return;
       }
     }
 
-    // Validate baby information
     if (!babyFirstName.trim()) {
-      setError("Please enter baby's first name");
+      setError("Por favor, digite o primeiro nome do bebê.");
       return;
     }
 
     if (!babyLastName.trim()) {
-      setError("Please enter baby's last name");
+      setError("Por favor, digite o sobrenome do bebê.");
       return;
     }
 
     if (!babyBirthDate) {
-      setError("Please enter baby's birth date");
+      setError("Por favor, insira a data de nascimento do bebê.");
       return;
     }
 
     if (!babyGender) {
-      setError("Please select baby's gender");
+      setError("Por favor, selecione o sexo do bebê.");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Create family using the setup/start endpoint with isNewFamily flag
       const familyResponse = await fetch("/api/setup/start", {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
           name: familyName,
           slug: familySlug,
-          isNewFamily: true, // This tells the API to create a new family instead of updating the default one
+          isNewFamily: true,
         }),
       });
 
       if (!familyResponse.ok) {
-        // Check if this is an account expiration error
         if (familyResponse.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             familyResponse,
             showToast,
-            "creating families"
+            "criando famílias"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
-            throw new Error(errorData.error || "Failed to create family");
+            throw new Error(errorData.error || "Não conseguiu formar família");
           }
-          // Fallback if errorData is somehow missing
-          throw new Error("Failed to create family");
+          throw new Error("Não conseguiu formar família");
         }
 
-        // For other errors, parse and throw
         const errorData = await familyResponse.json();
-        throw new Error(errorData.error || "Failed to create family");
+        throw new Error(errorData.error || "Não conseguiu formar uma família");
       }
 
       const familyData = await familyResponse.json();
 
       if (!familyData.success) {
-        throw new Error(familyData.error || "Failed to create family");
+        throw new Error(familyData.error || "Não conseguiu formar família");
       }
 
       const createdFamilyId = familyData.data.id;
 
-      // Save security settings
       if (useSystemPin) {
         const settingsResponse = await fetch(
           `/api/settings?familyId=${createdFamilyId}`,
@@ -535,28 +499,26 @@ export default function FamilyForm({
             method: "PUT",
             headers: getAuthHeaders(),
             body: JSON.stringify({
-              familyName: familyName, // Set the actual family name
+              familyName: familyName,
               securityPin: systemPin,
             }),
           }
         );
 
         if (!settingsResponse.ok) {
-          // Check if this is an account expiration error
           if (settingsResponse.status === 403) {
             const { isExpirationError } = await handleExpirationError(
               settingsResponse,
               showToast,
-              "saving security settings"
+              "salvando configurações de segurança"
             );
             if (isExpirationError) {
               return;
             }
           }
-          throw new Error("Failed to save security PIN");
+          throw new Error("Falha ao salvar o PIN de segurança");
         }
       } else {
-        // Save caretakers
         for (const caretaker of caretakers) {
           const caretakerResponse = await fetch("/api/caretaker", {
             method: "POST",
@@ -568,50 +530,48 @@ export default function FamilyForm({
           });
 
           if (!caretakerResponse.ok) {
-            // Check if this is an account expiration error
             if (caretakerResponse.status === 403) {
               const { isExpirationError } = await handleExpirationError(
                 caretakerResponse,
                 showToast,
-                "adding caretakers"
+                "adicionando cuidadores"
               );
               if (isExpirationError) {
                 return;
               }
             }
-            throw new Error(`Failed to save caretaker: ${caretaker.name}`);
+            throw new Error(`Falha em salvar o zelador: ${caretaker.name}`);
           }
         }
 
-        // Update settings with the actual family name (when using individual caretakers)
         const settingsResponse = await fetch(
           `/api/settings?familyId=${createdFamilyId}`,
           {
             method: "PUT",
             headers: getAuthHeaders(),
             body: JSON.stringify({
-              familyName: familyName, // Set the actual family name
+              familyName: familyName,
             }),
           }
         );
 
         if (!settingsResponse.ok) {
-          // Check if this is an account expiration error
           if (settingsResponse.status === 403) {
             const { isExpirationError } = await handleExpirationError(
               settingsResponse,
               showToast,
-              "saving security settings"
+              "salvando configurações de segurança"
             );
             if (isExpirationError) {
               return;
             }
           }
-          throw new Error("Failed to update family name in settings");
+          throw new Error(
+            "Não foi possível atualizar o sobrenome nas configurações."
+          );
         }
       }
 
-      // Save baby information
       const babyResponse = await fetch("/api/baby/create", {
         method: "POST",
         headers: getAuthHeaders(),
@@ -627,21 +587,19 @@ export default function FamilyForm({
       });
 
       if (!babyResponse.ok) {
-        // Check if this is an account expiration error
         if (babyResponse.status === 403) {
           const { isExpirationError } = await handleExpirationError(
             babyResponse,
             showToast,
-            "adding baby information"
+            "adicionando informações sobre bebês"
           );
           if (isExpirationError) {
             return;
           }
         }
-        throw new Error("Failed to save baby information");
+        throw new Error("Falha ao salvar as informações do bebê");
       }
 
-      // Success - close form and refresh
       onFamilyChange();
       onClose();
     } catch (error) {
@@ -649,7 +607,7 @@ export default function FamilyForm({
       setError(
         error instanceof Error
           ? error.message
-          : "Failed to create family. Please try again."
+          : "Não foi possível criar a família. Tente novamente."
       );
     } finally {
       setLoading(false);
@@ -660,20 +618,19 @@ export default function FamilyForm({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? "Edit Family" : "Add New Family"}
+      title={isEditing ? "Editar família" : "Adicionar nova família"}
       description={
         isEditing
-          ? "Edit family information"
-          : "Create a new family by choosing your preferred setup method"
+          ? "Editar informações da família"
+          : "Crie uma nova família escolhendo o método de configuração que preferir."
       }
     >
       <FormPageContent>
         <div className="space-y-6">
-          {/* Setup Mode Selection (only for new families) */}
           {!isEditing && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 family-form-heading">
-                Setup Method
+                Método de configuração
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
@@ -688,7 +645,7 @@ export default function FamilyForm({
                     htmlFor="manual"
                     className="text-sm font-medium text-gray-700 family-form-radio-label"
                   >
-                    Add family manually (complete setup now)
+                    Adicionar família manualmente (concluir configuração agora)
                   </label>
                 </div>
 
@@ -704,63 +661,62 @@ export default function FamilyForm({
                     htmlFor="token"
                     className="text-sm font-medium text-gray-700 family-form-radio-label"
                   >
-                    Generate setup invitation (let family complete their own
-                    setup)
+                    Gerar convite de configuração (permitir que a família
+                    complete sua própria configuração)
                   </label>
                 </div>
               </div>
               <p className="text-sm text-gray-500 family-form-text-muted">
                 {setupMode === "manual"
-                  ? "You will configure all family details, security, and add the first baby now."
-                  : "You will create a secure invitation link that the family can use to set up their own name, PIN, caretakers, and baby information."}
+                  ? "Agora você vai configurar todos os detalhes da família, a segurança e adicionar o primeiro bebê."
+                  : "Você criará um link de convite seguro que a família poderá usar para configurar seu próprio nome, PIN, responsáveis ​​e informações do bebê."}
               </p>
             </div>
           )}
 
-          {/* Token Mode - Simple Token Generation */}
           {!isEditing && setupMode === "token" && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 family-form-heading">
-                Generate Setup Invitation
+                Gerar convite de configuração
               </h3>
 
               <p className="text-sm text-gray-600 family-form-text-secondary">
-                Create a setup invitation link that families can use to
-                configure their own:
+                Crie um link de convite para configuração que as famílias possam
+                usar para configurar o seu próprio:
               </p>
               <ul className="text-sm text-gray-600 family-form-text-secondary list-disc list-inside ml-4 space-y-1">
-                <li>Family name and URL</li>
-                <li>Security PIN or individual caretaker accounts</li>
-                <li>Baby information</li>
+                <li>Nome de família e URL</li>
+                <li>PIN de segurança ou contas individuais de cuidadores</li>
+                <li>Informações do bebê</li>
               </ul>
 
               <div className="space-y-4">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    Setup Password
+                    Senha de configuração
                   </Label>
                   <Input
                     type="password"
                     value={tokenPassword}
                     onChange={(e) => setTokenPassword(e.target.value)}
-                    placeholder="Enter password for setup access"
+                    placeholder="Digite a senha para acessar a configuração."
                     disabled={loading}
                     minLength={6}
                   />
                   <p className="text-xs text-gray-500 family-form-text-muted mt-1">
-                    This password will be required to access the setup
-                    invitation
+                    Esta senha será necessária para acessar a configuração.
+                    Convite
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    Confirm Password
+                    Confirme sua senha
                   </Label>
                   <Input
                     type="password"
                     value={confirmTokenPassword}
                     onChange={(e) => setConfirmTokenPassword(e.target.value)}
-                    placeholder="Confirm setup password"
+                    placeholder="Confirme a senha de configuração"
                     disabled={loading}
                     minLength={6}
                   />
@@ -770,54 +726,53 @@ export default function FamilyForm({
               {generatedToken && (
                 <div className="space-y-4 p-4 bg-green-50 family-form-success-bg border border-green-200 family-form-success-border rounded-lg">
                   <h4 className="text-md font-semibold text-green-800 family-form-success-heading">
-                    Setup Invitation Generated!
+                    Convite de configuração gerado!
                   </h4>
                   <p className="text-sm text-green-700 family-form-success-text">
-                    Share this link with the family to let them complete their
-                    setup:
+                    Compartilhe este link com a família para que eles possam
+                    concluir a configuração:
                   </p>
                   <div className="flex items-center gap-2">
                     <ShareButton
-                      familySlug={generatedToken.replace(/^\//, "")} // Remove leading slash
+                      familySlug={generatedToken.replace(/^\//, "")}
                       familyName="Family Setup Invitation"
                       appConfig={appConfig || undefined}
-                      urlSuffix="" // Don't add /login to setup URLs
+                      urlSuffix=""
                       variant="outline"
                       size="sm"
                       showText={true}
                     />
                   </div>
                   <p className="text-xs text-green-600 family-form-success-text-muted">
-                    This setup link will expire in 7 Dias and can only be used
-                    once.
+                    Este link de configuração expirará em 7 dias e só poderá ser
+                    usado uma vez.
                   </p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Manual Mode - Family Information Section */}
           {!isEditing && setupMode === "manual" && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 family-form-heading">
-                Family Information
+                Informações familiares
               </h3>
 
               <div>
                 <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                  Family Name
+                  Nome de família
                 </Label>
                 <Input
                   value={familyName}
                   onChange={(e) => setFamilyName(e.target.value)}
-                  placeholder="Enter family name"
+                  placeholder="Digite o nome da família"
                   disabled={loading}
                 />
               </div>
 
               <div>
                 <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                  Family URL
+                  URL da família
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -842,7 +797,7 @@ export default function FamilyForm({
                     onClick={generateSlug}
                     disabled={loading || checkingSlug}
                   >
-                    Generate
+                    Gerar
                   </Button>
                 </div>
                 {slugError && (
@@ -850,27 +805,26 @@ export default function FamilyForm({
                 )}
                 {checkingSlug && (
                   <p className="text-blue-600 text-sm mt-1">
-                    Checking availability...
+                    Verificando disponibilidade...
                   </p>
                 )}
                 {!slugError && familySlug && !checkingSlug && slugValidated && (
                   <p className="text-green-600 text-sm mt-1">
-                    URL is available
+                    O URL está disponível
                   </p>
                 )}
                 <p className="text-sm text-gray-500 family-form-text-muted mt-1">
-                  Your family will be accessible at: /
-                  {familySlug || "your-family-url"}
+                  Seus dados de contato com sua família estarão disponíveis em:
+                  /{familySlug || "your-family-url"}
                 </p>
               </div>
             </div>
           )}
 
-          {/* Manual Mode - Security Setup */}
           {!isEditing && setupMode === "manual" && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 family-form-heading">
-                Security Setup
+                Configuração de segurança
               </h3>
 
               <div className="space-y-2">
@@ -886,7 +840,7 @@ export default function FamilyForm({
                     htmlFor="systemPin"
                     className="text-sm font-medium text-gray-700 family-form-radio-label"
                   >
-                    Use system-wide PIN
+                    Use o PIN do sistema.
                   </label>
                 </div>
 
@@ -902,7 +856,7 @@ export default function FamilyForm({
                     htmlFor="caretakers"
                     className="text-sm font-medium text-gray-700 family-form-radio-label"
                   >
-                    Add caretakers with individual PINs
+                    Adicione cuidadores com PINs individuais.
                   </label>
                 </div>
               </div>
@@ -911,7 +865,7 @@ export default function FamilyForm({
                 <div className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                      System PIN (6-10 digits)
+                      PIN do sistema (6 a 10 dígitos)
                     </Label>
                     <Input
                       type="password"
@@ -922,7 +876,7 @@ export default function FamilyForm({
                           setSystemPin(value);
                         }
                       }}
-                      placeholder="Enter PIN"
+                      placeholder="Insira o PIN"
                       disabled={loading}
                       minLength={6}
                       maxLength={10}
@@ -930,7 +884,7 @@ export default function FamilyForm({
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                      Confirm PIN
+                      Confirmar PIN
                     </Label>
                     <Input
                       type="password"
@@ -941,7 +895,7 @@ export default function FamilyForm({
                           setConfirmSystemPin(value);
                         }
                       }}
-                      placeholder="Confirm PIN"
+                      placeholder="Confirmar PIN"
                       disabled={loading}
                       minLength={6}
                       maxLength={10}
@@ -952,12 +906,12 @@ export default function FamilyForm({
                 <div className="space-y-4">
                   <div className="space-y-4 p-4 border border-gray-200 family-form-border rounded-lg">
                     <h4 className="text-md font-semibold text-gray-800 family-form-heading">
-                      Add Caretaker
+                      Adicionar zelador
                     </h4>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                          Login ID (2 digits)
+                          ID de login (2 dígitos)
                         </Label>
                         <Input
                           value={newCaretaker.loginId}
@@ -977,7 +931,7 @@ export default function FamilyForm({
                       </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                          Role
+                          Função
                         </Label>
                         <Select
                           value={newCaretaker.role}
@@ -993,15 +947,15 @@ export default function FamilyForm({
                             <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="ADMIN">Admin</SelectItem>
-                            <SelectItem value="USER">User</SelectItem>
+                            <SelectItem value="ADMIN">Administrador</SelectItem>
+                            <SelectItem value="USER">Usuário</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                        Name
+                        Nome
                       </Label>
                       <Input
                         value={newCaretaker.name}
@@ -1011,14 +965,14 @@ export default function FamilyForm({
                             name: e.target.value,
                           })
                         }
-                        placeholder="Full name"
+                        placeholder="Nome completo"
                         disabled={loading}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                          Type (Optional)
+                          Tipo (Opcional)
                         </Label>
                         <Input
                           value={newCaretaker.type}
@@ -1028,7 +982,7 @@ export default function FamilyForm({
                               type: e.target.value,
                             })
                           }
-                          placeholder="Parent, Nanny, etc."
+                          placeholder="Pai/Mãe, Babá, etc."
                           disabled={loading}
                         />
                       </div>
@@ -1060,14 +1014,14 @@ export default function FamilyForm({
                       disabled={loading}
                       className="w-full"
                     >
-                      Add Caretaker
+                      Adicionar zelador
                     </Button>
                   </div>
 
                   {caretakers.length > 0 && (
                     <div className="space-y-2">
                       <h4 className="text-md font-semibold text-gray-800 family-form-heading">
-                        Caretakers
+                        Zeladores
                       </h4>
                       <ul className="space-y-2">
                         {caretakers.map((caretaker, index) => (
@@ -1089,7 +1043,7 @@ export default function FamilyForm({
                               onClick={() => removeCaretaker(index)}
                               disabled={loading}
                             >
-                              Remove
+                              Remover
                             </Button>
                           </li>
                         ))}
@@ -1101,33 +1055,32 @@ export default function FamilyForm({
             </div>
           )}
 
-          {/* Manual Mode - Baby Setup */}
           {!isEditing && setupMode === "manual" && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 family-form-heading">
-                Baby Information
+                Informações sobre o bebê
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    First Name
+                    Primeiro nome
                   </Label>
                   <Input
                     value={babyFirstName}
                     onChange={(e) => setBabyFirstName(e.target.value)}
-                    placeholder="First name"
+                    placeholder="Primeiro nome"
                     disabled={loading}
                   />
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    Last Name
+                    Sobrenome
                   </Label>
                   <Input
                     value={babyLastName}
                     onChange={(e) => setBabyLastName(e.target.value)}
-                    placeholder="Last name"
+                    placeholder="Sobrenome"
                     disabled={loading}
                   />
                 </div>
@@ -1135,7 +1088,7 @@ export default function FamilyForm({
 
               <div>
                 <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                  Birth Date
+                  Data de nascimento
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -1150,7 +1103,7 @@ export default function FamilyForm({
                       <Calendar className="mr-2 h-4 w-4" />
                       {babyBirthDate
                         ? format(babyBirthDate, "PPP")
-                        : "Select date"}
+                        : "Selecione a data"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 z-200" align="start">
@@ -1170,7 +1123,7 @@ export default function FamilyForm({
 
               <div>
                 <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                  Gender
+                  Gênero
                 </Label>
                 <Select
                   value={babyGender}
@@ -1178,11 +1131,11 @@ export default function FamilyForm({
                   disabled={loading}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
+                    <SelectValue placeholder="Selecione o sexo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MALE">Male</SelectItem>
-                    <SelectItem value="FEMALE">Female</SelectItem>
+                    <SelectItem value="MALE">Masculino</SelectItem>
+                    <SelectItem value="FEMALE">Feminino</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1190,7 +1143,7 @@ export default function FamilyForm({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 family-form-text mb-1">
-                    Feed Warning Time
+                    Tempo de aviso de feed
                   </Label>
                   <Input
                     type="text"
@@ -1217,14 +1170,13 @@ export default function FamilyForm({
                     disabled={loading}
                   />
                   <p className="text-xs text-gray-500 family-form-text-muted mt-1">
-                    Format: hh:mm
+                    Formato: hh:mm
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Error message */}
           {error && (
             <div className="p-4 bg-red-50 family-form-error-bg border border-red-200 family-form-error-border rounded text-red-600 family-form-error-text text-sm">
               {error}
@@ -1235,7 +1187,7 @@ export default function FamilyForm({
 
       <FormPageFooter>
         <Button variant="outline" onClick={onClose} disabled={loading}>
-          Cancel
+          Cancelar
         </Button>
         {!isEditing && setupMode === "token" ? (
           <Button
@@ -1247,14 +1199,14 @@ export default function FamilyForm({
               tokenPassword !== confirmTokenPassword
             }
           >
-            {loading ? "Generating..." : "Generate Setup Invitation"}
+            {loading ? "Gerando..." : "Gerar convite de configuração"}
           </Button>
         ) : (
           <Button
             onClick={handleManualSave}
             disabled={loading || !familyName || !familySlug || !!slugError}
           >
-            {loading ? "Saving..." : "Save Family"}
+            {loading ? "Salvando..." : "Salvar família"}
           </Button>
         )}
       </FormPageFooter>

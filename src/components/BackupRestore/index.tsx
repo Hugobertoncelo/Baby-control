@@ -7,7 +7,6 @@ import { Settings, Download, Upload, X, Save } from "lucide-react";
 import { useTheme } from "@/src/context/theme";
 import { cn } from "@/src/lib/utils";
 
-// Import component-specific files
 import "./backup-restore.css";
 import { backupRestoreStyles } from "./backup-restore.styles";
 import { BackupRestoreProps, BackupRestoreState } from "./backup-restore.types";
@@ -38,7 +37,6 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
     awaitingAdminResetAck: false,
   });
 
-  // Clear messages helper
   const clearMessages = () => {
     setState((prev) => ({
       ...prev,
@@ -48,23 +46,21 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
     }));
   };
 
-  // Handle post-restore migrations
   const runPostRestoreMigrations = async () => {
     try {
       setState((prev) => ({
         ...prev,
         isMigrating: true,
-        migrationStep: "Preparing database migration...",
+        migrationStep: "Preparando a migração do banco de dados...",
         error: null,
       }));
 
-      // Add a small delay to show the initial step
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Step 1: Run pre-migration check
       setState((prev) => ({
         ...prev,
-        migrationStep: "Checking database version and compatibility...",
+        migrationStep:
+          "Verificando a versão e a compatibilidade do banco de dados...",
       }));
 
       const authToken = localStorage.getItem("authToken");
@@ -84,7 +80,7 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
 
       if (!preMigrationResponse.ok) {
         console.warn(
-          "Pre-migration check failed, continuing with migration..."
+          "A verificação pré-migração falhou; a migração continuará...."
         );
       } else {
         const preMigrationResult = await preMigrationResponse.json();
@@ -93,16 +89,14 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
           preMigrationResult.data?.adminResetRequired
         ) {
           console.log(
-            "Admin password reset was required and has been completed"
+            "A redefinição da senha de administrador foi necessária e já foi concluída."
           );
-          // Track that admin reset was detected
           adminResetDetectedRef.current = true;
-          // Notify parent component that admin password was reset
           onAdminPasswordReset?.();
           setState((prev) => ({
             ...prev,
             migrationStep:
-              "Database compatibility check complete. Running migrations...",
+              "Verificação de compatibilidade do banco de dados concluída. Executando migrações...",
           }));
         }
       }
@@ -111,7 +105,7 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
 
       setState((prev) => ({
         ...prev,
-        migrationStep: "Running schema migrations and updates...",
+        migrationStep: "Executando migrações e atualizações de esquema...",
       }));
 
       const migrationEndpoint = initialSetup
@@ -125,14 +119,13 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
 
-        // Handle authentication/authorization errors specifically
         if (response.status === 401) {
           throw new Error(
-            "Authentication required. Please log in as a system administrator to perform database migrations."
+            "É necessária autenticação. Faça login como administrador do sistema para realizar migrações de banco de dados."
           );
         } else if (response.status === 403) {
           throw new Error(
-            "System administrator access required. Only system administrators can perform database migrations."
+            "É necessário acesso de administrador do sistema. Somente administradores do sistema podem realizar migrações de banco de dados."
           );
         }
 
@@ -140,75 +133,63 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
           ? ` ${errorData.data.suggestion}`
           : "";
         throw new Error(
-          `${errorData.error || "Migration failed"}${suggestion}`
+          `${errorData.error || "Falha na migração"}${suggestion}`
         );
       }
 
       const result = await response.json();
 
-      // Check if admin reset occurred and we should wait for acknowledgment
       const shouldWaitForAck =
         adminResetDetectedRef.current && onAdminResetAcknowledged;
 
       if (shouldWaitForAck) {
-        // Admin reset occurred - wait for user to acknowledge before proceeding
         setState((prev) => ({
           ...prev,
           migrationStep:
-            "Migration completed! Please acknowledge the password reset notification.",
+            "Migração concluída! Por favor, confirme a notificação de redefinição de senha.",
         }));
 
-        // Wait briefly to show the message, then set awaiting state
         setTimeout(() => {
           setState((prev) => ({
             ...prev,
             isMigrating: false,
             migrationStep: null,
             success: initialSetup
-              ? "Database imported and migrated successfully."
-              : "Database restored and migrated successfully.",
+              ? "Banco de dados importado e migrado com sucesso."
+              : "Banco de dados restaurado e migrado com sucesso.",
             awaitingAdminResetAck: true,
           }));
         }, 1000);
 
-        // Wait for acknowledgment, then proceed with redirect/reload
         await onAdminResetAcknowledged();
 
-        // Reset the awaiting state
         setState((prev) => ({
           ...prev,
           awaitingAdminResetAck: false,
         }));
 
-        // Now proceed with redirect/reload
         if (!initialSetup) {
-          // window.location.reload(); // Removido reload desnecessário
         } else {
           onRestoreSuccess?.();
         }
       } else {
-        // No admin reset or no callback - proceed with normal flow
         setState((prev) => ({
           ...prev,
-          migrationStep: "Migration completed! Reloading application...",
+          migrationStep: "Migração concluída! Recarregando o aplicativo...",
         }));
 
-        // Show completion message briefly before reload/redirect
         setTimeout(() => {
           setState((prev) => ({
             ...prev,
             isMigrating: false,
             migrationStep: null,
             success: initialSetup
-              ? "Database imported and migrated successfully. Redirecting..."
-              : "Database restored and migrated successfully. Application is reloading...",
+              ? "Banco de dados importado e migrado com sucesso. Redirecionando..."
+              : "Banco de dados restaurado e migrado com sucesso. O aplicativo está sendo recarregado...",
           }));
 
           if (!initialSetup) {
-            // Refresh the page after successful migration (normal mode)
-            // window.location.reload(); // Removido reload desnecessário
           } else {
-            // For initial setup, call the success callback after showing the message
             setTimeout(() => {
               onRestoreSuccess?.();
             }, 1000);
@@ -218,17 +199,18 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
     } catch (error) {
       console.error("Migration error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to migrate database";
+        error instanceof Error
+          ? error.message
+          : "Falha ao migrar o banco de dados";
       setState((prev) => ({
         ...prev,
         isMigrating: false,
         migrationStep: null,
-        error: `Database restore succeeded, but migration failed: ${errorMessage}`,
+        error: `A restauração do banco de dados foi bem-sucedida, mas a migração falhou: ${errorMessage}`,
       }));
     }
   };
 
-  // Handle backup
   const handleBackup = async () => {
     try {
       clearMessages();
@@ -257,17 +239,16 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      setState((prev) => ({ ...prev, success: "Backup created successfully" }));
+      setState((prev) => ({ ...prev, success: "Backup criado com sucesso" }));
       onBackupSuccess?.();
     } catch (error) {
       console.error("Backup error:", error);
-      const errorMessage = "Failed to create backup";
+      const errorMessage = "Falha ao criar o backup";
       setState((prev) => ({ ...prev, error: errorMessage }));
       onBackupError?.(errorMessage);
     }
   };
 
-  // Handle restore
   const handleRestore = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -300,19 +281,19 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error("Restore failed");
+        throw new Error("Falha na restauração");
       }
 
       setState((prev) => ({
         ...prev,
-        success: "Database restored successfully. Running migrations...",
+        success:
+          "Banco de dados restaurado com sucesso. Migrações em execução....",
       }));
 
-      // Run post-restore migrations
       await runPostRestoreMigrations();
     } catch (error) {
       console.error("Restore error:", error);
-      const errorMessage = "Failed to restore backup";
+      const errorMessage = "Falha ao restaurar o backup";
       setState((prev) => ({ ...prev, error: errorMessage }));
       onRestoreError?.(errorMessage);
     } finally {
@@ -325,7 +306,6 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
 
   return (
     <div className={cn(backupRestoreStyles.container, className)}>
-      {/* Hidden file input */}
       <input
         type="file"
         ref={fileInputRef}
@@ -334,15 +314,15 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         style={{ display: "none" }}
       />
 
-      {/* Section Header */}
       <div className={backupRestoreStyles.header.container}>
         <Settings className={backupRestoreStyles.header.icon} />
         <Label className={backupRestoreStyles.header.title}>
-          {importOnly ? "Import Previous Data" : "Database Management"}
+          {importOnly
+            ? "Importar dados anteriores"
+            : "Gerenciamento de banco de dados"}
         </Label>
       </div>
 
-      {/* Action Buttons */}
       <div className={backupRestoreStyles.buttonContainer}>
         {!importOnly && (
           <Button
@@ -355,7 +335,7 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
             }
           >
             <Download className={backupRestoreStyles.icon} />
-            Backup Database
+            Banco de dados de backup
           </Button>
         )}
         <Button
@@ -372,23 +352,21 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         >
           <Upload className={backupRestoreStyles.icon} />
           {state.isRestoring
-            ? "Importing..."
+            ? "Importando..."
             : state.isMigrating
-            ? "Migrating..."
+            ? "Migrando..."
             : importOnly
-            ? "Import Database"
-            : "Restore Database"}
+            ? "Importar banco de dados"
+            : "Restaurar banco de dados"}
         </Button>
       </div>
 
-      {/* Help Text */}
       <p className={backupRestoreStyles.helpText}>
         {importOnly
-          ? "Import data from a previous Baby Control database backup to start with existing family data, or skip this step to create a new family from scratch."
-          : "Create backups of your database or restore from a previous backup. Restoring will replace all current data and run necessary migrations."}
+          ? "Importe os dados de um backup anterior do banco de dados do Baby Control para começar com os dados familiares existentes ou ignore esta etapa para criar uma nova família do zero."
+          : "Crie backups do seu banco de dados ou restaure a partir de um backup anterior. A restauração substituirá todos os dados atuais e executará as migrações necessárias."}
       </p>
 
-      {/* Migration Progress */}
       {state.isMigrating && state.migrationStep && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md migration-progress-container">
           <div className="flex items-center">
@@ -400,7 +378,6 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         </div>
       )}
 
-      {/* Error Message */}
       {state.error && (
         <div className={backupRestoreStyles.error.container}>
           <div className={backupRestoreStyles.error.content}>
@@ -412,7 +389,6 @@ export const BackupRestore: React.FC<BackupRestoreProps> = ({
         </div>
       )}
 
-      {/* Success Message */}
       {state.success && (
         <div className={backupRestoreStyles.success.container}>
           <div className={backupRestoreStyles.success.content}>

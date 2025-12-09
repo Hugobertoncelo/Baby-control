@@ -9,11 +9,6 @@ import { FamilySetupStageProps } from "./setup-wizard.types";
 import { BackupRestore } from "@/src/components/BackupRestore";
 import { AdminPasswordResetModal } from "@/src/components/BackupRestore/AdminPasswordResetModal";
 
-/**
- * FamilySetupStage Component
- *
- * First stage of the setup wizard that collects the family name and slug
- */
 const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
   familyName,
   setFamilyName,
@@ -29,12 +24,10 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   const adminResetResolverRef = React.useRef<(() => void) | null>(null);
 
-  // Handle admin password reset notification
   const handleAdminPasswordReset = useCallback(() => {
     setShowPasswordResetModal(true);
   }, []);
 
-  // Handle modal confirmation
   const handlePasswordResetConfirm = useCallback(() => {
     if (adminResetResolverRef.current) {
       adminResetResolverRef.current();
@@ -42,14 +35,12 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
     }
   }, []);
 
-  // Promise that resolves when user acknowledges the password reset
   const handleAdminResetAcknowledged = useCallback(() => {
     return new Promise<void>((resolve) => {
       adminResetResolverRef.current = resolve;
     });
   }, []);
 
-  // Handle post-import logout and redirect
   const handleImportSuccess = useCallback(() => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("unlockTime");
@@ -58,7 +49,6 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
     router.push("/");
   }, [router]);
 
-  // Check slug uniqueness
   const checkSlugUniqueness = useCallback(async (slug: string) => {
     if (!slug || slug.trim() === "") {
       setSlugError("");
@@ -73,20 +63,19 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
       const data = await response.json();
 
       if (response.status === 400) {
-        setSlugError(data.error || "Invalid slug format");
+        setSlugError(data.error || "Formato de slug inválido");
       } else if (data.success && data.data) {
-        setSlugError("This URL is already taken");
+        setSlugError("Esta URL já está em uso.");
       } else {
         setSlugError("");
       }
     } catch (error) {
-      setSlugError("Error checking URL availability");
+      setSlugError("Erro ao verificar a disponibilidade do URL");
     } finally {
       setCheckingSlug(false);
     }
   }, []);
 
-  // Generate a unique slug
   const generateSlug = async () => {
     setGeneratingSlug(true);
     try {
@@ -97,27 +86,25 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
         setFamilySlug(data.data.slug);
         setSlugError("");
       } else {
-        setSlugError("Failed to generate unique URL");
+        setSlugError("Falha ao gerar URL única");
       }
     } catch (error) {
-      setSlugError("Error generating URL");
+      setSlugError("Erro ao gerar URL");
     } finally {
       setGeneratingSlug(false);
     }
   };
 
-  // Auto-generate slug from family name
   const generateSlugFromName = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+      .replace(/[^a-z0-9\s-]/g, "")
       .trim()
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-") // Replace multiple hyphens with single
-      .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   };
 
-  // Handle slug field focus - auto-generate if empty and set cursor to end
   const handleSlugFieldFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     if (!familySlug && familyName) {
       const autoSlug = generateSlugFromName(familyName);
@@ -131,7 +118,6 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
     }
   };
 
-  // Debounced slug validation
   useEffect(() => {
     if (familySlug) {
       const timeoutId = setTimeout(() => {
@@ -145,7 +131,7 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
   return (
     <div className={cn(styles.stageContainer, "setup-wizard-stage-container")}>
       <h2 className={cn(styles.stageTitle, "setup-wizard-stage-title")}>
-        {token ? "Create Your Family" : "Create Your Family"}
+        {token ? "Crie sua família" : "Crie sua família"}
       </h2>
       <p
         className={cn(
@@ -154,8 +140,8 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
         )}
       >
         {token
-          ? "You've been invited to create a new family. Let's get started with some basic information."
-          : "Let's get started with some basic information."}
+          ? "Você foi convidado(a) a criar uma nova família. Vamos começar com algumas informações básicas."
+          : "Vamos começar com algumas informações básicas."}
       </p>
 
       <div className={cn(styles.formGroup, "setup-wizard-form-group")}>
@@ -163,13 +149,13 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
           className={cn(styles.formLabel, "setup-wizard-form-label")}
           htmlFor="familyName"
         >
-          What is your family name?
+          Qual é o seu Sobrenome?
         </label>
         <Input
           id="familyName"
           value={familyName}
           onChange={(e) => setFamilyName(e.target.value)}
-          placeholder="Enter family name"
+          placeholder="Digite o nome da família"
           className={cn(styles.formInput, "setup-wizard-form-input")}
         />
       </div>
@@ -179,7 +165,7 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
           className={cn(styles.formLabel, "setup-wizard-form-label")}
           htmlFor="familySlug"
         >
-          Family URL
+          URL da Família
         </label>
         <div className="space-y-2">
           <div className="flex gap-2">
@@ -189,7 +175,7 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
                 value={familySlug}
                 onChange={(e) => setFamilySlug(e.target.value.toLowerCase())}
                 onFocus={handleSlugFieldFocus}
-                placeholder="family-url"
+                placeholder="URL da família"
                 className={cn(
                   styles.formInput,
                   "setup-wizard-form-input",
@@ -203,7 +189,7 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
               onClick={generateSlug}
               disabled={generatingSlug}
               className="px-3"
-              title="Generate random URL"
+              title="Gerar URL aleatório"
             >
               {generatingSlug ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -213,20 +199,18 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
             </Button>
           </div>
 
-          {/* URL Preview */}
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            Your family will be accessible at:{" "}
+            Seus dados de contato com sua família estarão disponíveis em:{" "}
             <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">
               /{familySlug || "your-family-url"}
             </span>
           </div>
 
-          {/* Validation feedback */}
           <div className="min-h-[20px]">
             {checkingSlug && (
               <div className="flex items-center gap-1 text-blue-600 text-sm">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Checking availability...
+                Verificando disponibilidade...
               </div>
             )}
             {slugError && (
@@ -237,8 +221,8 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
             )}
             {!checkingSlug && !slugError && familySlug && (
               <div className="flex items-center gap-1 text-green-600 text-sm">
-                <span className="h-3 w-3 rounded-full bg-green-600"></span>
-                URL is available
+                <span className="h-3 w-3 rounded-full bg-green-600"></span>O URL
+                está disponível
               </div>
             )}
           </div>
@@ -247,12 +231,11 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
         <p
           className={cn(styles.formHelperText, "setup-wizard-form-helper-text")}
         >
-          This will be the unique web address for your family. It can only
-          contain lowercase letters, numbers, and hyphens.
+          Este será o endereço web exclusivo da sua família. Ele só pode conter
+          letras minúsculas, números e hífenes.
         </p>
       </div>
 
-      {/* Import Section - only show during initial setup */}
       {initialSetup && (
         <div
           className={cn(
@@ -269,16 +252,13 @@ const FamilySetupStage: React.FC<FamilySetupStageProps> = ({
             importOnly={true}
             initialSetup={true}
             onRestoreSuccess={handleImportSuccess}
-            onRestoreError={(error) => {
-              // Error handling is managed by the BackupRestore component
-            }}
+            onRestoreError={(error) => {}}
             onAdminPasswordReset={handleAdminPasswordReset}
             onAdminResetAcknowledged={handleAdminResetAcknowledged}
           />
         </div>
       )}
 
-      {/* Admin Password Reset Modal */}
       <AdminPasswordResetModal
         open={showPasswordResetModal}
         onOpenChange={setShowPasswordResetModal}
