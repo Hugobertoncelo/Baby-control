@@ -102,7 +102,9 @@ const BabySetupStage: React.FC<BabySetupStageProps> = ({
               )}
             >
               <Calendar className="mr-2 h-4 w-4" />
-              {babyBirthDate ? format(babyBirthDate, "PPP") : "Select date"}
+              {babyBirthDate
+                ? format(babyBirthDate, "PPP")
+                : "Selecione a data"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
