@@ -5,18 +5,11 @@ import { calendarEventStyles as styles } from "./calendar-event.styles";
 import { Calendar, Clock, MapPin, Users, Repeat, Bell } from "lucide-react";
 import "./calendar-event.css";
 
-/**
- * CalendarEvent Component
- *
- * Displays a calendar event with details such as title, time, location, and associated people.
- * This component is used for detailed event display, typically in a modal or detail view.
- */
 const CalendarEvent: React.FC<CalendarEventProps> = ({
   event,
   onClick,
   className,
 }) => {
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("pt-BR", {
@@ -27,7 +20,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
     });
   };
 
-  // Format time for display
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("pt-BR", {
@@ -37,7 +29,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
     });
   };
 
-  // Format date and time for display
   const formatDateTime = (dateString: string) => {
     if (event.allDay) {
       return formatDate(dateString);
@@ -45,7 +36,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
     return `${formatDate(dateString)} at ${formatTime(dateString)}`;
   };
 
-  // Get recurrence pattern text
   const getRecurrenceText = () => {
     if (!event.recurring || !event.recurrencePattern) {
       return null;
@@ -54,25 +44,25 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
     let text = "";
     switch (event.recurrencePattern) {
       case "DAILY":
-        text = "Daily";
+        text = "Diária";
         break;
       case "WEEKLY":
-        text = "Weekly";
+        text = "Semanalmente";
         break;
       case "BIWEEKLY":
-        text = "Every 2 weeks";
+        text = "A cada 2 semanas";
         break;
       case "MONTHLY":
-        text = "Monthly";
+        text = "Mensal";
         break;
       case "YEARLY":
-        text = "Yearly";
+        text = "Anual";
         break;
       case "CUSTOM":
-        text = event.customRecurrence || "Custom";
+        text = event.customRecurrence || "Personalizada";
         break;
       default:
-        text = "Recurring";
+        text = "Recorrente";
     }
 
     if (event.recurrenceEnd) {
@@ -82,36 +72,34 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
     return text;
   };
 
-  // Get reminder text
   const getReminderText = () => {
     if (event.reminderTime === null) {
       return null;
     }
 
     if (event.reminderTime === 0) {
-      return "At time of event";
+      return "Na hora do evento";
     }
 
     if (event.reminderTime < 60) {
-      return `${event.reminderTime} minutes before`;
+      return `${event.reminderTime} minutos antes`;
     }
 
     if (event.reminderTime === 60) {
-      return "1 hour before";
+      return "1 hora antes";
     }
 
     if (event.reminderTime < 1440) {
-      return `${event.reminderTime / 60} hours before`;
+      return `${event.reminderTime / 60} horas antes`;
     }
 
     if (event.reminderTime === 1440) {
-      return "1 day before";
+      return "1 dia antes";
     }
 
-    return `${event.reminderTime / 1440} days before`;
+    return `${event.reminderTime / 1440} dias antes`;
   };
 
-  // Handle click
   const handleClick = () => {
     if (onClick) {
       onClick(event);
@@ -124,7 +112,7 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
       onClick={handleClick}
       style={{
         borderLeftColor: event.color || "#14b8a6",
-        cursor: onClick ? "pointer" : "default",
+        cursor: onClick ? "ponteiro" : "padrão",
       }}
     >
       <div className={styles.header}>
@@ -133,7 +121,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
       </div>
 
       <div className={styles.content}>
-        {/* Date and time */}
         <div className={styles.detail}>
           <Calendar className={styles.icon} />
           <div>
@@ -146,7 +133,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
           </div>
         </div>
 
-        {/* Location */}
         {event.location && (
           <div className={styles.detail}>
             <MapPin className={styles.icon} />
@@ -154,7 +140,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
           </div>
         )}
 
-        {/* Recurrence */}
         {event.recurring && (
           <div className={styles.detail}>
             <Repeat className={styles.icon} />
@@ -162,7 +147,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
           </div>
         )}
 
-        {/* Reminder */}
         {event.reminderTime !== null && (
           <div className={styles.detail}>
             <Bell className={styles.icon} />
@@ -170,14 +154,12 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
           </div>
         )}
 
-        {/* People */}
         {(event.babies.length > 0 ||
           event.caretakers.length > 0 ||
           event.contacts.length > 0) && (
           <div className={styles.detail}>
             <Users className={styles.icon} />
             <div className={styles.people}>
-              {/* Babies */}
               {event.babies.length > 0 && (
                 <div className={styles.peopleGroup}>
                   <span className={styles.peopleLabel}>Babies:</span>
@@ -189,7 +171,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
                 </div>
               )}
 
-              {/* Caretakers */}
               {event.caretakers.length > 0 && (
                 <div className={styles.peopleGroup}>
                   <span className={styles.peopleLabel}>Caretakers:</span>
@@ -201,7 +182,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
                 </div>
               )}
 
-              {/* Contacts */}
               {event.contacts.length > 0 && (
                 <div className={styles.peopleGroup}>
                   <span className={styles.peopleLabel}>Contacts:</span>
@@ -214,7 +194,6 @@ const CalendarEvent: React.FC<CalendarEventProps> = ({
           </div>
         )}
 
-        {/* Description */}
         {event.description && (
           <div className={styles.description}>{event.description}</div>
         )}

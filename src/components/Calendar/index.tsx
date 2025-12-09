@@ -20,24 +20,12 @@ import CalendarDayView from "@/src/components/CalendarDayView";
 import { CalendarProps, CalendarState } from "./calendar.types";
 import "./calendar.css";
 
-/**
- * Calendar Component
- *
- * A responsive calendar component that displays a monthly view with activity indicators
- * and allows users to view and manage calendar events.
- *
- * @param selectedBabyId - The ID of the currently selected baby
- * @param userTimezone - The user's timezone for date calculations
- * @param onDateSelect - Optional callback when a date is selected
- */
 export function Calendar({
   selectedBabyId,
   userTimezone,
   onDateSelect,
 }: CalendarProps) {
-  // Component state
   const [state, setState] = useState<CalendarState>({
-    // Set the intiial date to this month
     currentDate: new Date(),
     selectedDate: null,
     calendarDays: [],
@@ -48,21 +36,12 @@ export function Calendar({
   }>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // Destructure state for easier access
   const { currentDate, selectedDate, calendarDays, events } = state;
 
-  // State update helpers
   const updateState = (updates: Partial<CalendarState>) => {
     setState((prevState) => ({ ...prevState, ...updates }));
   };
 
-  // We no longer need to fetch babies, caretakers, and contacts here
-  // as they are now handled by CalendarDayView
-
-  /**
-   * Function to get all days in a month for the calendar
-   * and calculate the number of rows needed
-   */
   const getDaysInMonth = (
     year: number,
     month: number
@@ -70,40 +49,31 @@ export function Calendar({
     const date = new Date(year, month, 1);
     const days: Date[] = [];
 
-    // Get the day of the week for the first day of the month (0 = Sunday, 6 = Saturday)
     const firstDayOfMonth = date.getDay();
 
-    // Add days from the previous month to fill the first row
     const lastDayOfPrevMonth = new Date(year, month, 0).getDate();
     for (let i = firstDayOfMonth - 1; i >= 0; i--) {
       days.push(new Date(year, month - 1, lastDayOfPrevMonth - i));
     }
 
-    // Add all days in the current month
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(new Date(year, month, i));
     }
 
-    // Add days from the next month to complete the last row
     const lastDayOfMonth = new Date(year, month, daysInMonth).getDay();
     const daysToAdd = 6 - lastDayOfMonth;
     for (let i = 1; i <= daysToAdd; i++) {
       days.push(new Date(year, month + 1, i));
     }
 
-    // Calculate the number of rows needed (total days / 7)
     const rowCount = Math.ceil(days.length / 7);
 
     return { days, rowCount };
   };
 
-  // Track the number of rows needed for the calendar grid
   const [calendarRowCount, setCalendarRowCount] = useState(6);
 
-  /**
-   * Update calendar days when the current date changes
-   */
   useEffect(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -112,18 +82,13 @@ export function Calendar({
     setCalendarRowCount(rowCount);
   }, [currentDate]);
 
-  /**
-   * Fetch events for the selected month
-   */
   const fetchEvents = async () => {
     try {
-      // Create start date (first day of month) and end date (last day of month)
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
       const startDate = new Date(year, month, 1);
       const endDate = new Date(year, month + 1, 0);
 
-      // Set to beginning and end of day
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
@@ -132,18 +97,15 @@ export function Calendar({
       );
       console.log(`Selected baby ID: ${selectedBabyId}`);
 
-      // Build query parameters
       const queryParams = new URLSearchParams({
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       });
 
-      // Add babyId filter if a baby is selected
       if (selectedBabyId) {
         queryParams.append("babyId", selectedBabyId);
       }
 
-      // Fetch calendar events with authentication token
       const authToken = localStorage.getItem("authToken");
       const eventsResponse = await fetch(
         `/api/calendar-event?${queryParams.toString()}`,
@@ -178,10 +140,8 @@ export function Calendar({
           });
         });
       } else {
-        console.log("No events found for the month or API returned an error");
       }
 
-      // Update state with fetched data
       updateState({
         events: eventsData.success ? eventsData.data : [],
       });
@@ -190,27 +150,16 @@ export function Calendar({
     }
   };
 
-  // Create a ref to store the fetchEvents function
-  // This allows us to call the latest version of fetchEvents from event handlers
   const fetchEventsRef = React.useRef(fetchEvents);
 
-  // Update the ref whenever fetchEvents changes
   React.useEffect(() => {
     fetchEventsRef.current = fetchEvents;
   }, [fetchEvents]);
 
-  /**
-   * Fetch events when the baby or month changes
-   */
   useEffect(() => {
     fetchEvents();
   }, [currentDate, userTimezone, selectedBabyId]);
 
-  // Removed fetchEventsForSelectedDay and its useEffect hook
-
-  /**
-   * Navigation handlers
-   */
   const goToPreviousMonth = () => {
     updateState({
       currentDate: new Date(
@@ -244,11 +193,6 @@ export function Calendar({
     setShowDatePicker(false);
   };
 
-  // Removed manual click outside handling - Popover handles this automatically
-
-  /**
-   * Date formatting and checking helpers
-   */
   const formatMonthYear = (date: Date): string => {
     return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   };
@@ -266,16 +210,11 @@ export function Calendar({
     return date.getMonth() === currentDate.getMonth();
   };
 
-  /**
-   * Check if an event's UTC date string matches a given local calendar date.
-   * Compares the YYYY-MM-DD part of the UTC string with the local date.
-   */
   const isSameUTCDay = (
     eventDateStr: string | Date,
     localDate: Date
   ): boolean => {
     try {
-      // Ensure localDate is a valid Date object
       if (!(localDate instanceof Date) || isNaN(localDate.getTime())) {
         console.error("Invalid localDate provided to isSameUTCDay:", localDate);
         return false;
@@ -287,7 +226,6 @@ export function Calendar({
         return false;
       }
 
-      // Compare year, month, and day in the user's local timezone
       const result =
         eventDate.getFullYear() === localDate.getFullYear() &&
         eventDate.getMonth() === localDate.getMonth() &&
@@ -303,9 +241,6 @@ export function Calendar({
     }
   };
 
-  /**
-   * Get events for a specific day
-   */
   const getEventsForDay = (date: Date): any[] => {
     if (!events || events.length === 0) {
       return [];
@@ -315,7 +250,6 @@ export function Calendar({
       return [];
     }
 
-    // Filter events whose UTC start time falls on the given local calendar date
     return events.filter((event: any) => {
       if (!event.startTime) {
         console.warn(`Event missing startTime: ${event.id}`);
@@ -325,19 +259,13 @@ export function Calendar({
     });
   };
 
-  /**
-   * Event handlers
-   */
   const handleDayClick = (date: Date) => {
     updateState({ selectedDate: date });
 
-    // Call the onDateSelect callback if provided
     if (onDateSelect) {
       onDateSelect(date);
     }
   };
-
-  // Event handling is now managed by CalendarDayView
 
   const handleEventScroll = (
     e: React.MouseEvent,
@@ -347,7 +275,7 @@ export function Calendar({
     e.stopPropagation();
     const dateKey = date.toISOString().split("T")[0];
     const dayEvents = getEventsForDay(date);
-    const maxVisible = 3; // Max visible events in a day cell
+    const maxVisible = 3;
     const currentOffset = eventScrollState[dateKey] || 0;
 
     let newOffset = currentOffset;
@@ -367,20 +295,13 @@ export function Calendar({
   };
 
   const handleAddEvent = (date: Date) => {
-    // Update the selected date
     updateState({
       selectedDate: date,
     });
 
-    // Refresh events after an event is added, edited, or deleted
     fetchEventsRef.current();
   };
 
-  // These functions are now handled by CalendarDayView
-
-  /**
-   * Get day cell class based on date
-   */
   const getDayClass = (date: Date): string => {
     const baseClass =
       "flex flex-col h-full min-h-[120px] p-1 border border-gray-200 cursor-pointer main-calendar-day";
@@ -400,7 +321,6 @@ export function Calendar({
       className = cn(className, "main-calendar-day-current-month");
     }
 
-    // Add selected state (compare using local date components)
     if (
       selectedDate &&
       date.getDate() === selectedDate.getDate() &&
@@ -416,9 +336,6 @@ export function Calendar({
     return className;
   };
 
-  /**
-   * Render calendar event list for a given day
-   */
   const renderDayEvents = (date: Date) => {
     const dayEvents = getEventsForDay(date);
     if (dayEvents.length === 0) return null;
@@ -499,7 +416,6 @@ export function Calendar({
 
   return (
     <div className="relative flex flex-col h-full main-calendar-container">
-      {/* Calendar Header */}
       <div className="flex items-center justify-between p-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white border-t border-gray-200 main-calendar-header">
         <Button
           variant="ghost"
@@ -511,7 +427,6 @@ export function Calendar({
         </Button>
 
         <div className="flex flex-col items-center">
-          {/* Date Picker with Popover */}
           <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
             <PopoverTrigger asChild>
               <button className="date-picker-trigger flex items-center gap-2 text-lg font-semibold hover:bg-teal-500/20 px-3 py-1 rounded transition-colors">
@@ -554,12 +469,9 @@ export function Calendar({
         </Button>
       </div>
 
-      {/* Main content area */}
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden bg-white main-calendar-content">
-        {/* Calendar Grid */}
         <Card className="flex-1 overflow-hidden border-0 rounded-t-none main-calendar-grid flex md:flex-col">
           <div className="h-full flex flex-col">
-            {/* Day names header */}
             <div className="grid grid-cols-7 text-center bg-gray-100 border-b border-gray-200 main-calendar-weekdays">
               {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map(
                 (day, index) => (
@@ -573,7 +485,6 @@ export function Calendar({
               )}
             </div>
 
-            {/* Calendar days */}
             <div
               className="grid grid-cols-7 h-[calc(100%-32px)] main-calendar-days"
               style={
@@ -604,7 +515,6 @@ export function Calendar({
           </div>
         </Card>
 
-        {/* Day view as a modal */}
         <CalendarDayView
           date={selectedDate || new Date()}
           events={selectedDate ? getEventsForDay(selectedDate) : []}
@@ -615,7 +525,6 @@ export function Calendar({
         />
       </div>
 
-      {/* Add event button (only shown on mobile when no date is selected) */}
       {!selectedDate && (
         <div className="md:hidden fixed bottom-4 right-4">
           <Button
@@ -626,8 +535,6 @@ export function Calendar({
           </Button>
         </div>
       )}
-
-      {/* Event form is now handled by CalendarDayView */}
     </div>
   );
 }

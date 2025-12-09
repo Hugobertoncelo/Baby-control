@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
-import { Label } from '@/src/components/ui/label';
-import { Checkbox } from '@/src/components/ui/checkbox';
-import { 
-  FormPage, 
-  FormPageContent, 
-  FormPageFooter 
-} from '@/src/components/ui/form-page';
-import { Settings, Loader2, Save, X, Mail, ChevronDown } from 'lucide-react';
-import { BackupRestore } from '@/src/components/BackupRestore';
-import { AdminPasswordResetModal } from '@/src/components/BackupRestore/AdminPasswordResetModal';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import {
+  FormPage,
+  FormPageContent,
+  FormPageFooter,
+} from "@/src/components/ui/form-page";
+import { Settings, Loader2, Save, X, Mail, ChevronDown } from "lucide-react";
+import { BackupRestore } from "@/src/components/BackupRestore";
+import { AdminPasswordResetModal } from "@/src/components/BackupRestore/AdminPasswordResetModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/src/components/ui/dropdown-menu';
-import { EmailProviderType } from '@prisma/client';
+} from "@/src/components/ui/dropdown-menu";
+import { EmailProviderType } from "@prisma/client";
 
 interface AppConfigFormProps {
   isOpen: boolean;
@@ -48,128 +48,121 @@ interface EmailConfigData {
   updatedAt: string;
 }
 
-export default function AppConfigForm({ 
-  isOpen, 
-  onClose 
-}: AppConfigFormProps) {
+export default function AppConfigForm({ isOpen, onClose }: AppConfigFormProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [appConfig, setAppConfig] = useState<AppConfigData | null>(null);
   const [emailConfig, setEmailConfig] = useState<EmailConfigData | null>(null);
   const [formData, setFormData] = useState({
-    adminPass: '',
-    rootDomain: '',
+    adminPass: "",
+    rootDomain: "",
     enableHttps: false,
   });
   const [emailFormData, setEmailFormData] = useState({
-    providerType: 'SENDGRID' as EmailProviderType,
-    sendGridApiKey: '',
-    smtp2goApiKey: '',
-    serverAddress: '',
+    providerType: "SENDGRID" as EmailProviderType,
+    sendGridApiKey: "",
+    smtp2goApiKey: "",
+    serverAddress: "",
     port: 587,
-    username: '',
-    password: '',
+    username: "",
+    password: "",
     enableTls: true,
     allowSelfSignedCert: false,
   });
   const [showPasswordChange, setShowPasswordChange] = useState(false);
-  const [passwordStep, setPasswordStep] = useState<'verify' | 'new' | 'confirm'>('verify');
-  const [verifyPassword, setVerifyPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [originalPassword, setOriginalPassword] = useState('');
+  const [passwordStep, setPasswordStep] = useState<
+    "verify" | "new" | "confirm"
+  >("verify");
+  const [verifyPassword, setVerifyPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [originalPassword, setOriginalPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const adminResetResolverRef = React.useRef<(() => void) | null>(null);
 
-  // Handle admin password reset notification
   const handleAdminPasswordReset = () => {
-    console.log('Admin password was reset to default during restore');
     setShowPasswordResetModal(true);
   };
 
-  // Handle modal confirmation
   const handlePasswordResetConfirm = () => {
-    console.log('User acknowledged password reset notification');
-    // Resolve the promise to allow BackupRestore to proceed
     if (adminResetResolverRef.current) {
       adminResetResolverRef.current();
       adminResetResolverRef.current = null;
     }
   };
 
-  // Promise that resolves when user acknowledges the password reset
   const handleAdminResetAcknowledged = () => {
     return new Promise<void>((resolve) => {
       adminResetResolverRef.current = resolve;
     });
   };
 
-  // Fetch app config data
   const fetchAppConfig = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const authToken = localStorage.getItem('authToken');
-      const response = await fetch('/api/app-config', {
+
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch("/api/app-config", {
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
       const data = await response.json();
-      
+
       if (response.status === 401 || response.status === 403) {
-        setError('Authentication required. Please ensure you are logged in as a system administrator.');
+        setError(
+          "É necessária autenticação. Certifique-se de estar conectado como administrador do sistema."
+        );
         return;
       }
-      
+
       if (data.success) {
         setAppConfig(data.data.appConfig);
         setEmailConfig(data.data.emailConfig);
-        setOriginalPassword(data.data.appConfig?.adminPass || '');
+        setOriginalPassword(data.data.appConfig?.adminPass || "");
         setFormData({
-          adminPass: data.data.appConfig?.adminPass || '',
-          rootDomain: data.data.appConfig?.rootDomain || '',
+          adminPass: data.data.appConfig?.adminPass || "",
+          rootDomain: data.data.appConfig?.rootDomain || "",
           enableHttps: data.data.appConfig?.enableHttps || false,
         });
         setEmailFormData({
-          providerType: data.data.emailConfig?.providerType || 'SENDGRID',
-          sendGridApiKey: data.data.emailConfig?.sendGridApiKey || '',
-          smtp2goApiKey: data.data.emailConfig?.smtp2goApiKey || '',
-          serverAddress: data.data.emailConfig?.serverAddress || '',
+          providerType: data.data.emailConfig?.providerType || "SENDGRID",
+          sendGridApiKey: data.data.emailConfig?.sendGridApiKey || "",
+          smtp2goApiKey: data.data.emailConfig?.smtp2goApiKey || "",
+          serverAddress: data.data.emailConfig?.serverAddress || "",
           port: data.data.emailConfig?.port || 587,
-          username: data.data.emailConfig?.username || '',
-          password: data.data.emailConfig?.password || '',
+          username: data.data.emailConfig?.username || "",
+          password: data.data.emailConfig?.password || "",
           enableTls: data.data.emailConfig?.enableTls !== false,
-          allowSelfSignedCert: data.data.emailConfig?.allowSelfSignedCert || false,
+          allowSelfSignedCert:
+            data.data.emailConfig?.allowSelfSignedCert || false,
         });
         setShowPasswordChange(false);
-        setPasswordStep('verify');
-        setVerifyPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        setPasswordStep("verify");
+        setVerifyPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
       } else {
-        setError(data.error || 'Failed to fetch app configuration');
+        setError(data.error || "Falha ao obter a configuração do aplicativo");
       }
     } catch (error) {
-      console.error('Error fetching app config:', error);
-      setError('Failed to fetch app configuration');
+      console.error("Error fetching app config:", error);
+      setError("Falha ao obter a configuração do aplicativo");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load data when form opens
   useEffect(() => {
     if (isOpen) {
       fetchAppConfig();
     }
   }, [isOpen]);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (closeTimeoutRef.current) {
@@ -178,61 +171,55 @@ export default function AppConfigForm({
     };
   }, []);
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setError(null);
     setSuccess(null);
   };
 
-  // Handle checkbox changes
   const handleCheckboxChange = (name: string, checked: boolean) => {
-    setFormData(prev => ({ ...prev, [name]: checked }));
+    setFormData((prev) => ({ ...prev, [name]: checked }));
     setError(null);
     setSuccess(null);
   };
 
-  // Handle email input changes
   const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setEmailFormData(prev => ({
+    setEmailFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? parseInt(value, 10) : value,
+      [name]: type === "number" ? parseInt(value, 10) : value,
     }));
     setError(null);
     setSuccess(null);
   };
 
-  // Handle email checkbox changes
   const handleEmailCheckboxChange = (name: string, checked: boolean) => {
-    setEmailFormData(prev => ({ ...prev, [name]: checked }));
+    setEmailFormData((prev) => ({ ...prev, [name]: checked }));
     setError(null);
     setSuccess(null);
   };
-  
-  // Handle email provider change
+
   const handleProviderChange = (provider: EmailProviderType) => {
-    setEmailFormData(prev => ({ ...prev, providerType: provider }));
+    setEmailFormData((prev) => ({ ...prev, providerType: provider }));
   };
 
-  // Handle password step changes
   const handleVerifyPassword = () => {
     if (verifyPassword === originalPassword) {
-      setPasswordStep('new');
+      setPasswordStep("new");
       setError(null);
     } else {
-      setError('Incorrect current password');
-      setVerifyPassword('');
+      setError("Senha atual incorreta");
+      setVerifyPassword("");
     }
   };
 
   const handleNewPassword = () => {
     if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
-    setPasswordStep('confirm');
+    setPasswordStep("confirm");
     setError(null);
   };
 
@@ -242,92 +229,94 @@ export default function AppConfigForm({
         setSaving(true);
         setError(null);
 
-        // Update password in database immediately
-        const authToken = localStorage.getItem('authToken');
-        const response = await fetch('/api/app-config', {
-          method: 'PUT',
+        const authToken = localStorage.getItem("authToken");
+        const response = await fetch("/api/app-config", {
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
           },
           body: JSON.stringify({
-            appConfigData: { adminPass: newPassword }
+            appConfigData: { adminPass: newPassword },
           }),
         });
 
         const data = await response.json();
 
         if (response.status === 401 || response.status === 403) {
-          setError('Authentication required. Please ensure you are logged in as a system administrator.');
+          setError(
+            "É necessária autenticação. Certifique-se de estar conectado como administrador do sistema."
+          );
           return;
         }
 
         if (data.success) {
-          // Update local state with new password data
           setAppConfig(data.data.appConfig);
-          setFormData(prev => ({ ...prev, adminPass: data.data.appConfig.adminPass }));
+          setFormData((prev) => ({
+            ...prev,
+            adminPass: data.data.appConfig.adminPass,
+          }));
           setOriginalPassword(data.data.appConfig.adminPass);
-          
-          // Reset password form for potential next change
+
           setShowPasswordChange(false);
-          setPasswordStep('verify');
-          setVerifyPassword('');
-          setNewPassword('');
-          setConfirmPassword('');
+          setPasswordStep("verify");
+          setVerifyPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
           setError(null);
-          setSuccess('Password changed successfully');
+          setSuccess("Senha alterada com sucesso");
           scheduleAutoClose();
         } else {
-          setError(data.error || 'Failed to update password');
+          setError(data.error || "Falha ao atualizar a senha");
         }
       } catch (error) {
-        console.error('Error updating password:', error);
-        setError('Failed to update password');
+        console.error("Error updating password:", error);
+        setError("Falha ao atualizar a senha");
       } finally {
         setSaving(false);
       }
     } else {
-      setError('Passwords do not match');
-      setConfirmPassword('');
+      setError("As senhas não coincidem.");
+      setConfirmPassword("");
     }
   };
 
   const resetPasswordForm = () => {
     setShowPasswordChange(false);
-    setPasswordStep('verify');
-    setVerifyPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    setPasswordStep("verify");
+    setVerifyPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
     setError(null);
     setSuccess(null);
   };
 
-  // Validate form
   const validateForm = (): boolean => {
     if (!formData.adminPass.trim()) {
-      setError('Admin password is required');
+      setError("A senha do administrador é obrigatória");
       return false;
     }
 
     if (!formData.rootDomain.trim()) {
-      setError('Root domain is required');
+      setError("O domínio raiz é obrigatório");
       return false;
     }
 
-    // Flexible domain/IP validation - allows domain, IP, localhost, with optional port
-    const domainOrIpRegex = /^(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|localhost)(?::[1-9][0-9]{0,4})?$/;
+    const domainOrIpRegex =
+      /^(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|localhost)(?::[1-9][0-9]{0,4})?$/;
     if (!domainOrIpRegex.test(formData.rootDomain)) {
-      setError('Please enter a valid domain, IP address, or localhost (with optional port)');
+      setError(
+        "Por favor, insira um domínio válido, um endereço IP ou localhost (com porta opcional)."
+      );
       return false;
     }
 
     return true;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -342,12 +331,12 @@ export default function AppConfigForm({
       setError(null);
       setSuccess(null);
 
-      const authToken = localStorage.getItem('authToken');
-      const response = await fetch('/api/app-config', {
-        method: 'PUT',
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch("/api/app-config", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -355,49 +344,46 @@ export default function AppConfigForm({
       const data = await response.json();
 
       if (response.status === 401 || response.status === 403) {
-        setError('Authentication required. Please ensure you are logged in as a system administrator.');
+        setError(
+          "É necessária autenticação. Certifique-se de estar conectado como administrador do sistema."
+        );
         return;
       }
 
       if (data.success) {
         setAppConfig(data.data.appConfig);
         setEmailConfig(data.data.emailConfig);
-        setSuccess('App configuration updated successfully');
+        setSuccess("Configuração do aplicativo atualizada com sucesso");
         scheduleAutoClose();
       } else {
-        setError(data.error || 'Failed to update app configuration');
+        setError(
+          data.error || "Falha ao atualizar a configuração do aplicativo"
+        );
       }
     } catch (error) {
-      console.error('Error updating app config:', error);
-      setError('Failed to update app configuration');
+      console.error("Error updating app config:", error);
+      setError("Falha ao atualizar a configuração do aplicativo");
     } finally {
       setSaving(false);
     }
   };
 
-
-
-  // Auto-close form after successful save
   const scheduleAutoClose = () => {
-    // Clear any existing timeout
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
-    
-    // Schedule auto-close after 500ms
+
     closeTimeoutRef.current = setTimeout(() => {
       handleClose();
     }, 500);
   };
 
-  // Handle form close
   const handleClose = () => {
-    // Clear any pending auto-close timeout
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
     }
-    
+
     setError(null);
     setSuccess(null);
     resetPasswordForm();
@@ -405,37 +391,40 @@ export default function AppConfigForm({
   };
 
   return (
-    <FormPage 
-      isOpen={isOpen} 
+    <FormPage
+      isOpen={isOpen}
       onClose={handleClose}
-      title="App Configuration"
-      description="Manage global application settings"
+      title="Configuração do aplicativo"
+      description="Gerenciar configurações globais de aplicativos"
     >
-      <form onSubmit={handleSubmit} className="h-full flex flex-col overflow-hidden">
+      <form
+        onSubmit={handleSubmit}
+        className="h-full flex flex-col overflow-hidden"
+      >
         <FormPageContent className="space-y-6 overflow-y-auto flex-1 pb-24">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-              <span className="ml-2 text-gray-600">Loading configuration...</span>
+              <span className="ml-2 text-gray-600">
+                Carregando configuração...
+              </span>
             </div>
           ) : (
             <>
-              {/* System Settings Section */}
               <div className="space-y-4">
-                                 <div className="flex items-center space-x-2">
-                   <Settings className="h-5 w-5 text-teal-600" />
-                   <Label className="text-lg font-semibold">
-                     System Settings
-                   </Label>
-                 </div>
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5 text-teal-600" />
+                  <Label className="text-lg font-semibold">
+                    Configurações do sistema
+                  </Label>
+                </div>
 
                 <div className="space-y-4">
-                  {/* Password Change Section */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">
-                      Admin Password
+                      Senha de administrador
                     </Label>
-                    
+
                     {!showPasswordChange ? (
                       <div className="flex gap-2">
                         <Input
@@ -450,29 +439,29 @@ export default function AppConfigForm({
                           onClick={() => setShowPasswordChange(true)}
                           disabled={loading}
                         >
-                          Change Password
+                          Alterar a senha
                         </Button>
                       </div>
                     ) : (
                       <div className="space-y-4 border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm font-medium">
-                            Change Admin Password
+                            Alterar senha de administrador
                           </Label>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
+                          <Button
+                            type="button"
+                            variant="outline"
                             size="sm"
                             onClick={resetPasswordForm}
                           >
-                            Cancel
+                            Cancelar
                           </Button>
                         </div>
 
-                        {passwordStep === 'verify' && (
+                        {passwordStep === "verify" && (
                           <div className="space-y-2">
                             <Label htmlFor="verifyPassword" className="text-sm">
-                              Current Password
+                              Senha atual
                             </Label>
                             <div className="flex space-x-2">
                               <Input
@@ -484,24 +473,24 @@ export default function AppConfigForm({
                                   setError(null);
                                   setSuccess(null);
                                 }}
-                                placeholder="Enter current password"
+                                placeholder="Digite a senha atual"
                                 autoComplete="current-password"
                               />
-                              <Button 
-                                type="button" 
+                              <Button
+                                type="button"
                                 onClick={handleVerifyPassword}
                                 disabled={!verifyPassword.trim()}
                               >
-                                Continue
+                                Continuar
                               </Button>
                             </div>
                           </div>
                         )}
 
-                        {passwordStep === 'new' && (
+                        {passwordStep === "new" && (
                           <div className="space-y-2">
                             <Label htmlFor="newPassword" className="text-sm">
-                              New Password
+                              Nova Senha
                             </Label>
                             <div className="flex space-x-2">
                               <Input
@@ -513,27 +502,30 @@ export default function AppConfigForm({
                                   setError(null);
                                   setSuccess(null);
                                 }}
-                                placeholder="Enter new password"
+                                placeholder="Digite a nova senha"
                                 autoComplete="new-password"
                               />
-                              <Button 
-                                type="button" 
+                              <Button
+                                type="button"
                                 onClick={handleNewPassword}
                                 disabled={!newPassword.trim()}
                               >
-                                Continue
+                                Continuar
                               </Button>
                             </div>
                             <p className="text-xs text-gray-500">
-                              Password must be at least 6 characters
+                              A senha deve ter pelo menos 6 caracteres.
                             </p>
                           </div>
                         )}
 
-                        {passwordStep === 'confirm' && (
+                        {passwordStep === "confirm" && (
                           <div className="space-y-2">
-                            <Label htmlFor="confirmNewPassword" className="text-sm">
-                              Confirm New Password
+                            <Label
+                              htmlFor="confirmNewPassword"
+                              className="text-sm"
+                            >
+                              Confirme a nova senha
                             </Label>
                             <div className="flex space-x-2">
                               <Input
@@ -545,21 +537,21 @@ export default function AppConfigForm({
                                   setError(null);
                                   setSuccess(null);
                                 }}
-                                placeholder="Confirm new password"
+                                placeholder="Confirme a nova senha"
                                 autoComplete="new-password"
                               />
-                              <Button 
-                                type="button" 
+                              <Button
+                                type="button"
                                 onClick={handleConfirmPassword}
                                 disabled={!confirmPassword.trim() || saving}
                               >
                                 {saving ? (
                                   <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Updating...
+                                    Atualizando...
                                   </>
                                 ) : (
-                                  'Update'
+                                  "Atualizar"
                                 )}
                               </Button>
                             </div>
@@ -567,16 +559,16 @@ export default function AppConfigForm({
                         )}
                       </div>
                     )}
-                    
+
                     <p className="text-xs text-gray-500">
-                      This password is used for system-wide administrative access
+                      Esta senha é usada para acesso administrativo em todo o
+                      sistema.
                     </p>
                   </div>
 
-                  {/* Root Domain */}
                   <div className="space-y-2">
                     <Label htmlFor="rootDomain" className="text-sm font-medium">
-                      Root Domain
+                      Domínio Raiz
                       <span className="text-red-500 ml-1">*</span>
                     </Label>
                     <Input
@@ -585,75 +577,94 @@ export default function AppConfigForm({
                       name="rootDomain"
                       value={formData.rootDomain}
                       onChange={handleInputChange}
-                      placeholder="example.com"
+                      placeholder="exemplo.com"
                       required
                     />
                     <p className="text-xs text-gray-500">
-                      The primary domain for this application instance
+                      O domínio principal para esta instância de aplicação.
                     </p>
                   </div>
 
-                  {/* HTTPS Setting */}
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="enableHttps"
                         checked={formData.enableHttps}
-                        onCheckedChange={(checked) => 
-                          handleCheckboxChange('enableHttps', checked as boolean)
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange(
+                            "enableHttps",
+                            checked as boolean
+                          )
                         }
                       />
-                      <Label htmlFor="enableHttps" className="text-sm font-medium cursor-pointer">
-                        Enable HTTPS
+                      <Label
+                        htmlFor="enableHttps"
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        Habilitar HTTPS
                       </Label>
                     </div>
                     <p className="text-xs text-gray-500 ml-6">
-                      Enable secure HTTPS connections for the application
+                      Habilite conexões HTTPS seguras para o aplicativo.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Email Configuration Section */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Mail className="h-5 w-5 text-teal-600" />
                   <Label className="text-lg font-semibold">
-                    Email Configuration
+                    Configuração de e-mail
                   </Label>
                 </div>
                 <div className="space-y-4">
-                  {/* Email Provider Dropdown */}
                   <div className="space-y-2">
-                    <Label htmlFor="providerType" className="text-sm font-medium">
-                      Email Provider
+                    <Label
+                      htmlFor="providerType"
+                      className="text-sm font-medium"
+                    >
+                      Provedor de e-mail
                     </Label>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full justify-between">
-                          <span>{emailFormData.providerType.replace('_', ' ')}</span>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between"
+                        >
+                          <span>
+                            {emailFormData.providerType.replace("_", " ")}
+                          </span>
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
-                        <DropdownMenuItem onSelect={() => handleProviderChange('SENDGRID')}>
+                        <DropdownMenuItem
+                          onSelect={() => handleProviderChange("SENDGRID")}
+                        >
                           SendGrid
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleProviderChange('SMTP2GO')}>
+                        <DropdownMenuItem
+                          onSelect={() => handleProviderChange("SMTP2GO")}
+                        >
                           SMTP2GO
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleProviderChange('MANUAL_SFTP')}>
+                        <DropdownMenuItem
+                          onSelect={() => handleProviderChange("MANUAL_SFTP")}
+                        >
                           Manual SMTP
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
 
-                  {/* SendGrid API Key */}
-                  {emailFormData.providerType === 'SENDGRID' && (
+                  {emailFormData.providerType === "SENDGRID" && (
                     <div className="space-y-2">
-                      <Label htmlFor="sendGridApiKey" className="text-sm font-medium">
-                        SendGrid API Key
+                      <Label
+                        htmlFor="sendGridApiKey"
+                        className="text-sm font-medium"
+                      >
+                        Chave da API SendGrid
                       </Label>
                       <Input
                         type="password"
@@ -661,16 +672,18 @@ export default function AppConfigForm({
                         name="sendGridApiKey"
                         value={emailFormData.sendGridApiKey}
                         onChange={handleEmailInputChange}
-                        placeholder="Enter SendGrid API Key"
+                        placeholder="Insira a chave da API do SendGrid"
                       />
                     </div>
                   )}
 
-                  {/* SMTP2GO API Key */}
-                  {emailFormData.providerType === 'SMTP2GO' && (
+                  {emailFormData.providerType === "SMTP2GO" && (
                     <div className="space-y-2">
-                      <Label htmlFor="smtp2goApiKey" className="text-sm font-medium">
-                        SMTP2GO API Key
+                      <Label
+                        htmlFor="smtp2goApiKey"
+                        className="text-sm font-medium"
+                      >
+                        Chave da API SMTP2GO
                       </Label>
                       <Input
                         type="password"
@@ -678,17 +691,19 @@ export default function AppConfigForm({
                         name="smtp2goApiKey"
                         value={emailFormData.smtp2goApiKey}
                         onChange={handleEmailInputChange}
-                        placeholder="Enter SMTP2GO API Key"
+                        placeholder="Insira a chave da API SMTP2GO"
                       />
                     </div>
                   )}
 
-                  {/* Manual SMTP Settings */}
-                  {emailFormData.providerType === 'MANUAL_SFTP' && (
+                  {emailFormData.providerType === "MANUAL_SFTP" && (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="serverAddress" className="text-sm font-medium">
-                          Server Address
+                        <Label
+                          htmlFor="serverAddress"
+                          className="text-sm font-medium"
+                        >
+                          Endereço do servidor
                         </Label>
                         <Input
                           type="text"
@@ -696,12 +711,12 @@ export default function AppConfigForm({
                           name="serverAddress"
                           value={emailFormData.serverAddress}
                           onChange={handleEmailInputChange}
-                          placeholder="smtp.example.com"
+                          placeholder="smtp.exemplo.com"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="port" className="text-sm font-medium">
-                          Port
+                          Porta
                         </Label>
                         <Input
                           type="number"
@@ -713,7 +728,10 @@ export default function AppConfigForm({
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium">
+                        <Label
+                          htmlFor="username"
+                          className="text-sm font-medium"
+                        >
                           Username
                         </Label>
                         <Input
@@ -722,12 +740,15 @@ export default function AppConfigForm({
                           name="username"
                           value={emailFormData.username}
                           onChange={handleEmailInputChange}
-                          autoComplete="username"
+                          autoComplete="Username"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium">
-                          Password
+                        <Label
+                          htmlFor="password"
+                          className="text-sm font-medium"
+                        >
+                          Senha
                         </Label>
                         <Input
                           type="password"
@@ -742,20 +763,36 @@ export default function AppConfigForm({
                         <Checkbox
                           id="enableTls"
                           checked={emailFormData.enableTls}
-                          onCheckedChange={(checked) => handleEmailCheckboxChange('enableTls', checked as boolean)}
+                          onCheckedChange={(checked) =>
+                            handleEmailCheckboxChange(
+                              "enableTls",
+                              checked as boolean
+                            )
+                          }
                         />
-                        <Label htmlFor="enableTls" className="text-sm font-medium cursor-pointer">
-                          Enable TLS
+                        <Label
+                          htmlFor="enableTls"
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          Habilitar TLS
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="allowSelfSignedCert"
                           checked={emailFormData.allowSelfSignedCert}
-                          onCheckedChange={(checked) => handleEmailCheckboxChange('allowSelfSignedCert', checked as boolean)}
+                          onCheckedChange={(checked) =>
+                            handleEmailCheckboxChange(
+                              "allowSelfSignedCert",
+                              checked as boolean
+                            )
+                          }
                         />
-                        <Label htmlFor="allowSelfSignedCert" className="text-sm font-medium cursor-pointer">
-                          Allow Self-Signed Cert
+                        <Label
+                          htmlFor="allowSelfSignedCert"
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          Permitir certificado autoassinado
                         </Label>
                       </div>
                     </div>
@@ -763,7 +800,6 @@ export default function AppConfigForm({
                 </div>
               </div>
 
-              {/* Database Management Section */}
               <BackupRestore
                 isLoading={loading}
                 isSaving={saving}
@@ -773,12 +809,13 @@ export default function AppConfigForm({
                 onAdminResetAcknowledged={handleAdminResetAcknowledged}
               />
 
-              {/* Status Messages */}
               {error && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                   <div className="flex items-center">
                     <X className="h-4 w-4 text-red-500 mr-2" />
-                    <span className="text-sm text-red-700 dark:text-red-300">{error}</span>
+                    <span className="text-sm text-red-700 dark:text-red-300">
+                      {error}
+                    </span>
                   </div>
                 </div>
               )}
@@ -787,21 +824,23 @@ export default function AppConfigForm({
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                   <div className="flex items-center">
                     <Save className="h-4 w-4 text-green-500 mr-2" />
-                    <span className="text-sm text-green-700 dark:text-green-300">{success}</span>
+                    <span className="text-sm text-green-700 dark:text-green-300">
+                      {success}
+                    </span>
                   </div>
                 </div>
               )}
 
-              {/* Last Updated Info */}
               {appConfig && (
                 <div className="text-xs text-gray-500 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  Last updated: {new Date(appConfig.updatedAt).toLocaleString()}
+                  Última atualização:{" "}
+                  {new Date(appConfig.updatedAt).toLocaleString()}
                 </div>
               )}
             </>
           )}
         </FormPageContent>
-        
+
         <FormPageFooter>
           <div className="flex justify-end space-x-2">
             <Button
@@ -810,7 +849,7 @@ export default function AppConfigForm({
               onClick={handleClose}
               disabled={saving}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
@@ -820,12 +859,12 @@ export default function AppConfigForm({
               {saving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  Salvando...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Configuration
+                  Salvar configuração
                 </>
               )}
             </Button>
@@ -833,7 +872,6 @@ export default function AppConfigForm({
         </FormPageFooter>
       </form>
 
-      {/* Admin Password Reset Modal */}
       <AdminPasswordResetModal
         open={showPasswordResetModal}
         onOpenChange={setShowPasswordResetModal}
@@ -841,4 +879,4 @@ export default function AppConfigForm({
       />
     </FormPage>
   );
-} 
+}

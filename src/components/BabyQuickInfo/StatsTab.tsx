@@ -2,45 +2,25 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/src/lib/utils";
 import { styles } from "./baby-quick-info.styles";
 import { StatsTabProps } from "./baby-quick-info.types";
-import {
-  Moon,
-  Sun,
-  Utensils,
-  Droplet,
-  StickyNote,
-  Bath,
-  Loader2,
-} from "lucide-react";
-import { diaper, bottleBaby } from "@lucide/lab";
-import { Icon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Label } from "@/src/components/ui/label";
 import CardVisual from "@/src/components/reporting/CardVisual";
 
-/**
- * StatsTab Component
- *
- * Displays quick stats for a baby, reusing functionality from the original BabyQuickStats component
- */
 const StatsTab: React.FC<StatsTabProps> = ({
   activities: initialActivities = [],
   selectedBaby,
-  calculateAge,
 }) => {
-  // State for time period selection
   const [mainPeriod, setMainPeriod] = useState<
     "2dia" | "7dia" | "14dia" | "30dia"
   >("7dia");
   const [comparePeriod, setComparePeriod] = useState<
     "2dia" | "7dia" | "14dia" | "30dia"
   >("14dia");
-
-  // State for activities data
   const [activities, setActivities] = useState<any[]>(initialActivities);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch activities for the selected baby
   useEffect(() => {
     if (!selectedBaby) return;
 
@@ -49,19 +29,15 @@ const StatsTab: React.FC<StatsTabProps> = ({
       setError(null);
 
       try {
-        // Calculate date range for the largest period (30 Dias)
         const end = new Date();
         const start = new Date();
-        start.setDate(start.getDate() - 30); // 30 Dias back
+        start.setDate(start.getDate() - 30);
 
-        // Format dates for API request
         const startDate = start.toISOString();
         const endDate = end.toISOString();
 
-        // Add timestamp to prevent caching
         const timestamp = new Date().getTime();
 
-        // Make API call to get activities for the baby using the timeline endpoint
         const url = `/api/timeline?babyId=${
           selectedBaby.id
         }&startDate=${encodeURIComponent(
@@ -70,7 +46,6 @@ const StatsTab: React.FC<StatsTabProps> = ({
 
         console.log(`Fetching activities from: ${url}`);
 
-        // Get auth token from localStorage
         const authToken = localStorage.getItem("authToken");
 
         const response = await fetch(url, {
@@ -89,22 +64,22 @@ const StatsTab: React.FC<StatsTabProps> = ({
           if (data.success) {
             setActivities(data.data || []);
             console.log(
-              `Fetched ${data.data?.length || 0} activities for baby ${
+              `Buscado ${data.data?.length || 0} atividades para bebê ${
                 selectedBaby.firstName
               }`
             );
           } else {
             setActivities([]);
-            setError(data.message || "Failed to fetch activities");
+            setError(data.message || "Falha ao buscar atividades");
           }
         } else {
           setActivities([]);
-          setError("Failed to fetch activities");
+          setError("Falha ao buscar atividades");
         }
       } catch (err) {
-        console.error("Error fetching activities:", err);
+        console.error("Erro ao buscar atividades:", err);
         setActivities([]);
-        setError("Error fetching activities");
+        setError("Erro ao buscar atividades");
       } finally {
         setIsLoading(false);
       }
@@ -113,14 +88,12 @@ const StatsTab: React.FC<StatsTabProps> = ({
     fetchActivities();
   }, [selectedBaby]);
 
-  // Helper function to format minutes into hours and minutes
   const formatMinutes = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
 
-  // Calculate date ranges based on selected periods
   const getDateRangeForPeriod = (
     period: "2dia" | "7dia" | "14dia" | "30dia"
   ): { start: Date; end: Date } => {
@@ -148,34 +121,29 @@ const StatsTab: React.FC<StatsTabProps> = ({
     return { start, end };
   };
 
-  // Filter activities by date range and baby ID
   const filterActivities = (period: "2dia" | "7dia" | "14dia" | "30dia") => {
     if (!selectedBaby || !activities.length) return [];
 
     const { start, end } = getDateRangeForPeriod(period);
 
     return activities.filter((activity) => {
-      // Check if activity belongs to selected baby
       if ("babyId" in activity && activity.babyId !== selectedBaby.id) {
         return false;
       }
 
-      // Get activity time
       const time =
-        "time" in activity
+        "tempo" in activity
           ? new Date(activity.time)
-          : "startTime" in activity
+          : "hora de início" in activity
           ? new Date(activity.startTime)
           : null;
 
       if (!time) return false;
 
-      // Check if activity is within date range
       return time >= start && time <= end;
     });
   };
 
-  // Function to calculate all stats from activities
   function calculateStats(
     filteredActivities: any[],
     period: "2dia" | "7dia" | "14dia" | "30dia"
@@ -193,7 +161,6 @@ const StatsTab: React.FC<StatsTabProps> = ({
       };
     }
 
-    // Get number of days in period
     const daysInPeriod =
       period === "2dia"
         ? 2
@@ -203,41 +170,36 @@ const StatsTab: React.FC<StatsTabProps> = ({
         ? 14
         : 30;
 
-    // Calculate wake windows
     let totalWakeMinutes = 0;
     let wakeWindowCount = 0;
 
-    // Calculate nap time
     let totalNapMinutes = 0;
     let napCount = 0;
 
-    // Count night wakings and calculate night sleep time
     let nightWakings = 0;
 
-    // Track which nights we've already counted to avoid duplicates
-    // Store total sleep minutes for each night
     const nightSleepByNight: Record<string, number> = {};
 
-    // Count feedings
     let feedingCount = 0;
     let totalFeedAmount = 0;
     let feedAmountCount = 0;
     const feedUnits: Record<string, number> = {};
 
-    // Count diapers
     let diaperCount = 0;
     let poopCount = 0;
 
-    // Process sleep activities to calculate wake windows and nap time
     const sleepActivities = filteredActivities.filter(
-      (a) => "duration" in a && "startTime" in a && "endTime" in a && a.endTime
+      (a) =>
+        "duração" in a &&
+        "hora de início" in a &&
+        "hora final" in a &&
+        a.endTime
     );
     sleepActivities.sort(
       (a, b) =>
         new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
     );
 
-    // Calculate wake windows - time from end of sleep to start of next sleep
     for (let i = 0; i < sleepActivities.length - 1; i++) {
       const currentSleep = sleepActivities[i];
       const nextSleep = sleepActivities[i + 1];
@@ -246,27 +208,23 @@ const StatsTab: React.FC<StatsTabProps> = ({
         const sleepEndTime = new Date(currentSleep.endTime).getTime();
         const nextSleepStartTime = new Date(nextSleep.startTime).getTime();
 
-        // Calculate wake window in minutes
         const wakeWindowInMinutes = Math.floor(
           (nextSleepStartTime - sleepEndTime) / (1000 * 60)
         );
 
-        // Only count valid wake windows (positive and reasonable duration)
         if (wakeWindowInMinutes > 0 && wakeWindowInMinutes < 24 * 60) {
-          // Less than 24 hours
           totalWakeMinutes += wakeWindowInMinutes;
           wakeWindowCount++;
         }
       }
     }
 
-    // Group activities by day
     const activitiesByDay: Record<string, any[]> = {};
     filteredActivities.forEach((activity) => {
       const time =
-        "time" in activity
+        "tempo" in activity
           ? new Date(activity.time)
-          : "startTime" in activity
+          : "hora de início" in activity
           ? new Date(activity.startTime)
           : null;
 
@@ -279,19 +237,15 @@ const StatsTab: React.FC<StatsTabProps> = ({
       activitiesByDay[dateStr].push(activity);
     });
 
-    // Process each day's activities
     Object.values(activitiesByDay).forEach((dayActivities) => {
-      // Count night wakings and calculate night sleep time (sleep activities between 7pm and 7am)
       const nightSleepEvents = dayActivities.filter((a) => {
-        if (!("startTime" in a)) return false;
+        if (!("hora de início" in a)) return false;
         const startTime = new Date(a.startTime);
         const startHour = startTime.getHours();
 
-        // Check if it's a night sleep (starts or ends between 7pm and 7am)
         const isNightByStart = startHour >= 19 || startHour < 7;
 
-        // If we have an end time, also check that
-        if ("endTime" in a && a.endTime) {
+        if ("hora final" in a && a.endTime) {
           const endTime = new Date(a.endTime);
           const endHour = endTime.getHours();
           const isNightByEnd = endHour >= 19 || endHour < 7;
@@ -302,30 +256,24 @@ const StatsTab: React.FC<StatsTabProps> = ({
         return isNightByStart;
       });
 
-      // Process night sleep events to identify unique nights
       nightSleepEvents.forEach((a) => {
-        if (!("startTime" in a) || !("endTime" in a) || !a.endTime) return;
+        if (!("hora de início" in a) || !("hora final" in a) || !a.endTime)
+          return;
 
         const startTime = new Date(a.startTime);
         const startHour = startTime.getHours();
         const sleepDate = new Date(startTime);
 
-        // Determine which night this sleep belongs to
         let nightKey;
         if (startHour >= 19) {
-          // This is the start of tonight's sleep (after 7pm)
-          nightKey = sleepDate.toISOString().split("T")[0] + "-night";
+          nightKey = sleepDate.toISOString().split("T")[0] + "-noite";
         } else if (startHour < 7) {
-          // This is the end of last night's sleep (before 7am)
-          // Move back one day to get the correct night
           sleepDate.setDate(sleepDate.getDate() - 1);
-          nightKey = sleepDate.toISOString().split("T")[0] + "-night";
+          nightKey = sleepDate.toISOString().split("T")[0] + "-noite";
         } else {
-          // This is a daytime nap, not night sleep
           return;
         }
 
-        // Calculate sleep duration
         const startTimeMs = new Date(a.startTime).getTime();
         const endTimeMs = new Date(a.endTime).getTime();
         const sleepDurationMinutes = Math.round(
@@ -333,39 +281,32 @@ const StatsTab: React.FC<StatsTabProps> = ({
         );
 
         if (sleepDurationMinutes <= 0 || sleepDurationMinutes >= 12 * 60) {
-          // Invalid sleep duration
           return;
         }
 
-        // Add this sleep duration to the night's total
         if (!nightSleepByNight[nightKey]) {
           nightSleepByNight[nightKey] = 0;
 
-          // Count night wakings for this night (only once per night)
           const wakingsForNight = Math.max(0, nightSleepEvents.length - 1);
           nightWakings += wakingsForNight;
         }
 
-        // Add this sleep duration to the night's total
         nightSleepByNight[nightKey] += sleepDurationMinutes;
       });
 
-      // Count feedings
       const feedingsForDay = dayActivities.filter(
         (a) =>
-          "type" in a &&
+          "tipo" in a &&
           (a.type === "BOTTLE" || a.type === "BREAST" || a.type === "SOLIDS")
       ).length;
 
       feedingCount += feedingsForDay;
 
-      // Calculate feed amounts
       dayActivities.forEach((a) => {
         if ("amount" in a && a.amount && typeof a.amount === "number") {
           totalFeedAmount += a.amount;
           feedAmountCount++;
 
-          // Track units used in feeding logs
           if ("unitAbbr" in a && a.unitAbbr && typeof a.unitAbbr === "string") {
             const unit = a.unitAbbr.toLowerCase();
             feedUnits[unit] = (feedUnits[unit] || 0) + 1;
@@ -373,28 +314,25 @@ const StatsTab: React.FC<StatsTabProps> = ({
         }
       });
 
-      // Count diapers and poops
       dayActivities.forEach((a) => {
         if ("condition" in a) {
           diaperCount++;
 
-          // Count poops (dirty or wet+dirty) - using the type property
           if (a.type === "DIRTY" || a.type === "BOTH") {
             poopCount++;
           }
         }
       });
 
-      // Calculate nap time (sleep activities during the day)
       const napActivities = dayActivities.filter((a) => {
-        if (!("startTime" in a && "endTime" in a)) return false;
+        if (!("hora de início" in a && "hora final" in a)) return false;
         const time = new Date(a.startTime);
         const hour = time.getHours();
-        return hour >= 7 && hour < 19; // Day time is 7am to 7pm
+        return hour >= 7 && hour < 19;
       });
 
       napActivities.forEach((a) => {
-        if ("startTime" in a && "endTime" in a && a.endTime) {
+        if ("hora de início" in a && "hora final" in a && a.endTime) {
           const startTime = new Date(a.startTime).getTime();
           const endTime = new Date(a.endTime).getTime();
           const napDurationMinutes = Math.round(
@@ -402,7 +340,6 @@ const StatsTab: React.FC<StatsTabProps> = ({
           );
 
           if (napDurationMinutes > 0 && napDurationMinutes < 6 * 60) {
-            // Less than 6 hours
             totalNapMinutes += napDurationMinutes;
             napCount++;
           }
@@ -410,25 +347,21 @@ const StatsTab: React.FC<StatsTabProps> = ({
       });
     });
 
-    // Calculate averages with proper rounding
     const avgWakeWindow =
       wakeWindowCount > 0 ? Math.round(totalWakeMinutes / wakeWindowCount) : 0;
     const avgNapTime =
       napCount > 0 ? Math.round(totalNapMinutes / napCount) : 0;
 
-    // Calculate total night sleep time and average
     let totalNightSleepMinutes = 0;
     Object.values(nightSleepByNight).forEach((minutes) => {
       totalNightSleepMinutes += minutes;
     });
 
-    // Use the number of nights processed for night sleep calculations
     const nightsCount = Object.keys(nightSleepByNight).length;
     const avgNightSleepTime =
       nightsCount > 0 ? Math.round(totalNightSleepMinutes / nightsCount) : 0;
     const avgNightWakings =
       nightsCount > 0 ? Math.round((nightWakings / nightsCount) * 10) / 10 : 0;
-    // Determine the most common unit used
     const mostCommonUnit =
       Object.keys(feedUnits).length > 0
         ? Object.entries(feedUnits).reduce((a, b) =>
@@ -462,14 +395,12 @@ const StatsTab: React.FC<StatsTabProps> = ({
     };
   }
 
-  // Calculate stats for the selected time periods
   const mainStats = calculateStats(filterActivities(mainPeriod), mainPeriod);
   const compareStats = calculateStats(
     filterActivities(comparePeriod),
     comparePeriod
   );
 
-  // Format period label
   const formatPeriodLabel = (
     period: "2dia" | "7dia" | "14dia" | "30dia"
   ): string => {
@@ -489,7 +420,6 @@ const StatsTab: React.FC<StatsTabProps> = ({
     <div
       className={cn(styles.statsContainer, "baby-quick-info-stats-container")}
     >
-      {/* Time period selectors */}
       <div className="space-y-2">
         <div>
           <Label className="text-xs text-gray-500 dark:text-gray-400">
@@ -561,7 +491,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
 
           <CardVisual
-            title="Avg Nap Time"
+            title="Tempo médio de soneca"
             mainValue={formatMinutes(mainStats.avgNapTime)}
             comparativeValue={formatMinutes(compareStats.avgNapTime)}
             trend={
@@ -572,7 +502,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
 
           <CardVisual
-            title="Avg Night Sleep"
+            title="Média de sono noturno"
             mainValue={formatMinutes(mainStats.avgNightSleepTime)}
             comparativeValue={formatMinutes(compareStats.avgNightSleepTime)}
             trend={
@@ -583,7 +513,7 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
 
           <CardVisual
-            title="Avg Night Wakings"
+            title="Média de despertares noturnos"
             mainValue={mainStats.avgNightWakings.toFixed(1)}
             comparativeValue={compareStats.avgNightWakings.toFixed(1)}
             trend={
@@ -594,14 +524,14 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
 
           <CardVisual
-            title="Avg Feedings"
+            title="Alimentação média"
             mainValue={mainStats.avgFeedings.toFixed(1)}
             comparativeValue={compareStats.avgFeedings.toFixed(1)}
             trend="neutral"
           />
 
           <CardVisual
-            title="Avg Feed Amount"
+            title="Quantidade média de comida"
             mainValue={
               mainStats.avgFeedAmount.toFixed(1) + " " + mainStats.feedUnit
             }
@@ -618,14 +548,14 @@ const StatsTab: React.FC<StatsTabProps> = ({
           />
 
           <CardVisual
-            title="Avg Diaper Changes"
+            title="Média de trocas de fraldas"
             mainValue={mainStats.avgDiaperChanges.toFixed(1)}
             comparativeValue={compareStats.avgDiaperChanges.toFixed(1)}
             trend="neutral"
           />
 
           <CardVisual
-            title="Avg Poops"
+            title="Cocôs médios"
             mainValue={mainStats.avgPoops.toFixed(1)}
             comparativeValue={compareStats.avgPoops.toFixed(1)}
             trend="neutral"

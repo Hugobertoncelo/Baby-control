@@ -67,7 +67,7 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
     {
       type: "pump",
       icon: <LampWallDown className="h-4 w-4" />,
-      label: "Bombear",
+      label: "Bomba",
     },
     {
       type: "milestone",

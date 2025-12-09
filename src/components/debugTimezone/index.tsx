@@ -4,24 +4,21 @@ import React, { useState, useEffect } from "react";
 import { useTimezone } from "@/app/context/timezone";
 
 export function TimezoneDebug() {
-  // Get timezone context first to avoid hook order issues
   const {
     userTimezone,
     getTimezoneInfo,
     formatDateTime,
-    isDaylightSavingTime,
     isLoading: tzLoading,
     isDST,
     refreshTimezone,
   } = useTimezone();
 
-  // All state hooks must be defined before any conditional returns
   const [isEnabled, setIsEnabled] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [info, setInfo] = useState({
     userTimezone,
-    serverTimezone: "Loading...",
+    serverTimezone: "Carregando...",
     currentTime: new Date().toISOString(),
     currentOffset: new Date().getTimezoneOffset(),
     isDST: false,
@@ -33,7 +30,6 @@ export function TimezoneDebug() {
     initTime: new Date().toISOString(),
   });
 
-  // Fetch settings to check if debug timezone tool is enabled
   const fetchSettings = async () => {
     try {
       const authToken = localStorage.getItem("authToken");
@@ -52,26 +48,22 @@ export function TimezoneDebug() {
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
-          // Only enable if explicitly enabled in settings
           setIsEnabled(!!data.data.enableDebugTimezone);
         }
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
-      // Default to disabled if there's an error
       setIsEnabled(false);
     }
     setIsInitialized(true);
   };
 
-  // Fetch settings on mount
   useEffect(() => {
     fetchSettings();
   }, []);
 
   const fetchServerTimezone = async () => {
     try {
-      // Use the new system-timezone endpoint that directly gets the system timezone
       const response = await fetch("/api/system-timezone");
       if (response.ok) {
         const data = await response.json();
@@ -86,12 +78,11 @@ export function TimezoneDebug() {
       console.error("Error fetching server timezone:", error);
       setInfo((prev) => ({
         ...prev,
-        serverTimezone: "Error fetching",
+        serverTimezone: "Erro ao buscar",
       }));
     }
   };
 
-  // Update info when timezone context changes
   useEffect(() => {
     if (!tzLoading) {
       refreshInfo();
@@ -103,7 +94,6 @@ export function TimezoneDebug() {
     const nowIso = now.toISOString();
     const tzInfo = getTimezoneInfo();
 
-    // Get timezone name with abbreviation
     const formattedTime =
       formatDateTime(nowIso) +
       " " +
@@ -125,13 +115,10 @@ export function TimezoneDebug() {
       isLoading: tzInfo.isLoading,
     }));
 
-    // Fetch server timezone info
     fetchServerTimezone();
 
-    // Force refresh timezone context
     refreshTimezone();
 
-    // Log detailed timezone information
     console.log("Timezone debug info:", {
       userTimezone,
       isDST,
@@ -150,14 +137,12 @@ export function TimezoneDebug() {
     });
   };
 
-  // Fetch server timezone when component mounts or when debug panel is opened
   useEffect(() => {
     if (showDebug) {
       refreshInfo();
     }
   }, [showDebug]);
 
-  // Don't render if not initialized or not enabled
   if (!isInitialized || !isEnabled) {
     return null;
   }
@@ -178,40 +163,40 @@ export function TimezoneDebug() {
   return (
     <div className="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg z-50 max-w-xs w-full text-xs">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="font-bold">Timezone Debug</h3>
+        <h3 className="font-bold">Depuração de fuso horário</h3>
         <div className="flex items-center">
           {tzLoading && (
-            <span className="text-yellow-500 mr-2">Loading...</span>
+            <span className="text-yellow-500 mr-2">Carregando...</span>
           )}
           <button
             onClick={() => setShowDebug(false)}
             className="text-gray-500 hover:text-gray-700"
           >
-            Close
+            Fechar
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
         <div>
-          <span className="font-semibold">User Timezone:</span>{" "}
+          <span className="font-semibold">Fuso horário do usuário:</span>{" "}
           {info.userTimezone}
         </div>
         <div>
-          <span className="font-semibold">Server Timezone:</span>{" "}
+          <span className="font-semibold">Fuso horário do servidor:</span>{" "}
           {info.serverTimezone}
         </div>
         <div>
-          <span className="font-semibold">Current Time (ISO):</span>{" "}
+          <span className="font-semibold">Hora atual (ISO):</span>{" "}
           {info.currentTime}
         </div>
         <div>
-          <span className="font-semibold">Current Time (Formatted):</span>{" "}
+          <span className="font-semibold">Hora atual (formatada):</span>{" "}
           {info.formattedCurrentTime}
         </div>
         <div>
-          <span className="font-semibold">Timezone Offset:</span>{" "}
-          {info.currentOffset} minutes (UTC{info.currentOffset > 0 ? "-" : "+"}
+          <span className="font-semibold">Deslocamento de fuso horário:</span>{" "}
+          {info.currentOffset} minutos (UTC{info.currentOffset > 0 ? "-" : "+"}
           {Math.abs(info.currentOffset / 60)})
         </div>
         <div
@@ -219,23 +204,23 @@ export function TimezoneDebug() {
             info.isDST ? "font-bold text-green-600" : "font-bold text-red-600"
           }
         >
-          <span className="font-semibold">Is DST Active:</span>{" "}
+          <span className="font-semibold">O horário de verão está ativo?</span>{" "}
           {info.isDST ? "Yes" : "No"}
         </div>
         <div>
-          <span className="font-semibold">Is Mobile:</span>{" "}
+          <span className="font-semibold">É móvel:</span>{" "}
           {info.isMobile ? "Yes" : "No"}
         </div>
         <div>
-          <span className="font-semibold">Context Loading:</span>{" "}
+          <span className="font-semibold">Carregamento de contexto:</span>{" "}
           {info.isLoading ? "Yes" : "No"}
         </div>
         <div>
-          <span className="font-semibold">Init Time:</span>{" "}
+          <span className="font-semibold">Hora de inicialização:</span>{" "}
           {new Date(info.initTime).toLocaleTimeString()}
         </div>
         <div className="text-xs overflow-hidden text-ellipsis">
-          <span className="font-semibold">Browser Info:</span>{" "}
+          <span className="font-semibold">Informações do navegador:</span>{" "}
           {navigator.userAgent}
         </div>
 
@@ -244,13 +229,13 @@ export function TimezoneDebug() {
             onClick={refreshInfo}
             className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
           >
-            Refresh Info
+            Atualizar informações
           </button>
           <button
             onClick={refreshTimezone}
             className="bg-green-500 text-white px-2 py-1 rounded text-xs"
           >
-            Force Refresh Timezone
+            Forçar atualização do fuso horário
           </button>
         </div>
       </div>

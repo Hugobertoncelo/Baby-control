@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { Button } from "@/src/components/ui/button";
-import { 
+import {
   Loader2,
   CheckCircle,
   XCircle,
@@ -55,19 +55,19 @@ export default function AccountView({
       <TableHeader>
         <TableRow>
           <TableHead>Email</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Created</TableHead>
-          <TableHead>Family</TableHead>
-          <TableHead>Verified</TableHead>
+          <TableHead>Nome</TableHead>
+          <TableHead>Criado</TableHead>
+          <TableHead>Família</TableHead>
+          <TableHead>Verificado</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {paginatedData.length === 0 ? (
           <TableRow>
             <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-              No accounts found.
+              Nenhuma conta encontrada.
             </TableCell>
           </TableRow>
         ) : (
@@ -75,50 +75,57 @@ export default function AccountView({
             <TableRow key={account.id}>
               <TableCell className="font-medium">{account.email}</TableCell>
               <TableCell>
-                {account.firstName || account.lastName ? 
-                  `${account.firstName || ''} ${account.lastName || ''}`.trim() : 
-                  'N/A'
-                }
+                {account.firstName || account.lastName
+                  ? `${account.firstName || ""} ${
+                      account.lastName || ""
+                    }`.trim()
+                  : "N/A"}
               </TableCell>
-              <TableCell className="text-sm">{formatDateTime(account.createdAt)}</TableCell>
+              <TableCell className="text-sm">
+                {formatDateTime(account.createdAt)}
+              </TableCell>
               <TableCell>
                 {account.family ? (
                   <div>
                     <div className="font-medium">{account.family.name}</div>
-                    <div className="text-xs text-gray-500">/{account.family.slug}</div>
+                    <div className="text-xs text-gray-500">
+                      /{account.family.slug}
+                    </div>
                   </div>
                 ) : (
-                  'No family'
+                  "Sem família"
                 )}
               </TableCell>
               <TableCell>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     account.verified
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
                   {account.verified ? (
                     <>
                       <ShieldCheck className="h-3 w-3 mr-1" />
-                      Verified
+                      Verificado
                     </>
                   ) : (
                     <>
                       <Shield className="h-3 w-3 mr-1" />
-                      Unverified
+                      Não verificado
                     </>
                   )}
                 </span>
               </TableCell>
               <TableCell>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     !account.closed
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {!account.closed ? 'Active' : 'Closed'}
+                  {!account.closed ? "Active" : "Closed"}
                 </span>
                 {account.closedAt && (
                   <div className="text-xs text-gray-500 mt-1">
@@ -133,7 +140,7 @@ export default function AccountView({
                     size="sm"
                     onClick={() => onUpdateAccount(account.id, !account.closed)}
                     disabled={updatingAccountId === account.id}
-                    title={account.closed ? 'Reinstate account' : 'Close account'}
+                    title={account.closed ? "Restaurar conta" : "Fechar conta"}
                   >
                     {updatingAccountId === account.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

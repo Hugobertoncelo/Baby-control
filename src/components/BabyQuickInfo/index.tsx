@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Baby } from "@prisma/client";
 import FormPage, { FormPageFooter } from "@/src/components/ui/form-page";
 import { FormPageTab } from "@/src/components/ui/form-page/form-page.types";
 import { Button } from "@/src/components/ui/button";

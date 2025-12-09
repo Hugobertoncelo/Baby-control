@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from "react";
 import {
   Table,
   TableBody,
@@ -12,18 +12,17 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Checkbox } from "@/src/components/ui/checkbox";
-import { 
-  Edit, 
-  Users, 
-  LogIn, 
-  Check, 
-  X, 
+import {
+  Edit,
+  Users,
+  LogIn,
+  Check,
+  X,
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { ShareButton } from '@/src/components/ui/share-button';
+import { ShareButton } from "@/src/components/ui/share-button";
 
-// Types for our family data
 interface FamilyData {
   id: string;
   name: string;
@@ -54,7 +53,6 @@ interface FamilyViewProps {
 }
 
 export default function FamilyView({
-  families,
   paginatedData,
   onEdit,
   onViewCaretakers,
@@ -74,34 +72,39 @@ export default function FamilyView({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Family Name</TableHead>
+          <TableHead>Nome de família</TableHead>
           <TableHead>Link/Slug</TableHead>
-          <TableHead>Created</TableHead>
-          <TableHead>Updated</TableHead>
+          <TableHead>Criado</TableHead>
+          <TableHead>Atualizado</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Members</TableHead>
-          <TableHead>Babies</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>Membros</TableHead>
+          <TableHead>Bebês</TableHead>
+          <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {paginatedData.length === 0 ? (
           <TableRow>
             <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-              No families found.
+              Nenhuma família encontrada.
             </TableCell>
           </TableRow>
         ) : (
           paginatedData.map((family) => {
             const isEditing = editingId === family.id;
-            
+
             return (
               <TableRow key={family.id}>
                 <TableCell className="font-medium">
                   {isEditing ? (
                     <Input
-                      value={editingData.name || ''}
-                      onChange={(e) => setEditingData(prev => ({ ...prev, name: e.target.value }))}
+                      value={editingData.name || ""}
+                      onChange={(e) =>
+                        setEditingData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       className="min-w-[200px]"
                     />
                   ) : (
@@ -113,9 +116,16 @@ export default function FamilyView({
                     <div className="space-y-1">
                       <div className="relative">
                         <Input
-                          value={editingData.slug || ''}
-                          onChange={(e) => setEditingData(prev => ({ ...prev, slug: e.target.value }))}
-                          className={`min-w-[150px] ${slugError ? 'border-red-500' : ''}`}
+                          value={editingData.slug || ""}
+                          onChange={(e) =>
+                            setEditingData((prev) => ({
+                              ...prev,
+                              slug: e.target.value,
+                            }))
+                          }
+                          className={`min-w-[150px] ${
+                            slugError ? "border-red-500" : ""
+                          }`}
                         />
                         {checkingSlug && (
                           <Loader2 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
@@ -132,14 +142,27 @@ export default function FamilyView({
                     family.slug
                   )}
                 </TableCell>
-                <TableCell className="text-sm">{formatDateTime(family.createdAt)}</TableCell>
-                <TableCell className="text-sm">{formatDateTime(family.updatedAt)}</TableCell>
+                <TableCell className="text-sm">
+                  {formatDateTime(family.createdAt)}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {formatDateTime(family.updatedAt)}
+                </TableCell>
                 <TableCell>
                   {isEditing ? (
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        checked={editingData.isActive !== undefined ? editingData.isActive : family.isActive}
-                        onCheckedChange={(checked) => setEditingData(prev => ({ ...prev, isActive: !!checked }))}
+                        checked={
+                          editingData.isActive !== undefined
+                            ? editingData.isActive
+                            : family.isActive
+                        }
+                        onCheckedChange={(checked) =>
+                          setEditingData((prev) => ({
+                            ...prev,
+                            isActive: !!checked,
+                          }))
+                        }
                       />
                       <label className="text-sm">Active</label>
                     </div>
@@ -147,11 +170,11 @@ export default function FamilyView({
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         family.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {family.isActive ? 'Active' : 'Inactive'}
+                      {family.isActive ? "Ativo" : "Inativo"}
                     </span>
                   )}
                 </TableCell>
@@ -188,7 +211,7 @@ export default function FamilyView({
                           variant="outline"
                           size="sm"
                           onClick={() => onEdit(family)}
-                          title="Edit family"
+                          title="Editar família"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -196,7 +219,7 @@ export default function FamilyView({
                           variant="outline"
                           size="sm"
                           onClick={() => onViewCaretakers(family)}
-                          title="View caretakers"
+                          title="Ver cuidadores"
                         >
                           <Users className="h-4 w-4" />
                         </Button>
@@ -212,7 +235,7 @@ export default function FamilyView({
                           variant="outline"
                           size="sm"
                           onClick={() => onLogin(family)}
-                          title="Login to family"
+                          title="Entrar na família"
                         >
                           <LogIn className="h-4 w-4" />
                         </Button>

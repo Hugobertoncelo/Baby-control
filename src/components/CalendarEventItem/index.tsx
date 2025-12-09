@@ -6,22 +6,11 @@ import { CalendarEventType } from "@prisma/client";
 import { MapPin, Clock, RepeatIcon, Users } from "lucide-react";
 import "./calendar-event-item.css";
 
-/**
- * CalendarEventItem Component
- *
- * A compact, list-friendly component for displaying calendar events.
- * Optimized for use in lists and summary views.
- *
- * @param event - The calendar event data to display
- * @param onClick - Optional click handler for the event
- * @param className - Additional CSS classes
- */
 export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
   event,
   onClick,
   className,
 }) => {
-  // Format time for display
   const formatEventTime = (
     startTimeStr: string,
     allDay: boolean,
@@ -45,21 +34,18 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
     return `${startFormatted} - ${endFormatted}`;
   };
 
-  // Format date for display
   const formatEventDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Check if the event is today or tomorrow
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return "Hoje";
     } else if (date.toDateString() === tomorrow.toDateString()) {
-      return "Tomorrow";
+      return "Amanhã";
     }
 
-    // Otherwise, return the formatted date
     return date.toLocaleDateString("pt-BR", {
       weekday: "short",
       month: "short",
@@ -67,7 +53,6 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
     });
   };
 
-  // Get color indicator class based on event type
   const getColorIndicatorClass = () => {
     const baseClass = styles.colorIndicator.base;
 
@@ -85,14 +70,12 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
     }
   };
 
-  // Handle click event
   const handleClick = () => {
     if (onClick) {
       onClick(event);
     }
   };
 
-  // Count total participants (babies + caretakers + contacts)
   const totalParticipants =
     event.babies.length + event.caretakers.length + event.contacts.length;
 
@@ -105,26 +88,20 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
       )}
       onClick={handleClick}
     >
-      {/* Color indicator based on event type */}
       <div className={getColorIndicatorClass()} />
 
-      {/* Event content */}
       <div className={cn(styles.content, "calendar-event-item")}>
-        {/* Title */}
         <h3 className={cn(styles.title, "calendar-event-item-title")}>
           {event.title}
         </h3>
 
-        {/* Details: time, location, recurring */}
         <div className={cn(styles.details, "calendar-event-item-details")}>
-          {/* Time */}
           <Clock className={cn(styles.icon.base, styles.icon.time)} />
           <span>
             {formatEventDate(event.startTime)},{" "}
             {formatEventTime(event.startTime, event.allDay, event.endTime)}
           </span>
 
-          {/* Location if available */}
           {event.location && (
             <span className={styles.location}>
               <MapPin className={cn(styles.icon.base, styles.icon.location)} />
@@ -132,7 +109,6 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
             </span>
           )}
 
-          {/* Recurring indicator */}
           {event.recurring && (
             <RepeatIcon
               className={cn(
@@ -146,7 +122,6 @@ export const CalendarEventItem: React.FC<CalendarEventItemProps> = ({
         </div>
       </div>
 
-      {/* Participant count badge */}
       {totalParticipants > 0 && (
         <div className={styles.badgesContainer}>
           <div

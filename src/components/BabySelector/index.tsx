@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Moon, ChevronDown } from 'lucide-react';
-import { BabySelectorProps } from './baby-selector.types';
+import React from "react";
+import { Moon, ChevronDown } from "lucide-react";
+import { BabySelectorProps } from "./baby-selector.types";
 import {
   babySelectorContainer,
   babySelectorContent,
@@ -10,9 +10,9 @@ import {
   babySelectorName,
   babySelectorAge,
   babySelectorDropdownButton,
-  babySelectorDropdownItem
-} from './baby-selector.styles';
-import { Button } from '@/src/components/ui/button';
+  babySelectorDropdownItem,
+} from "./baby-selector.styles";
+import { Button } from "@/src/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,43 +21,20 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-/**
- * BabySelector Component
- * 
- * A component that displays the currently selected baby and allows
- * switching between babies via a dropdown menu. It also provides
- * access to the baby's quick stats.
- * 
- * @example
- * ```tsx
- * <BabySelector
- *   selectedBaby={selectedBaby}
- *   onBabySelect={setSelectedBaby}
- *   babies={babies}
- *   sleepingBabies={sleepingBabies}
- *   calculateAge={calculateAge}
- *   onOpenQuickStats={handleOpenQuickStats}
- * />
- * ```
- */
 export const BabySelector: React.FC<BabySelectorProps> = ({
   selectedBaby,
   onBabySelect,
   babies,
   sleepingBabies,
   calculateAge,
-  onOpenQuickStats
+  onOpenQuickStats,
 }) => {
   return (
     <div className={babySelectorContainer(selectedBaby?.gender)}>
-      {/* Baby info section (clickable for quick stats) */}
-      <div 
-        className={babySelectorContent()}
-        onClick={onOpenQuickStats}
-      >
+      <div className={babySelectorContent()} onClick={onOpenQuickStats}>
         <div className={babySelectorNameContainer()}>
           <span className={babySelectorName()}>
-            {selectedBaby ? selectedBaby.firstName : 'Select Baby'}
+            {selectedBaby ? selectedBaby.firstName : "Selecione bebê"}
           </span>
           {selectedBaby && sleepingBabies.has(selectedBaby.id) && (
             <Moon className="h-3 w-3" />
@@ -69,8 +46,7 @@ export const BabySelector: React.FC<BabySelectorProps> = ({
           </span>
         )}
       </div>
-      
-      {/* Dropdown button (separate from the main content) */}
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -83,7 +59,7 @@ export const BabySelector: React.FC<BabySelectorProps> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuRadioGroup
-            value={selectedBaby?.id || ''}
+            value={selectedBaby?.id || ""}
             onValueChange={(id) => {
               if (id) {
                 const baby = babies.find((b) => b.id === id);
@@ -100,8 +76,13 @@ export const BabySelector: React.FC<BabySelectorProps> = ({
                 className={babySelectorDropdownItem(baby.gender)}
               >
                 <div className="flex flex-col">
-                  <span>{baby.firstName}{baby.inactive ? ' (Inactive)' : ''}</span>
-                  <span className="text-xs opacity-80">{calculateAge(baby.birthDate)}</span>
+                  <span>
+                    {baby.firstName}
+                    {baby.inactive ? " (Inactive)" : ""}
+                  </span>
+                  <span className="text-xs opacity-80">
+                    {calculateAge(baby.birthDate)}
+                  </span>
                 </div>
               </DropdownMenuRadioItem>
             ))}

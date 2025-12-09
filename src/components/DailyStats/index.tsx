@@ -19,11 +19,9 @@ import {
 } from "lucide-react";
 import { diaper, bottleBaby } from "@lucide/lab";
 import { Card } from "@/src/components/ui/card";
-import { cardStyles } from "@/src/components/ui/card/card.styles";
 import { useTheme } from "@/src/context/theme";
 import { cn } from "@/src/lib/utils";
 
-// Import component-specific files
 import "./daily-stats.css";
 import { dailyStatsStyles } from "./daily-stats.styles";
 import {
@@ -35,17 +33,14 @@ import {
 const StatsTicker: React.FC<StatsTickerProps> = ({ stats }) => {
   const { theme } = useTheme();
   const tickerRef = useRef<HTMLDivElement>(null);
-  const [animationDuration, setAnimationDuration] = useState(30); // seconds
+  const [animationDuration, setAnimationDuration] = useState(30);
 
   useEffect(() => {
     if (tickerRef.current) {
-      // Calculate animation duration based on content width
       const contentWidth = tickerRef.current.scrollWidth;
       const containerWidth = tickerRef.current.clientWidth;
 
-      // Only animate if content is wider than container
       if (contentWidth > containerWidth) {
-        // Adjust speed based on content length (longer content = faster scroll)
         const newDuration = Math.max(20, Math.min(40, contentWidth / 50));
         setAnimationDuration(newDuration);
       }
@@ -54,7 +49,6 @@ const StatsTicker: React.FC<StatsTickerProps> = ({ stats }) => {
 
   if (stats.length === 0) return null;
 
-  // Create duplicate content to ensure seamless looping
   const tickerContent = (
     <>
       {stats.map((stat, index) => (
@@ -75,12 +69,12 @@ const StatsTicker: React.FC<StatsTickerProps> = ({ stats }) => {
         style={{
           animationDuration: `${animationDuration}s`,
           animationTimingFunction: "linear",
-          animationIterationCount: "infinite",
-          animationName: "marquee",
+          animationIterationCount: "infinito",
+          animationName: "marquise",
         }}
       >
         {tickerContent}
-        {tickerContent} {/* Duplicate content for seamless looping */}
+        {tickerContent}
       </div>
       <style jsx>{`
         @keyframes marquee {
@@ -114,14 +108,12 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
   const { theme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Helper function to format minutes into hours and minutes
   const formatMinutes = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
 
-  // Calculate time awake and asleep
   const {
     awakeTime,
     sleepTime,
@@ -138,60 +130,45 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
     pumpTotals,
     medicineCounts,
   } = useMemo(() => {
-    // Set start and end of the selected day
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
 
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // For calculating sleep time
     let totalSleepMinutes = 0;
 
-    // For calculating consumed amounts
     const consumedAmounts: Record<string, number> = {};
 
-    // For counting bottle feeds
     let feedCount = 0;
 
-    // For calculating solids consumed amounts
     const solidsAmounts: Record<string, number> = {};
 
-    // For counting diapers and poops
     let diaperCount = 0;
     let poopCount = 0;
 
-    // For tracking breast feeding per side
     let leftBreastSeconds = 0;
     let rightBreastSeconds = 0;
 
-    // For counting notes
     let noteCount = 0;
 
-    // For counting bath events
     let bathCount = 0;
 
-    // For counting milestone events
     let milestoneCount = 0;
 
-    // For tracking last measurements by type
     const lastMeasurements: Record<
       string,
       { value: number; unit: string; date: Date }
     > = {};
 
-    // For tracking pump totals by unit
     const pumpTotals: Record<string, number> = {};
 
-    // For tracking medicine doses by medicine
     const medicineDoses: Record<
       string,
       { count: number; total: number; unit: string }
     > = {};
 
-    // Process each activity
     activities.forEach((activity) => {
-      // Sleep activities
       if ("duration" in activity && "startTime" in activity) {
         const startTime = new Date(activity.startTime);
         const endTime =
@@ -200,14 +177,12 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
             : null;
 
         if (endTime) {
-          // Calculate overlap with the current day
           const overlapStart = Math.max(
             startTime.getTime(),
             startOfDay.getTime()
           );
           const overlapEnd = Math.min(endTime.getTime(), endOfDay.getTime());
 
-          // If there is an overlap, add to sleep time
           if (overlapEnd > overlapStart) {
             const overlapMinutes = Math.floor(
               (overlapEnd - overlapStart) / (1000 * 60)
@@ -217,29 +192,24 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         }
       }
 
-      // Feed activities
       if ("amount" in activity && activity.amount) {
         const time = new Date(activity.time);
 
-        // Only count feeds that occurred on the selected day
         if (time >= startOfDay && time <= endOfDay) {
           const unit = activity.unitAbbr || "oz";
 
-          // Separate tracking for solids vs bottle feeds
           if ("type" in activity && activity.type === "SOLIDS") {
             if (!solidsAmounts[unit]) {
               solidsAmounts[unit] = 0;
             }
             solidsAmounts[unit] += activity.amount;
           } else if ("type" in activity && activity.type === "BOTTLE") {
-            // Count bottle feeds and track amounts
             feedCount++;
             if (!consumedAmounts[unit]) {
               consumedAmounts[unit] = 0;
             }
             consumedAmounts[unit] += activity.amount;
           } else {
-            // For other feed types (like BREAST with amount), just track amounts
             if (!consumedAmounts[unit]) {
               consumedAmounts[unit] = 0;
             }
@@ -248,7 +218,6 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         }
       }
 
-      // Breast feed activities with duration
       if (
         "type" in activity &&
         activity.type === "BREAST" &&
@@ -257,9 +226,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
       ) {
         const time = new Date(activity.time);
 
-        // Only count feeds that occurred on the selected day
         if (time >= startOfDay && time <= endOfDay) {
-          // Track duration per side
           if ("side" in activity && activity.side) {
             if (activity.side === "LEFT") {
               leftBreastSeconds += activity.feedDuration;
@@ -270,56 +237,45 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         }
       }
 
-      // Diaper activities
       if ("condition" in activity && "type" in activity) {
         const time = new Date(activity.time);
 
-        // Only count diapers that occurred on the selected day
         if (time >= startOfDay && time <= endOfDay) {
           diaperCount++;
 
-          // Count poops (dirty or wet+dirty)
           if (activity.type === "DIRTY" || activity.type === "BOTH") {
             poopCount++;
           }
         }
       }
 
-      // Note activities
       if ("content" in activity) {
         const time = new Date(activity.time);
 
-        // Only count notes that occurred on the selected day
         if (time >= startOfDay && time <= endOfDay) {
           noteCount++;
         }
       }
 
-      // Bath activities
       if ("soapUsed" in activity) {
         const time = new Date(activity.time);
 
-        // Only count baths that occurred on the selected day
         if (time >= startOfDay && time <= endOfDay) {
           bathCount++;
         }
       }
 
-      // Milestone activities
       if ("title" in activity && "category" in activity) {
         const date = new Date(activity.date);
 
-        // Only count milestones that occurred on the selected day
         if (date >= startOfDay && date <= endOfDay) {
           milestoneCount++;
         }
       }
 
-      // Measurement activities
       if ("value" in activity && "unit" in activity && "type" in activity) {
         const date = new Date(activity.date);
 
-        // Track the latest measurement of each type
         if (
           !lastMeasurements[activity.type] ||
           date > lastMeasurements[activity.type].date
@@ -332,9 +288,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         }
       }
 
-      // Pump activities
       if ("leftAmount" in activity || "rightAmount" in activity) {
-        // Type guard to ensure TypeScript knows this is a pump activity
         const isPumpActivity = (
           act: any
         ): act is {
@@ -351,16 +305,13 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         if (isPumpActivity(activity) && activity.startTime) {
           const startTime = new Date(activity.startTime);
 
-          // Only count pumps that occurred on the selected day
           if (startTime >= startOfDay && startTime <= endOfDay) {
-            // Make sure to use the correct unit for grouping
             const unit = activity.unit ? activity.unit.toLowerCase() : "oz";
 
             if (!pumpTotals[unit]) {
               pumpTotals[unit] = 0;
             }
 
-            // Add left amount if available
             if (
               activity.leftAmount &&
               typeof activity.leftAmount === "number"
@@ -368,7 +319,6 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
               pumpTotals[unit] += activity.leftAmount;
             }
 
-            // Add right amount if available
             if (
               activity.rightAmount &&
               typeof activity.rightAmount === "number"
@@ -376,7 +326,6 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
               pumpTotals[unit] += activity.rightAmount;
             }
 
-            // If there's a total amount and no left/right, use that
             if (
               activity.totalAmount &&
               typeof activity.totalAmount === "number" &&
@@ -388,13 +337,10 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         }
       }
 
-      // Medicine activities
       if ("doseAmount" in activity && "medicineId" in activity) {
         const time = new Date(activity.time);
 
-        // Only count medicines that were given on the selected day
         if (time >= startOfDay && time <= endOfDay) {
-          // Get medicine name
           let medicineName = "Unknown";
           if (
             "medicine" in activity &&
@@ -406,7 +352,6 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
               (activity.medicine as { name?: string }).name || medicineName;
           }
 
-          // Initialize medicine record if it doesn't exist
           if (!medicineDoses[medicineName]) {
             medicineDoses[medicineName] = {
               count: 0,
@@ -415,7 +360,6 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
             };
           }
 
-          // Increment count and add to total
           medicineDoses[medicineName].count += 1;
           if (activity.doseAmount && typeof activity.doseAmount === "number") {
             medicineDoses[medicineName].total += activity.doseAmount;
@@ -424,10 +368,8 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
       }
     });
 
-    // Calculate awake time (elapsed time today minus sleep minutes)
-    let totalElapsedMinutes = 24 * 60; // Default to full day (24 hours in minutes)
+    let totalElapsedMinutes = 24 * 60;
 
-    // If the selected date is today, only count elapsed time
     const now = new Date();
     const isToday =
       date.getDate() === now.getDate() &&
@@ -435,14 +377,12 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
       date.getFullYear() === now.getFullYear();
 
     if (isToday) {
-      // Calculate minutes elapsed so far today
       const elapsedMs = now.getTime() - startOfDay.getTime();
       totalElapsedMinutes = Math.floor(elapsedMs / (1000 * 60));
     }
 
     const awakeMinutes = totalElapsedMinutes - totalSleepMinutes;
 
-    // Format consumed amounts with feed count
     const formattedAmounts = Object.entries(consumedAmounts)
       .map(([unit, amount]) => `${amount} ${unit.toLowerCase()}`)
       .join(", ");
@@ -451,17 +391,14 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         ? `${feedCount} feed${feedCount !== 1 ? "s" : ""}, ${formattedAmounts}`
         : formattedAmounts || "None";
 
-    // Format solids consumed amounts
     const formattedSolidsConsumed = Object.entries(solidsAmounts)
       .map(([unit, amount]) => `${amount} ${unit.toLowerCase()}`)
       .join(", ");
 
-    // Format pump totals - ensure we're grouping by unit type correctly
     const formattedPumpTotals = Object.entries(pumpTotals)
       .map(([unit, amount]) => `${amount.toFixed(1)} ${unit}`)
       .join(", ");
 
-    // Format medicine counts
     const formattedMedicineCounts = Object.entries(medicineDoses).map(
       ([name, data]) => ({
         name,
@@ -510,7 +447,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Sun className="h-3 w-3 text-amber-500" />,
-                      label: "Awake",
+                      label: "Acordada",
                       value: awakeTime,
                     },
                   ]
@@ -519,7 +456,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Moon className="h-3 w-3 text-gray-700" />,
-                      label: "Sleep",
+                      label: "Dormir",
                       value: sleepTime,
                     },
                   ]
@@ -533,7 +470,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                           className="h-3 w-3 text-sky-600"
                         />
                       ),
-                      label: "Bottle",
+                      label: "Mamadeira",
                       value: totalConsumed,
                     },
                   ]
@@ -547,7 +484,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                           className="h-3 w-3 text-teal-600"
                         />
                       ),
-                      label: "Diapers",
+                      label: "Fraldas",
                       value: diaperChanges,
                     },
                   ]
@@ -561,7 +498,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                           className="h-3 w-3 text-amber-700"
                         />
                       ),
-                      label: "Poops",
+                      label: "Cocô",
                       value: poopCount,
                     },
                   ]
@@ -570,7 +507,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Utensils className="h-3 w-3 text-green-600" />,
-                      label: "Solids",
+                      label: "Sólidas",
                       value: solidsConsumed,
                     },
                   ]
@@ -579,7 +516,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Droplet className="h-3 w-3 text-blue-500" />,
-                      label: "Left",
+                      label: "Esquerda",
                       value: leftBreastTime,
                     },
                   ]
@@ -588,7 +525,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Droplet className="h-3 w-3 text-red-500" />,
-                      label: "Right",
+                      label: "Direita",
                       value: rightBreastTime,
                     },
                   ]
@@ -597,7 +534,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <StickyNote className="h-3 w-3 text-yellow-500" />,
-                      label: "Notes",
+                      label: "Notas",
                       value: noteCount,
                     },
                   ]
@@ -606,7 +543,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Bath className="h-3 w-3 text-orange-500" />,
-                      label: "Baths",
+                      label: "Banhos",
                       value: bathCount,
                     },
                   ]
@@ -615,7 +552,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Trophy className="h-3 w-3 text-blue-500" />,
-                      label: "Milestones",
+                      label: "Conquistas",
                       value: milestoneCount,
                     },
                   ]
@@ -626,7 +563,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                       icon: (
                         <LampWallDown className="h-3 w-3 text-purple-500" />
                       ),
-                      label: "Pumped",
+                      label: "Bomba",
                       value: pumpTotals,
                     },
                   ]
@@ -642,7 +579,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Ruler className="h-3 w-3 text-red-500" />,
-                      label: "Height",
+                      label: "Altura",
                       value: `${lastMeasurements["HEIGHT"].value} ${lastMeasurements["HEIGHT"].unit}`,
                     },
                   ]
@@ -651,7 +588,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Scale className="h-3 w-3 text-red-500" />,
-                      label: "Weight",
+                      label: "Peso",
                       value: `${lastMeasurements["WEIGHT"].value} ${lastMeasurements["WEIGHT"].unit}`,
                     },
                   ]
@@ -660,7 +597,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <RotateCw className="h-3 w-3 text-red-500" />,
-                      label: "Head",
+                      label: "Cabeça",
                       value: `${lastMeasurements["HEAD_CIRCUMFERENCE"].value} ${lastMeasurements["HEAD_CIRCUMFERENCE"].unit}`,
                     },
                   ]
@@ -669,7 +606,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                 ? [
                     {
                       icon: <Thermometer className="h-3 w-3 text-red-500" />,
-                      label: "Temp",
+                      label: "Temperatura",
                       value: `${lastMeasurements["TEMPERATURE"].value} ${lastMeasurements["TEMPERATURE"].unit}`,
                     },
                   ]
@@ -687,22 +624,22 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
         <div className={dailyStatsStyles.content}>
           {isLoading ? (
             <div className={dailyStatsStyles.empty}>
-              Loading daily statistics...
+              Carregando estatísticas diárias...
             </div>
           ) : activities.length === 0 ? (
             <div className={dailyStatsStyles.empty}>
-              No activities recorded for this day
+              Nenhuma atividade registrada para este dia.
             </div>
           ) : (
             <>
               <StatItem
                 icon={<Sun className="h-4 w-4 text-amber-500" />}
-                label="Awake Time"
+                label="Hora de acordar"
                 value={awakeTime}
               />
               <StatItem
                 icon={<Moon className="h-4 w-4 text-gray-700" />}
-                label="Sleep Time"
+                label="Hora de dormir"
                 value={sleepTime}
               />
               {totalConsumed !== "None" && (
@@ -713,7 +650,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                       className="h-4 w-4 text-sky-600"
                     />
                   }
-                  label="Bottle"
+                  label="Mamadeira"
                   value={totalConsumed}
                 />
               )}
@@ -722,7 +659,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                   icon={
                     <Icon iconNode={diaper} className="h-4 w-4 text-teal-600" />
                   }
-                  label="Diaper Changes"
+                  label="Trocas de fraldas"
                   value={diaperChanges}
                 />
               )}
@@ -734,56 +671,56 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
                       className="h-4 w-4 text-amber-700"
                     />
                   }
-                  label="Poops"
+                  label="Cocô"
                   value={poopCount}
                 />
               )}
               {solidsConsumed !== "None" && (
                 <StatItem
                   icon={<Utensils className="h-4 w-4 text-green-600" />}
-                  label="Solids"
+                  label="Sólidas"
                   value={solidsConsumed}
                 />
               )}
               {leftBreastTime !== "0h 0m" && (
                 <StatItem
                   icon={<Droplet className="h-4 w-4 text-blue-500" />}
-                  label="Left Breast"
+                  label="Seio Esquerdo"
                   value={leftBreastTime}
                 />
               )}
               {rightBreastTime !== "0h 0m" && (
                 <StatItem
                   icon={<Droplet className="h-4 w-4 text-red-500" />}
-                  label="Right Breast"
+                  label="Seio direito"
                   value={rightBreastTime}
                 />
               )}
               {noteCount !== "0" && (
                 <StatItem
                   icon={<StickyNote className="h-4 w-4 text-yellow-500" />}
-                  label="Notes"
+                  label="Notas"
                   value={noteCount}
                 />
               )}
               {bathCount !== "0" && (
                 <StatItem
                   icon={<Bath className="h-4 w-4 text-orange-500" />}
-                  label="Baths"
+                  label="Banhos"
                   value={bathCount}
                 />
               )}
               {milestoneCount !== "0" && (
                 <StatItem
                   icon={<Trophy className="h-4 w-4 text-blue-500" />}
-                  label="Milestones"
+                  label="Conquistas"
                   value={milestoneCount}
                 />
               )}
               {pumpTotals !== "None" && (
                 <StatItem
                   icon={<LampWallDown className="h-4 w-4 text-purple-500" />}
-                  label="Pumped"
+                  label="Bomba"
                   value={pumpTotals}
                 />
               )}
@@ -799,28 +736,28 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
               {lastMeasurements["HEIGHT"] && (
                 <StatItem
                   icon={<Ruler className="h-4 w-4 text-red-500" />}
-                  label="Height"
+                  label="Altura"
                   value={`${lastMeasurements["HEIGHT"].value} ${lastMeasurements["HEIGHT"].unit}`}
                 />
               )}
               {lastMeasurements["WEIGHT"] && (
                 <StatItem
                   icon={<Scale className="h-4 w-4 text-red-500" />}
-                  label="Weight"
+                  label="Peso"
                   value={`${lastMeasurements["WEIGHT"].value} ${lastMeasurements["WEIGHT"].unit}`}
                 />
               )}
               {lastMeasurements["HEAD_CIRCUMFERENCE"] && (
                 <StatItem
                   icon={<RotateCw className="h-4 w-4 text-red-500" />}
-                  label="Head Circ."
+                  label="Cabeça Circ."
                   value={`${lastMeasurements["HEAD_CIRCUMFERENCE"].value} ${lastMeasurements["HEAD_CIRCUMFERENCE"].unit}`}
                 />
               )}
               {lastMeasurements["TEMPERATURE"] && (
                 <StatItem
                   icon={<Thermometer className="h-4 w-4 text-red-500" />}
-                  label="Temperature"
+                  label="Temperatura"
                   value={`${lastMeasurements["TEMPERATURE"].value} ${lastMeasurements["TEMPERATURE"].unit}`}
                 />
               )}

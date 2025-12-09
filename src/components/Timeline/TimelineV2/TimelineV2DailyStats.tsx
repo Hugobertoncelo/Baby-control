@@ -343,7 +343,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
     if (pumpCount > 0) {
       tiles.push({
         filter: "pump",
-        label: "Bombear",
+        label: "Bomba",
         value: pumpCount.toString(),
         icon: <LampWallDown className="h-full w-full" />,
         bgColor: "bg-gray-50",

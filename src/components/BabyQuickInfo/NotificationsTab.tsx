@@ -148,8 +148,8 @@ const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   )}
                 >
                   {lastActivities.lastBath.soapUsed
-                    ? "With soap"
-                    : "Without soap"}
+                    ? "Com sabonete"
+                    : "Sem sabonete"}
                 </div>
               </div>
             </div>
@@ -359,7 +359,7 @@ const NotificationsTab: React.FC<NotificationsTabProps> = ({
                     "baby-quick-info-activity-title"
                   )}
                 >
-                  Last note said:{" "}
+                  A última nota dizia:{" "}
                   <span>
                     {lastActivities.lastNote.content.length > 100
                       ? `${lastActivities.lastNote.content.substring(
@@ -437,7 +437,7 @@ const NotificationsTab: React.FC<NotificationsTabProps> = ({
                 <div
                   className={cn(styles.eventTime, "baby-quick-info-event-time")}
                 >
-                  {new Date(event.startTime).toLocaleDateString()} at{" "}
+                  {new Date(event.startTime).toLocaleDateString()} no{" "}
                   {new Date(event.startTime).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",

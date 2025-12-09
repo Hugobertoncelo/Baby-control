@@ -664,7 +664,7 @@ export function ActivityTileGroup({
                   deletedAt: null,
                 } as unknown as PumpLogResponse
               }
-              title="Bombear"
+              title="Bomba"
               variant="pump"
               isButton={true}
               onClick={() => {

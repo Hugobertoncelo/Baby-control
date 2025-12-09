@@ -5,19 +5,16 @@ import { calendarDayViewStyles as styles } from "./calendar-day-view.styles";
 import { CalendarEventItem } from "../CalendarEventItem";
 import {
   Loader2,
-  Calendar,
   Sun,
   Coffee,
   Moon,
   PlusCircle,
   CalendarClock,
-  X,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import {
   FormPage,
   FormPageContent,
-  FormPageHeader,
   FormPageFooter,
 } from "@/src/components/ui/form-page";
 import CalendarEventForm from "@/src/components/forms/CalendarEventForm";
@@ -26,20 +23,6 @@ import { useToast } from "@/src/components/ui/toast";
 import { handleExpirationError } from "@/src/lib/expiration-error-handler";
 import "./calendar-day-view.css";
 
-/**
- * CalendarDayView Component
- *
- * Displays events for a selected day, grouped by time of day (morning, afternoon, evening).
- * Includes an "Add Event" button and handles loading and empty states.
- * Uses FormPage component for consistent layout with the rest of the app.
- *
- * @param date - The selected date to display events for
- * @param events - Array of events for the selected date
- * @param onAddEvent - Optional handler for when the add event button is clicked
- * @param isLoading - Whether the component is in a loading state
- * @param className - Additional CSS classes
- * @param onClose - Optional handler for when the form page is closed
- */
 export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   date,
   events,
@@ -51,7 +34,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 }) => {
   const { showToast } = useToast();
 
-  // State for event form
   const [showEventForm, setShowEventForm] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<
     CalendarEventFormData | undefined
@@ -60,7 +42,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   const [caretakers, setCaretakers] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
 
-  // Fetch data for the event form
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -73,19 +54,15 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
             }
           : {};
 
-        // Fetch babies
         const babiesResponse = await fetch("/api/baby", fetchOptions);
         const babiesData = await babiesResponse.json();
 
-        // Fetch caretakers
         const caretakersResponse = await fetch("/api/caretaker", fetchOptions);
         const caretakersData = await caretakersResponse.json();
 
-        // Fetch contacts
         const contactsResponse = await fetch("/api/contact", fetchOptions);
         const contactsData = await contactsResponse.json();
 
-        // Update state with fetched data
         setBabies(babiesData.success ? babiesData.data : []);
         setCaretakers(caretakersData.success ? caretakersData.data : []);
         setContacts(contactsData.success ? contactsData.data : []);
@@ -99,7 +76,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     }
   }, [isOpen]);
 
-  // Format date for display
   const formattedDate = useMemo(() => {
     return date.toLocaleDateString("pt-BR", {
       weekday: "long",
@@ -109,7 +85,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     });
   }, [date]);
 
-  // Group events by time of day
   const groupedEvents = useMemo(() => {
     const groups: EventGroups = {
       morning: [],
@@ -119,13 +94,11 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
     if (events && events.length > 0) {
       events.forEach((event) => {
-        // Make sure we have a valid date
         if (!event.startTime) {
           console.warn("Event missing startTime:", event);
           return;
         }
 
-        // Use the user's local timezone to determine the hour
         const localDate = new Date(event.startTime);
         if (isNaN(localDate.getTime())) {
           console.warn("Invalid event date:", event.startTime);
@@ -143,7 +116,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         }
       });
 
-      // Sort events within each group by start time
       const sortByTime = (a: any, b: any) => {
         return (
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
@@ -158,9 +130,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     return groups;
   }, [events]);
 
-  // Handle direct event click
   const handleEventClick = (event: any) => {
-    // Convert event to form data format
     const formData: CalendarEventFormData = {
       id: event.id,
       title: event.title,
@@ -188,41 +158,33 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     setShowEventForm(true);
   };
 
-  // Handle add event button click
   const handleAddEvent = () => {
     setSelectedEvent(undefined);
     setShowEventForm(true);
   };
 
-  // Handle close button click
   const handleClose = () => {
-    // Call the onClose prop if provided
     if (onClose) {
       onClose();
     }
   };
 
-  // Handle event form close
   const handleEventFormClose = () => {
     setShowEventForm(false);
   };
 
-  // Handle event save
   const handleSaveEvent = async (
     eventData: CalendarEventFormData & { _deleted?: boolean }
   ) => {
     try {
-      // Check if this is a deletion (special flag set by CalendarEventForm)
       if (eventData._deleted) {
-        // Close form if it's open
         setShowEventForm(false);
 
-        // Notify parent component to refresh
         if (onAddEvent) {
           onAddEvent(date);
         }
 
-        return; // Exit early - the actual deletion has already been handled by the form
+        return;
       }
 
       const method = eventData.id ? "PUT" : "POST";
@@ -246,36 +208,32 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
             showToast,
-            "managing calendar events"
+            "gerenciamento de eventos do calendário"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, use the errorData we got
           if (errorData) {
             showToast({
               variant: "error",
               title: "Error",
-              message: errorData.error || "Failed to save event",
+              message: errorData.error || "Falha ao salvar o evento",
               duration: 5000,
             });
             return;
           }
         }
 
-        // For other errors, parse and show error message
         const errorData = await response.json();
         console.error("Error saving event:", errorData.error);
         showToast({
           variant: "error",
-          title: "Error",
-          message: errorData.error || "Failed to save event",
+          title: "Erro",
+          message: errorData.error || "Falha ao salvar o evento",
           duration: 5000,
         });
         return;
@@ -284,23 +242,17 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        // Close form
         setShowEventForm(false);
 
-        // Notify parent component if onAddEvent is provided
         if (onAddEvent) {
-          // Pass the date to trigger a refresh in the Calendar component
           onAddEvent(date);
         }
-
-        // Refresh the events for the current day view
-        // This will update the CalendarDayView with the latest events
       } else {
         console.error("Error saving event:", data.error);
         showToast({
           variant: "error",
-          title: "Error",
-          message: data.error || "Failed to save event",
+          title: "Erro",
+          message: data.error || "Falha ao salvar o evento",
           duration: 5000,
         });
       }
@@ -308,14 +260,13 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       console.error("Error saving event:", error);
       showToast({
         variant: "error",
-        title: "Error",
-        message: "An unexpected error occurred. Please try again.",
+        title: "Erro",
+        message: "Ocorreu um erro inesperado. Tente novamente.",
         duration: 5000,
       });
     }
   };
 
-  // Handle event delete
   const handleDeleteEvent = async (eventId: string) => {
     try {
       const authToken = localStorage.getItem("authToken");
@@ -330,7 +281,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       const data = await response.json();
       if (data.success) {
         if (onAddEvent) {
-          onAddEvent(date); // Trigger refresh
+          onAddEvent(date);
         }
       } else {
         console.error("Error deleting event:", data.error);
@@ -340,9 +291,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     }
   };
 
-  // Render content based on loading and events state
   const renderContent = () => {
-    // Loading state
     if (isLoading) {
       return (
         <div className="flex items-center justify-center h-full">
@@ -351,23 +300,20 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       );
     }
 
-    // Empty state
     if (events.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center p-6">
           <CalendarClock className="h-12 w-12 text-gray-400 calendar-day-view-empty-icon mb-2" />
           <p className="text-gray-500 calendar-day-view-empty-text text-sm">
-            No events scheduled for this day
+            Nenhum evento agendado para este dia.
           </p>
         </div>
       );
     }
 
-    // Events state - grouped by time of day
     return (
       <div className="calendar-day-view px-3">
         <div className="max-w-2xl mx-auto mt-2">
-          {/* Morning events */}
           {groupedEvents.morning.length > 0 && (
             <div className={styles.eventGroup}>
               <div className={styles.eventGroupHeader}>
@@ -378,7 +324,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                     "calendar-day-view-group-title"
                   )}
                 >
-                  Morning
+                  Manhã
                 </h3>
               </div>
 
@@ -394,7 +340,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
             </div>
           )}
 
-          {/* Afternoon events */}
           {groupedEvents.afternoon.length > 0 && (
             <div className={styles.eventGroup}>
               <div className={styles.eventGroupHeader}>
@@ -405,7 +350,7 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                     "calendar-day-view-group-title"
                   )}
                 >
-                  Afternoon
+                  Tarde
                 </h3>
               </div>
 
@@ -421,7 +366,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
             </div>
           )}
 
-          {/* Evening events */}
           {groupedEvents.evening.length > 0 && (
             <div className={styles.eventGroup}>
               <div className={styles.eventGroupHeader}>
@@ -452,7 +396,6 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     );
   };
 
-  // Use FormPage component to render the calendar day view
   return (
     <>
       <FormPage
@@ -472,11 +415,11 @@ export const CalendarDayView: React.FC<CalendarDayViewProps> = ({
               onClick={handleClose}
               disabled={false}
             >
-              Close
+              Fechar
             </Button>
             <Button onClick={handleAddEvent}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Add Event
+              Adicionar Evento
             </Button>
           </div>
         </FormPageFooter>

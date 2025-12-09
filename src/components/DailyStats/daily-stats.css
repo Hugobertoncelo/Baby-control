@@ -1,46 +1,45 @@
-/* Dark mode overrides for DailyStats component */
 html.dark .daily-stats-header {
-  background-color: #4b5563 !important; /* gray-600 */
-  color: #e5e7eb !important; /* gray-200 */
-  border-color: #6b7280 !important; /* gray-500 */
+  background-color: #4b5563 !important;
+  color: #e5e7eb !important;
+  border-color: #6b7280 !important;
 }
 
 html.dark .daily-stats-content {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 html.dark .daily-stats-ticker-text {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .daily-stats-ticker-value {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .daily-stats-item-bg {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
 html.dark .daily-stats-item-label {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .daily-stats-item-value {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .daily-stats-empty {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .daily-stats-toggle {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .daily-stats-title {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .daily-stats-toggle:hover {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }

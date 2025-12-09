@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Table,
   TableBody,
@@ -10,13 +10,8 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { Button } from "@/src/components/ui/button";
-import { 
-  Loader2,
-  Trash2,
-  Mail,
-  UserX,
-} from "lucide-react";
-import { BetaSubscriberResponse } from '@/app/api/types';
+import { Loader2, Trash2, Mail, UserX } from "lucide-react";
+import { BetaSubscriberResponse } from "@/app/api/types";
 
 interface BetaSubscriberViewProps {
   paginatedData: BetaSubscriberResponse[];
@@ -40,35 +35,40 @@ export default function BetaSubscriberView({
       <TableHeader>
         <TableRow>
           <TableHead>Email</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Signed Up</TableHead>
-          <TableHead>Source</TableHead>
+          <TableHead>Nome</TableHead>
+          <TableHead>Inscrito</TableHead>
+          <TableHead>Fonte</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {paginatedData.length === 0 ? (
           <TableRow>
             <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-              No data found.
+              Nenhum dado encontrado.
             </TableCell>
           </TableRow>
         ) : (
           paginatedData.map((subscriber) => (
             <TableRow key={subscriber.id}>
               <TableCell className="font-medium">{subscriber.email}</TableCell>
-              <TableCell>{subscriber.firstName} {subscriber.lastName}</TableCell>
-              <TableCell className="text-sm">{formatDateTime(subscriber.createdAt)}</TableCell>
+              <TableCell>
+                {subscriber.firstName} {subscriber.lastName}
+              </TableCell>
+              <TableCell className="text-sm">
+                {formatDateTime(subscriber.createdAt)}
+              </TableCell>
               <TableCell>{subscriber.source}</TableCell>
               <TableCell>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     subscriber.isOptedIn
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {subscriber.isOptedIn ? 'Subscribed' : 'Opted Out'}
+                  {subscriber.isOptedIn ? "Inscrito" : "Desativado"}
                 </span>
                 {subscriber.optedOutAt && (
                   <div className="text-xs text-gray-500 mt-1">
@@ -81,9 +81,15 @@ export default function BetaSubscriberView({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onUpdateSubscriber(subscriber.id, !subscriber.isOptedIn)}
+                    onClick={() =>
+                      onUpdateSubscriber(subscriber.id, !subscriber.isOptedIn)
+                    }
                     disabled={updatingSubscriberId === subscriber.id}
-                    title={subscriber.isOptedIn ? 'Opt-out subscriber' : 'Opt-in subscriber'}
+                    title={
+                      subscriber.isOptedIn
+                        ? "Assinante que optou por não participar"
+                        : "Assinante opt-in"
+                    }
                   >
                     {updatingSubscriberId === subscriber.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -98,7 +104,7 @@ export default function BetaSubscriberView({
                     size="sm"
                     onClick={() => onDeleteSubscriber(subscriber.id)}
                     disabled={deletingSubscriberId === subscriber.id}
-                    title="Delete subscriber"
+                    title="Excluir assinante"
                   >
                     {deletingSubscriberId === subscriber.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
