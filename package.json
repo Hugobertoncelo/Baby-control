@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
+    "@netlify/plugin-nextjs": "^5.15.1",
     "@prisma/client": "^6.15.0",
     "@prisma/client-runtime-utils": "^7.1.0",
     "@radix-ui/react-dialog": "^1.1.6",
