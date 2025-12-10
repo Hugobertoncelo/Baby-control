@@ -25,13 +25,11 @@ interface MeasurementFormProps {
   onSuccess?: () => void;
 }
 
-// Define a type for the measurement data
 interface MeasurementData {
   value: string;
   unit: string;
 }
 
-// Define a type for the form data
 interface FormData {
   date: string;
   height: MeasurementData;
@@ -49,31 +47,27 @@ export default function MeasurementForm({
   activity,
   onSuccess,
 }: MeasurementFormProps) {
-  const { formatDate, toUTCString } = useTimezone();
+  const { toUTCString } = useTimezone();
   const { showToast } = useToast();
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(() => {
     try {
-      // Try to parse the initialTime
       const date = new Date(initialTime);
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
-        return new Date(); // Fallback to current date if invalid
+        return new Date();
       }
       return date;
     } catch (error) {
-      return new Date(); // Fallback to current date
+      return new Date();
     }
   });
 
-  // Default units from settings
   const [defaultUnits, setDefaultUnits] = useState({
     height: "in",
     weight: "lb",
     headCircumference: "in",
-    temperature: "°F",
+    temperature: "°C",
   });
 
-  // Initialize form data with empty values and default units
   const [formData, setFormData] = useState<FormData>({
     date: initialTime,
     height: { value: "", unit: defaultUnits.height },
@@ -87,7 +81,6 @@ export default function MeasurementForm({
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializedTime, setInitializedTime] = useState<string | null>(null);
 
-  // Fetch default units from settings
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -111,7 +104,7 @@ export default function MeasurementForm({
                   ? "kg"
                   : "oz",
               headCircumference:
-                settings.defaultHeightUnit === "IN" ? "in" : "cm", // Using height unit for head circumference
+                settings.defaultHeightUnit === "IN" ? "in" : "cm",
               temperature: settings.defaultTempUnit === "F" ? "°F" : "°C",
             });
           }
@@ -124,7 +117,6 @@ export default function MeasurementForm({
     }
   }, [isOpen]);
 
-  // Update form data when default units change
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -138,12 +130,9 @@ export default function MeasurementForm({
     }));
   }, [defaultUnits]);
 
-  // Handle date/time change
   const handleDateTimeChange = (date: Date) => {
     setSelectedDateTime(date);
 
-    // Also update the date in formData for compatibility with existing code
-    // Format the date as ISO string for storage in formData
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -157,16 +146,13 @@ export default function MeasurementForm({
   useEffect(() => {
     if (isOpen && !isInitialized) {
       if (activity) {
-        // Editing mode - populate with activity data
         try {
           const activityDate = new Date(activity.date);
-          // Check if the date is valid
           if (!isNaN(activityDate.getTime())) {
             setSelectedDateTime(activityDate);
           }
         } catch (error) {}
 
-        // Format the date for the date property
         const date = new Date(activity.date);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -175,7 +161,6 @@ export default function MeasurementForm({
         const minutes = String(date.getMinutes()).padStart(2, "0");
         const formattedTime = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-        // Update the specific measurement type that's being edited
         const updatedFormData = {
           date: formattedTime,
           notes: activity.notes || "",
@@ -217,16 +202,13 @@ export default function MeasurementForm({
 
         setFormData(updatedFormData);
 
-        // Store the initial time used for editing
         setInitializedTime(activity.date);
       } else {
-        // New entry mode - initialize from initialTime prop
         try {
           const date = new Date(initialTime);
           if (!isNaN(date.getTime())) {
             setSelectedDateTime(date);
 
-            // Also update the date in formData
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, "0");
             const day = String(date.getDate()).padStart(2, "0");
@@ -238,25 +220,20 @@ export default function MeasurementForm({
           }
         } catch (error) {}
 
-        // Store the initial time used for new entry
         setInitializedTime(initialTime);
       }
 
-      // Mark as initialized
       setIsInitialized(true);
     } else if (!isOpen) {
-      // Reset initialization flag and stored time when form closes
       setIsInitialized(false);
       setInitializedTime(null);
     }
   }, [isOpen, activity, initialTime, defaultUnits]);
 
-  // Handle value change for a specific measurement type
   const handleValueChange = (
     type: keyof Omit<FormData, "date" | "notes">,
     value: string
   ) => {
-    // Only allow numeric values with decimal point
     if (value === "" || /^\d*\.?\d*$/.test(value)) {
       setFormData((prev) => ({
         ...prev,
@@ -265,7 +242,6 @@ export default function MeasurementForm({
     }
   };
 
-  // Handle unit change for a specific measurement type
   const handleUnitChange = (
     type: keyof Omit<FormData, "date" | "notes">,
     unit: string
@@ -280,7 +256,6 @@ export default function MeasurementForm({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate date time
     if (!selectedDateTime || isNaN(selectedDateTime.getTime())) {
       return;
     }
@@ -288,20 +263,16 @@ export default function MeasurementForm({
     setLoading(true);
 
     try {
-      // Convert local time to UTC ISO string using the timezone context
       const utcDateString = toUTCString(selectedDateTime);
 
-      // If we couldn't convert the date to a UTC string, show an error
       if (!utcDateString) {
         alert("Data inválida. Por favor, tente novamente.");
         setLoading(false);
         return;
       }
 
-      // Create an array of measurements to save
       const measurements: Omit<MeasurementCreate, "familyId">[] = [];
 
-      // Add height measurement if value is provided
       if (formData.height.value) {
         measurements.push({
           babyId,
@@ -313,7 +284,6 @@ export default function MeasurementForm({
         });
       }
 
-      // Add weight measurement if value is provided
       if (formData.weight.value) {
         measurements.push({
           babyId,
@@ -325,7 +295,6 @@ export default function MeasurementForm({
         });
       }
 
-      // Add head circumference measurement if value is provided
       if (formData.headCircumference.value) {
         measurements.push({
           babyId,
@@ -337,7 +306,6 @@ export default function MeasurementForm({
         });
       }
 
-      // Add temperature measurement if value is provided
       if (formData.temperature.value) {
         measurements.push({
           babyId,
@@ -349,19 +317,15 @@ export default function MeasurementForm({
         });
       }
 
-      // If no measurements, show error
       if (measurements.length === 0) {
         alert("Por favor, insira pelo menos um valor de medida");
         setLoading(false);
         return;
       }
 
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
-      // If editing an existing measurement, update it
       if (activity) {
-        // Find the measurement that matches the activity type
         const matchingMeasurement = measurements.find(
           (m) => m.type === activity.type
         );
@@ -380,7 +344,6 @@ export default function MeasurementForm({
           );
 
           if (!response.ok) {
-            // Check if this is an account expiration error
             if (response.status === 403) {
               const { isExpirationError, errorData } =
                 await handleExpirationError(
@@ -389,10 +352,8 @@ export default function MeasurementForm({
                   "atualizando medidas"
                 );
               if (isExpirationError) {
-                // Don't close the form, let user see the error
                 return;
               }
-              // If it's a 403 but not an expiration error, handle it normally
               if (errorData) {
                 showToast({
                   variant: "error",
@@ -406,7 +367,6 @@ export default function MeasurementForm({
               }
             }
 
-            // Handle other errors
             const errorData = await response.json();
             showToast({
               variant: "error",
@@ -417,8 +377,6 @@ export default function MeasurementForm({
             throw new Error(errorData.error || "Falha ao atualizar a medida");
           }
         } else {
-          // If the user cleared the value for the edited measurement type
-          // Delete the measurement
           const response = await fetch(
             `/api/measurement-log?id=${activity.id}`,
             {
@@ -430,7 +388,6 @@ export default function MeasurementForm({
           );
 
           if (!response.ok) {
-            // Check if this is an account expiration error
             if (response.status === 403) {
               const { isExpirationError, errorData } =
                 await handleExpirationError(
@@ -439,10 +396,8 @@ export default function MeasurementForm({
                   "excluindo medidas"
                 );
               if (isExpirationError) {
-                // Don't close the form, let user see the error
                 return;
               }
-              // If it's a 403 but not an expiration error, handle it normally
               if (errorData) {
                 showToast({
                   variant: "error",
@@ -454,7 +409,6 @@ export default function MeasurementForm({
               }
             }
 
-            // Handle other errors
             const errorData = await response.json();
             showToast({
               variant: "error",
@@ -466,7 +420,6 @@ export default function MeasurementForm({
           }
         }
       } else {
-        // Create new measurements
         for (const measurement of measurements) {
           const response = await fetch("/api/measurement-log", {
             method: "POST",
@@ -478,7 +431,6 @@ export default function MeasurementForm({
           });
 
           if (!response.ok) {
-            // Check if this is an account expiration error
             if (response.status === 403) {
               const { isExpirationError, errorData } =
                 await handleExpirationError(
@@ -487,10 +439,8 @@ export default function MeasurementForm({
                   "registrando medidas"
                 );
               if (isExpirationError) {
-                // Don't close the form, let user see the error
                 return;
               }
-              // If it's a 403 but not an expiration error, handle it normally
               if (errorData) {
                 showToast({
                   variant: "error",
@@ -507,7 +457,6 @@ export default function MeasurementForm({
               }
             }
 
-            // Handle other errors
             const errorData = await response.json();
             showToast({
               variant: "error",
@@ -528,7 +477,6 @@ export default function MeasurementForm({
       onClose();
       onSuccess?.();
 
-      // Reset form data
       setSelectedDateTime(new Date(initialTime));
       setFormData({
         date: initialTime,
@@ -539,7 +487,6 @@ export default function MeasurementForm({
         notes: "",
       });
     } catch (error) {
-      // Error toast already shown above for non-expiration errors
     } finally {
       setLoading(false);
     }
@@ -559,7 +506,6 @@ export default function MeasurementForm({
       <FormPageContent>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Date & Time - Full width on all screens */}
             <div>
               <Label htmlFor="measurement-date">Data e Hora</Label>
               <DateTimePicker
@@ -570,7 +516,6 @@ export default function MeasurementForm({
               />
             </div>
 
-            {/* Height Measurement */}
             <div className="space-y-2">
               <Label htmlFor="height-value">Altura</Label>
               <div className="flex items-center space-x-2">
@@ -613,7 +558,6 @@ export default function MeasurementForm({
               </div>
             </div>
 
-            {/* Weight Measurement */}
             <div className="space-y-2">
               <Label htmlFor="weight-value">Peso</Label>
               <div className="flex items-center space-x-2">
@@ -668,7 +612,6 @@ export default function MeasurementForm({
               </div>
             </div>
 
-            {/* Head Circumference Measurement */}
             <div className="space-y-2">
               <Label htmlFor="head-value">Circunferência da Cabeça</Label>
               <div className="flex items-center space-x-2">
@@ -717,7 +660,6 @@ export default function MeasurementForm({
               </div>
             </div>
 
-            {/* Temperature Measurement */}
             <div className="space-y-2">
               <Label htmlFor="temp-value">Temperatura</Label>
               <div className="flex items-center space-x-2">
@@ -762,7 +704,6 @@ export default function MeasurementForm({
               </div>
             </div>
 
-            {/* Notes */}
             <div className="space-y-2">
               <Label htmlFor="notes">Notas (Opcional)</Label>
               <Textarea

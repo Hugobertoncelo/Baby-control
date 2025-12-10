@@ -39,12 +39,6 @@ interface MedicineFormProps {
   onSave: (formData: MedicineFormData) => Promise<void>;
 }
 
-/**
- * MedicineForm Component
- *
- * A form for creating and editing medicines.
- * Includes fields for medicine details and contact associations.
- */
 const MedicineForm: React.FC<MedicineFormProps> = ({
   isOpen,
   onClose,
@@ -56,7 +50,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Convert contacts to Contact type
   const convertedContacts: Contact[] = contacts.map((c) => ({
     id: c.id,
     name: c.name,
@@ -67,15 +60,12 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     notes: null,
   }));
 
-  // State for contacts
   const [localContacts, setLocalContacts] =
     useState<Contact[]>(convertedContacts);
 
-  // State for dose minimum time selector
   const [doseTimeValue, setDoseTimeValue] = useState<string>("");
   const [doseTimeUnit, setDoseTimeUnit] = useState<"hours" | "days">("hours");
 
-  // Helper function to parse doseMinTime from DD:HH:MM format
   const parseDoseMinTime = (doseMinTime: string) => {
     if (!doseMinTime) {
       setDoseTimeValue("");
@@ -87,10 +77,8 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     if (timeRegex.test(doseMinTime)) {
       const [days, hours, minutes] = doseMinTime.split(":").map(Number);
 
-      // Convert to total hours for easier handling
       const totalHours = days * 24 + hours + minutes / 60;
 
-      // If less than 24 hours, show in hours, otherwise show in days
       if (totalHours < 24) {
         setDoseTimeValue(totalHours.toString());
         setDoseTimeUnit("hours");
@@ -102,7 +90,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     }
   };
 
-  // Helper function to format time value and unit to DD:HH:MM format
   const formatDoseMinTime = (value: string, unit: "hours" | "days"): string => {
     if (!value || value === "0") return "";
 
@@ -125,7 +112,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
       .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
   };
 
-  // Initialize form data
   const [formData, setFormData] = useState<MedicineFormData>(() => {
     if (medicine) {
       return {
@@ -140,7 +126,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
       };
     }
 
-    // Default values for new medicine
     return {
       name: "",
       typicalDoseSize: undefined,
@@ -152,7 +137,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     };
   });
 
-  // Update form data when medicine changes or when form opens/closes
   useEffect(() => {
     if (medicine) {
       const medicineData = {
@@ -166,7 +150,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
         contactIds: medicine.contacts?.map((c: any) => c.contact.id) || [],
       };
       setFormData(medicineData);
-      // Parse the existing doseMinTime for the time selector
       parseDoseMinTime(medicine.doseMinTime || "");
     } else {
       setFormData({
@@ -178,17 +161,13 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
         active: true,
         contactIds: [],
       });
-      // Reset time selector for new medicine
       setDoseTimeValue("");
       setDoseTimeUnit("hours");
     }
-    // Reset errors when form data changes
     setErrors({});
   }, [medicine, isOpen]);
 
-  // Update local contacts when props change
   useEffect(() => {
-    // Convert contacts to Contact type
     const newContacts: Contact[] = contacts.map((c) => ({
       id: c.id,
       name: c.name,
@@ -201,7 +180,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     setLocalContacts(newContacts);
   }, [contacts]);
 
-  // Handle form field changes
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -213,26 +191,21 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error for the field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // Handle number input changes
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Allow any input during typing
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error for the field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // Validate and convert number input on blur
   const handleNumberBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -245,81 +218,67 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     if (!isNaN(numValue) && numValue >= 0) {
       setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
-      // Invalid number - show error and reset
-      setErrors((prev) => ({ ...prev, [name]: "Please enter a valid number" }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Por favor, insira um número válido.",
+      }));
       setFormData((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  // Handle unit selection
   const handleUnitChange = (unitAbbr: string) => {
     setFormData((prev) => ({ ...prev, unitAbbr }));
 
-    // Clear error for unit field
     if (errors.unitAbbr) {
       setErrors((prev) => ({ ...prev, unitAbbr: "" }));
     }
   };
 
-  // Handle active state toggle
   const handleActiveToggle = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, active: checked }));
   };
 
-  // Handle dose time value change
   const handleDoseTimeValueChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
     setDoseTimeValue(value);
 
-    // Update the formData with the formatted time
     const formattedTime = formatDoseMinTime(value, doseTimeUnit);
     setFormData((prev) => ({ ...prev, doseMinTime: formattedTime }));
 
-    // Clear error for the field
     if (errors.doseMinTime) {
       setErrors((prev) => ({ ...prev, doseMinTime: "" }));
     }
   };
 
-  // Handle dose time unit toggle
   const handleDoseTimeUnitToggle = (checked: boolean) => {
     const newUnit = checked ? "days" : "hours";
     setDoseTimeUnit(newUnit);
 
-    // Update the formData with the formatted time using the new unit
     const formattedTime = formatDoseMinTime(doseTimeValue, newUnit);
     setFormData((prev) => ({ ...prev, doseMinTime: formattedTime }));
 
-    // Clear error for the field
     if (errors.doseMinTime) {
       setErrors((prev) => ({ ...prev, doseMinTime: "" }));
     }
   };
 
-  // Handle contact selection change
   const handleContactsChange = (contactIds: string[]) => {
-    // Filter out duplicate contact IDs
     const uniqueContactIds = Array.from(new Set(contactIds));
     setFormData((prev) => ({ ...prev, contactIds: uniqueContactIds }));
   };
 
-  // Handle adding a new contact
   const handleAddContact = (newContact: Contact) => {
-    // Add the new contact to our local contacts list
     setLocalContacts((prev) => {
-      // Check if the contact already exists
       if (!prev.some((c) => c.id === newContact.id)) {
         return [...prev, newContact];
       }
       return prev;
     });
 
-    // Select the new contact if it's not already selected
     setFormData((prev) => {
       const currentContactIds = prev.contactIds || [];
-      // Only add the contact if it's not already in the array
       if (!currentContactIds.includes(newContact.id)) {
         return {
           ...prev,
@@ -330,20 +289,15 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     });
   };
 
-  // Handle editing a contact
   const handleEditContact = (updatedContact: Contact) => {
-    // Update the contact in our local contacts list
     setLocalContacts((prev) =>
       prev.map((c) => (c.id === updatedContact.id ? updatedContact : c))
     );
   };
 
-  // Handle deleting a contact
   const handleDeleteContact = (contactId: string) => {
-    // Remove the contact from our local contacts list
     setLocalContacts((prev) => prev.filter((c) => c.id !== contactId));
 
-    // Remove the contact from the selected contacts if it's selected
     if (formData.contactIds?.includes(contactId)) {
       setFormData((prev) => ({
         ...prev,
@@ -352,56 +306,47 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     }
   };
 
-  // Validate form before submission
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Required fields
     if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = "O nome é obrigatório";
     }
 
-    // Allow dose size to be blank or 0
     if (
       formData.typicalDoseSize &&
       formData.typicalDoseSize > 0 &&
       !formData.unitAbbr
     ) {
-      newErrors.unitAbbr = "Unit is required when dose size is specified";
+      newErrors.unitAbbr =
+        "É necessária uma unidade quando o tamanho da dose for especificado.";
     }
 
-    // Validate doseMinTime format if provided
     if (formData.doseMinTime) {
       const timeRegex = /^([0-9]{1,2}):([0-1][0-9]|2[0-3]):([0-5][0-9])$/;
       if (!timeRegex.test(formData.doseMinTime)) {
-        newErrors.doseMinTime = "Please enter a valid time in DD:HH:MM format";
+        newErrors.doseMinTime =
+          "Por favor, insira um horário válido no formato DD:HH:MM";
       }
     }
 
-    // Update errors state
     setErrors(newErrors);
 
-    // Form is valid if there are no errors
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
 
-    // Create a copy of the form data to ensure all fields are included
     const dataToSubmit = {
       ...formData,
-      // Explicitly include typicalDoseSize even if it's undefined
       typicalDoseSize: formData.typicalDoseSize,
-      // Ensure contactIds has no duplicates
       contactIds: formData.contactIds
         ? Array.from(new Set(formData.contactIds))
         : [],
@@ -420,18 +365,21 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={medicine ? `Edit ${medicine.name}` : "Add New Medicine"}
+      title={
+        medicine ? `Editar ${medicine.name}` : "Adicionar novo medicamento"
+      }
       description={
-        medicine ? "Update medicine details" : "Add a new medicine to track"
+        medicine
+          ? "Atualizar detalhes do medicamento"
+          : "Adicionar um novo medicamento ao acompanhamento"
       }
     >
       <FormPageContent>
         <form id="medicine-form" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Medicine Name */}
             <div className={styles.formGroup}>
               <Label htmlFor="name">
-                Medicine Name
+                Nome do medicamento
                 <span className="text-red-500 ml-1">*</span>
               </Label>
               <div className="relative">
@@ -441,7 +389,7 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full pl-9"
-                  placeholder="Enter medicine name"
+                  placeholder="Digite o nome do medicamento"
                 />
                 <PillBottle className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               </div>
@@ -453,10 +401,9 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
               )}
             </div>
 
-            {/* Typical Dose Size and Unit */}
             <div className="grid grid-cols-2 gap-4">
               <div className={styles.formGroup}>
-                <Label htmlFor="typicalDoseSize">Typical Dose Size</Label>
+                <Label htmlFor="typicalDoseSize">Tamanho típico da dose</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -464,7 +411,7 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                   value={formData.typicalDoseSize || ""}
                   onChange={handleNumberChange}
                   onBlur={handleNumberBlur}
-                  placeholder="Enter typical dose (optional)"
+                  placeholder="Insira a dose típica (opcional)"
                 />
                 {errors.typicalDoseSize && (
                   <div className="text-xs text-red-500 mt-1">
@@ -475,7 +422,7 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
               </div>
 
               <div className={styles.formGroup}>
-                <Label htmlFor="unitAbbr">Unit</Label>
+                <Label htmlFor="unitAbbr">Unidade</Label>
                 <Select
                   value={formData.unitAbbr}
                   onValueChange={handleUnitChange}
@@ -483,7 +430,7 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                   <SelectTrigger
                     className={errors.unitAbbr ? "border-red-500" : ""}
                   >
-                    <SelectValue placeholder="Select a unit" />
+                    <SelectValue placeholder="Selecione uma unidade" />
                   </SelectTrigger>
                   <SelectContent>
                     {units.map((unit) => (
@@ -502,11 +449,9 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
               </div>
             </div>
 
-            {/* Minimum Time Between Doses */}
             <div className={styles.formGroup}>
-              <Label htmlFor="doseMinTime">Minimum Time Between Doses</Label>
+              <Label htmlFor="doseMinTime">Intervalo mínimo entre doses</Label>
               <div className="space-y-3">
-                {/* Time Input and Unit Toggle */}
                 <div className="flex items-center space-x-3">
                   <div className="relative flex-1">
                     <Input
@@ -515,18 +460,17 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                       value={doseTimeValue}
                       onChange={handleDoseTimeValueChange}
                       className="w-full pl-9"
-                      placeholder="Enter time"
+                      placeholder="Insira a hora"
                     />
                     <Clock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                   </div>
 
-                  {/* Unit Toggle */}
                   <div className="flex items-center space-x-2">
                     <Label
                       htmlFor="dose-time-unit"
                       className="text-sm font-medium"
                     >
-                      Hours
+                      Horas
                     </Label>
                     <Switch
                       id="dose-time-unit"
@@ -538,16 +482,15 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                       htmlFor="dose-time-unit"
                       className="text-sm font-medium"
                     >
-                      Days
+                      Dias
                     </Label>
                   </div>
                 </div>
 
-                {/* Helper Text */}
                 <div className="text-xs text-gray-500">
                   {doseTimeUnit === "hours"
-                    ? "Enter the minimum time in hours (e.g., 6 for 6 hours, 0.5 for 30 minutes)"
-                    : "Enter the minimum time in days (e.g., 1 for 1 day, 0.5 for 12 hours)"}
+                    ? "Enter the minimum time in hours (e.g., 6 for Insira o tempo mínimo em horas (por exemplo, 6 para 6 horas, 0,5 para 30 minutos).6 hours, 0.5 for 30 minutes)"
+                    : "Insira o tempo mínimo em dias (por exemplo, 1 para 1 dia, 0,5 para 12 horas)."}
                 </div>
               </div>
 
@@ -559,7 +502,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
               )}
             </div>
 
-            {/* Active Status */}
             <div className="flex items-center space-x-2 py-2">
               <Switch
                 checked={formData.active}
@@ -570,11 +512,10 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                 htmlFor="active-status"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Active Medicine
+                Medicina Ativa
               </Label>
             </div>
 
-            {/* Notes */}
             <div className={styles.formGroup}>
               <Label htmlFor="notes">Notes</Label>
               <div className="relative">
@@ -584,15 +525,14 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
                   value={formData.notes || ""}
                   onChange={handleChange}
                   className="w-full min-h-[100px] pl-9"
-                  placeholder="Enter additional notes about this medicine"
+                  placeholder="Insira notas adicionais sobre este medicamento."
                 />
                 <FileText className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               </div>
             </div>
 
-            {/* Associated Contacts */}
             <div className={styles.formGroup}>
-              <Label htmlFor="contacts">Associated Contacts</Label>
+              <Label htmlFor="contacts">Contatos Associados</Label>
               <ContactSelector
                 contacts={localContacts}
                 selectedContactIds={formData.contactIds || []}
@@ -614,19 +554,19 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
             onClick={onClose}
             disabled={isLoading}
           >
-            Cancel
+            Cancelar
           </Button>
 
           <Button form="medicine-form" type="submit" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
-                Saving...
+                Salvando...
               </>
             ) : medicine ? (
-              "Update"
+              "Atualizar"
             ) : (
-              "Save"
+              "Salvar"
             )}
           </Button>
         </div>

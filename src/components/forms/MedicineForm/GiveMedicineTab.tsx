@@ -25,11 +25,6 @@ import {
 import { useTimezone } from "@/app/context/timezone";
 import { useTheme } from "@/src/context/theme";
 
-/**
- * GiveMedicineTab Component
- *
- * Form for recording medicine administration
- */
 const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
   babyId,
   initialTime,
@@ -70,16 +65,13 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
   const [initializedTime, setInitializedTime] = useState<string | null>(null);
   const [lastActivityId, setLastActivityId] = useState<string | null>(null);
 
-  // Initialize form data when component mounts or activity changes (for editing)
   useEffect(() => {
-    // Only initialize if not already initialized, or if activity ID changed (switching between edit/new)
     const currentActivityId = activity?.id || null;
     const shouldInitialize =
       !isInitialized || currentActivityId !== lastActivityId;
 
     if (shouldInitialize) {
       if (activity) {
-        // Editing mode - populate with activity data
         setFormData({
           babyId: babyId || "",
           medicineId: activity.medicineId || "",
@@ -92,15 +84,12 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
           notes: activity.notes || "",
         });
 
-        // Update the selected date time as well
         if (activity.time) {
           setSelectedDateTime(new Date(activity.time));
         }
 
-        // Store the initial time used for editing
         setInitializedTime(activity.time || initialTime);
 
-        // Find and set the selected medicine if we have medicines loaded
         if (medicines.length > 0 && activity.medicineId) {
           const currentMedicine = medicines.find(
             (m: MedicineWithContacts) => m.id === activity.medicineId
@@ -108,7 +97,6 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
           setSelectedMedicine(currentMedicine || null);
         }
       } else {
-        // New entry mode - initialize from initialTime prop (only on first mount or when switching from edit to new)
         const safeResetTime = initialTime ? new Date(initialTime) : new Date();
         const isValidResetDate =
           safeResetTime instanceof Date && !isNaN(safeResetTime.getTime());
@@ -125,11 +113,9 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
         setSelectedDateTime(defaultResetDate);
         setSelectedMedicine(null);
 
-        // Store the initial time used for new entry
         setInitializedTime(initialTime);
       }
 
-      // Mark as initialized and track activity ID
       setIsInitialized(true);
       setLastActivityId(currentActivityId);
     }
@@ -156,7 +142,8 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
           "/api/medicine?active=true",
           fetchOptions
         );
-        if (!medicinesResponse.ok) throw new Error("Failed to load medicines");
+        if (!medicinesResponse.ok)
+          throw new Error("Falha ao carregar os medicamentos");
         const medicinesData = await medicinesResponse.json();
         if (medicinesData.success) {
           setMedicines(medicinesData.data);
@@ -167,20 +154,20 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
             setSelectedMedicine(currentMedicine || null);
           }
         } else {
-          setError(medicinesData.error || "Failed to load medicines");
+          setError(medicinesData.error || "Falha ao carregar os medicamentos");
         }
 
         const unitsResponse = await fetch(
           "/api/units?activityType=medicine",
           fetchOptions
         );
-        if (!unitsResponse.ok) throw new Error("Failed to load units");
+        if (!unitsResponse.ok) throw new Error("Falha ao carregar as unidades");
         const unitsData = await unitsResponse.json();
         if (unitsData.success) setUnits(unitsData.data);
-        else setError(unitsData.error || "Failed to load units");
+        else setError(unitsData.error || "Falha ao carregar as unidades");
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "An unknown error occurred."
+          err instanceof Error ? err.message : "Ocorreu um erro desconhecido."
         );
       } finally {
         setIsFetching(false);
@@ -221,13 +208,11 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Allow any input during typing
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Validate and convert number input on blur
   const handleNumberBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -240,8 +225,10 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
     if (!isNaN(numValue) && numValue >= 0) {
       setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
-      // Invalid number - show error and reset
-      setErrors((prev) => ({ ...prev, [name]: "Please enter a valid number" }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Por favor, insira um número válido.",
+      }));
       setFormData((prev) => ({ ...prev, [name]: 0 }));
     }
   };
@@ -253,12 +240,12 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.medicineId) newErrors.medicineId = "Please select a medicine";
-    if (!formData.time) newErrors.time = "Please select a time";
+    if (!formData.medicineId) newErrors.medicineId = "Selecione um medicamento";
+    if (!formData.time) newErrors.time = "Selecione um horário";
     if (formData.doseAmount < 0)
-      newErrors.doseAmount = "Dose cannot be negative";
+      newErrors.doseAmount = "A dose não pode ser negativa.";
     if (formData.doseAmount > 0 && !formData.unitAbbr)
-      newErrors.unitAbbr = "Please select a unit";
+      newErrors.unitAbbr = "Selecione uma unidade";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -293,29 +280,28 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.error || `Failed to ${activity ? "update" : "save"} log`
+          errorData.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`
         );
       }
 
       const result = await response.json();
 
       if (result.success) {
-        // Clear any existing errors
         setError(null);
 
-        // Refresh data first
         refreshData?.();
 
-        // Then call onSuccess to close the form
         onSuccess?.();
       } else {
         throw new Error(
-          result.error || `Failed to ${activity ? "update" : "save"} log`
+          result.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`
         );
       }
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
+        err instanceof Error ? err.message : "Ocorreu um erro desconhecido."
       );
     } finally {
       setIsLoading(false);
@@ -338,7 +324,9 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
             )}
           >
             <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-            <p className="mt-2 text-gray-600">Loading form data...</p>
+            <p className="mt-2 text-gray-600">
+              Carregando dados do formulário...
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -355,18 +343,20 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
             )}
 
             <div className={cn(styles.formGroup, "medicine-form-group")}>
-              <Label>Medicine</Label>
+              <Label>Medicamentos</Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {selectedMedicine
                       ? selectedMedicine.name
-                      : "Select a medicine"}
+                      : "Selecione um medicamento"}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel>Available Medicines</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    Medicamentos Disponíveis
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {medicines.map((med) => (
                     <DropdownMenuItem
@@ -386,7 +376,7 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
             </div>
 
             <div className={cn(styles.formGroup, "medicine-form-group")}>
-              <Label>Time</Label>
+              <Label>Tempo</Label>
               <DateTimePicker
                 value={selectedDateTime}
                 onChange={handleDateTimeChange}
@@ -410,7 +400,7 @@ const GiveMedicineTab: React.FC<GiveMedicineTabProps> = ({
                   onChange={handleNumberChange}
                   onBlur={handleNumberBlur}
                   className="flex-1"
-                  placeholder="Enter dose amount"
+                  placeholder="Insira a quantidade da dose"
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

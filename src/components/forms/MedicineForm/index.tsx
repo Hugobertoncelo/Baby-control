@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { MedicineFormProps, MedicineFormTab } from "./medicine-form.types";
-import { PillBottle, Loader2, Activity, Settings } from "lucide-react";
+import { MedicineFormProps } from "./medicine-form.types";
+import { Activity, Settings } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { FormPage, FormPageFooter } from "@/src/components/ui/form-page";
 import { FormPageTab } from "@/src/components/ui/form-page/form-page.types";
@@ -11,24 +11,6 @@ import ManageMedicinesTab from "./ManageMedicinesTab";
 import GiveMedicineForm from "../GiveMedicineForm";
 import "./medicine-form.css";
 
-/**
- * MedicineForm Component
- *
- * A tabbed form for managing and administering medicines.
- * Includes tabs for viewing active doses, giving medicine, and managing medicines.
- *
- * @example
- * ```tsx
- * <MedicineForm
- *   isOpen={isOpen}
- *   onClose={() => setIsOpen(false)}
- *   babyId={selectedBaby?.id}
- *   initialTime={new Date().toISOString()}
- *   onSuccess={() => fetchData()}
- *   activity={medicineActivity} // Pass activity for editing
- * />
- * ```
- */
 const MedicineForm: React.FC<MedicineFormProps> = ({
   isOpen,
   onClose,
@@ -41,31 +23,25 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [showGiveMedicineForm, setShowGiveMedicineForm] = useState(false);
 
-  // Function to refresh data in all tabs
   const refreshData = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  // Handle opening the Give Medicine form
   const handleOpenGiveMedicine = useCallback(() => {
     setShowGiveMedicineForm(true);
   }, []);
 
-  // Handle success from GiveMedicineForm
   const handleGiveMedicineSuccess = useCallback(() => {
     setShowGiveMedicineForm(false);
     refreshData();
 
-    // Call the original onSuccess if provided
     if (onSuccess) {
       onSuccess();
     }
   }, [onSuccess, refreshData]);
 
-  // Set the active tab when form opens
   useEffect(() => {
     if (isOpen) {
-      // If we have an activity passed in, open the Give Medicine form for editing
       if (activity) {
         setShowGiveMedicineForm(true);
       } else {
@@ -74,7 +50,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
     }
   }, [isOpen, activity]);
 
-  // Define tabs using the form-page tabs system
   const tabs: FormPageTab[] = [
     {
       id: "active-doses",
@@ -116,7 +91,6 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
         </FormPageFooter>
       </FormPage>
 
-      {/* Give Medicine Form - overlays the main form */}
       <GiveMedicineForm
         isOpen={showGiveMedicineForm}
         onClose={() => setShowGiveMedicineForm(false)}

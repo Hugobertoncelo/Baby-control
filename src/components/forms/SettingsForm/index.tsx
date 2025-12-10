@@ -93,24 +93,20 @@ export default function SettingsForm({
     allowAccountRegistration: boolean;
   } | null>(null);
 
-  // Family editing state
   const [editingFamily, setEditingFamily] = useState(false);
   const [familyEditData, setFamilyEditData] = useState<Partial<FamilyData>>({});
   const [slugError, setSlugError] = useState<string>("");
   const [checkingSlug, setCheckingSlug] = useState(false);
   const [savingFamily, setSavingFamily] = useState(false);
 
-  // Local authType state for immediate UI feedback
   const [localAuthType, setLocalAuthType] = useState<"SYSTEM" | "CARETAKER">(
     "SYSTEM"
   );
 
   useEffect(() => {
-    // Only set the selected baby ID if explicitly provided
     setLocalSelectedBabyId(selectedBabyId || "");
   }, [selectedBabyId]);
 
-  // Check slug uniqueness
   const checkSlugUniqueness = useCallback(
     async (slug: string, currentFamilyId: string) => {
       if (!slug || slug.trim() === "") {
@@ -146,7 +142,6 @@ export default function SettingsForm({
     []
   );
 
-  // Debounced slug check
   useEffect(() => {
     if (familyEditData.slug && family?.id) {
       const timeoutId = setTimeout(() => {
@@ -161,7 +156,6 @@ export default function SettingsForm({
     try {
       setLoading(true);
 
-      // Get auth token for all requests
       const authToken = localStorage.getItem("authToken");
       const headers: HeadersInit = authToken
         ? {
@@ -169,7 +163,6 @@ export default function SettingsForm({
           }
         : {};
 
-      // Check if user is system administrator and build query params
       let isSysAdmin = false;
       if (authToken) {
         try {
@@ -181,7 +174,6 @@ export default function SettingsForm({
         }
       }
 
-      // Build URLs with familyId parameter for system administrators
       const settingsUrl =
         isSysAdmin && familyId
           ? `/api/settings?familyId=${familyId}`
@@ -222,11 +214,9 @@ export default function SettingsForm({
         const settingsData = await settingsResponse.json();
         setSettings(settingsData.data);
 
-        // Set local authType from settings, auto-detect if not set
         if (settingsData.data?.authType) {
           setLocalAuthType(settingsData.data.authType);
         } else {
-          // Auto-detect based on caretakers
           const willHaveCaretakers = caretakersResponse.ok;
           let caretakerData = [];
           if (willHaveCaretakers) {
@@ -244,7 +234,6 @@ export default function SettingsForm({
       if (familyResponse.ok) {
         const familyData = await familyResponse.json();
         setFamily(familyData.data);
-        // Initialize family edit data
         setFamilyEditData({
           name: familyData.data.name,
           slug: familyData.data.slug,
@@ -287,7 +276,6 @@ export default function SettingsForm({
     }
   };
 
-  // Fetch data when form opens
   useEffect(() => {
     if (isOpen) {
       fetchData();
@@ -302,7 +290,6 @@ export default function SettingsForm({
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       };
 
-      // Check if user is system administrator and build URL with familyId parameter
       let isSysAdmin = false;
       if (authToken) {
         try {
@@ -329,7 +316,6 @@ export default function SettingsForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
@@ -337,10 +323,8 @@ export default function SettingsForm({
             "atualizando configurações"
           );
           if (isExpirationError) {
-            // Don't proceed with the update
             return;
           }
-          // If it's a 403 but not an expiration error, handle it normally
           if (errorData) {
             showToast({
               variant: "error",
@@ -352,7 +336,6 @@ export default function SettingsForm({
           }
         }
 
-        // Handle other errors
         const errorData = await response.json();
         showToast({
           variant: "error",
@@ -409,7 +392,6 @@ export default function SettingsForm({
   };
 
   const handleFamilySave = async () => {
-    // Don't save if there's a slug error
     if (slugError) {
       alert("Por favor, corrija o erro de slug antes de salvar");
       return;
@@ -436,7 +418,6 @@ export default function SettingsForm({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
@@ -444,10 +425,8 @@ export default function SettingsForm({
             "atualizando informações da família"
           );
           if (isExpirationError) {
-            // Don't proceed with the update
             return;
           }
-          // If it's a 403 but not an expiration error, handle it normally
           if (errorData) {
             showToast({
               variant: "error",
@@ -459,7 +438,6 @@ export default function SettingsForm({
           }
         }
 
-        // Handle other errors
         const errorData = await response.json();
         showToast({
           variant: "error",
@@ -477,9 +455,7 @@ export default function SettingsForm({
         setEditingFamily(false);
         setSlugError("");
 
-        // If slug changed, we should refresh or redirect
         if (data.data.slug !== family?.slug) {
-          // Optionally refresh the page or show a message about the URL change
           console.log("Slug da família atualizado com sucesso");
         }
       } else {
@@ -513,14 +489,14 @@ export default function SettingsForm({
 
   const handleCaretakerFormClose = async () => {
     setShowCaretakerForm(false);
-    setSelectedCaretaker(null); // Clear selected caretaker to avoid stale data
-    await fetchData(); // Refresh local caretakers list
+    setSelectedCaretaker(null);
+    await fetchData();
   };
 
   const handleContactFormClose = async () => {
     setShowContactForm(false);
-    setSelectedContact(null); // Reset selected contact when form closes
-    await fetchData(); // Refresh local contacts list
+    setSelectedContact(null);
+    await fetchData();
   };
 
   return (
@@ -528,7 +504,7 @@ export default function SettingsForm({
       <FormPage
         isOpen={isOpen}
         onClose={() => {
-          onBabyStatusChange?.(); // Refresh parent's babies list when settings form closes
+          onBabyStatusChange?.();
           onClose();
         }}
         title="Configurações"
@@ -536,7 +512,6 @@ export default function SettingsForm({
       >
         <FormPageContent>
           <div className="space-y-6">
-            {/* Family Information Section */}
             <div className="space-y-4">
               <h3 className="form-label mb-4">Informações da Família</h3>
 
@@ -717,7 +692,6 @@ export default function SettingsForm({
                 )}
               </div>
 
-              {/* Caretaker Management Section */}
               <div className="mb-4">
                 <Label className="form-label">Gerenciar Cuidadores</Label>
                 {localAuthType === "SYSTEM" && (
@@ -946,7 +920,6 @@ export default function SettingsForm({
               <h3 className="form-label mb-4">Unidades Padrão</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Bottle Feeding Unit */}
                   <div>
                     <Label className="form-label">
                       Alimentação com Mamadeira
@@ -978,7 +951,6 @@ export default function SettingsForm({
                     </Select>
                   </div>
 
-                  {/* Solid Feeding Unit */}
                   <div>
                     <Label className="form-label">Alimentação Sólida</Label>
                     <Select
@@ -1008,7 +980,6 @@ export default function SettingsForm({
                     </Select>
                   </div>
 
-                  {/* Height Unit */}
                   <div>
                     <Label className="form-label">Altura</Label>
                     <Select
@@ -1038,7 +1009,6 @@ export default function SettingsForm({
                     </Select>
                   </div>
 
-                  {/* Weight Unit */}
                   <div>
                     <Label className="form-label">Peso</Label>
                     <Select
@@ -1068,7 +1038,6 @@ export default function SettingsForm({
                     </Select>
                   </div>
 
-                  {/* Temperature Unit */}
                   <div>
                     <Label className="form-label">Temperatura</Label>
                     <Select
@@ -1099,7 +1068,6 @@ export default function SettingsForm({
               </div>
             </div>
 
-            {/* Only show System Administration section in self-hosted mode */}
             {deploymentConfig?.deploymentMode !== "saas" && (
               <div className="border-t border-slate-200 pt-6">
                 <h3 className="form-label mb-4">Administração do Sistema</h3>
@@ -1136,8 +1104,8 @@ export default function SettingsForm({
         isEditing={isEditing}
         baby={selectedBaby}
         onBabyChange={async () => {
-          await fetchData(); // Refresh local babies list
-          onBabyStatusChange?.(); // Refresh parent's babies list
+          await fetchData();
+          onBabyStatusChange?.();
         }}
       />
 

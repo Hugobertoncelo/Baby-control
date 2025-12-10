@@ -1,6 +1,3 @@
-/* Dark mode styles for the MedicineForm component */
-
-/* Tab navigation */
 .dark .medicine-form-tab-container {
   border-color: rgba(255, 255, 255, 0.1);
 }
@@ -18,7 +15,6 @@
   border-color: #4fd1c5;
 }
 
-/* Active doses tab */
 .dark .medicine-form-dose-card {
   background-color: rgba(30, 41, 59, 0.8);
   border-color: rgba(255, 255, 255, 0.1);
@@ -42,9 +38,6 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Form elements - Labels handled by Label component */
-
-/* Medicine items */
 .dark .medicine-form-medicine-item {
   background-color: rgba(30, 41, 59, 0.8);
   border-color: rgba(255, 255, 255, 0.1);
@@ -64,13 +57,11 @@
   background-color: rgba(30, 41, 59, 0.6);
 }
 
-/* Icon containers */
 .dark .medicine-form-icon-container {
   background-color: rgba(45, 212, 191, 0.2);
   color: #4fd1c5;
 }
 
-/* Status colors */
 .dark .medicine-form-countdown-safe {
   color: #10b981;
 }
@@ -83,7 +74,6 @@
   color: #ef4444;
 }
 
-/* Manage Medicines Tab Dark Mode */
 .dark .medicine-form-manage-medicines-title {
   color: rgba(255, 255, 255, 0.9);
 }
@@ -157,16 +147,10 @@
   color: #4fd1c5;
 }
 
-/* Give Medicine Tab Dark Mode */
-.dark .medicine-form-group {
-  /* Form group styling handled by individual elements */
-}
-
 .dark .medicine-form-error {
-  color: #ef4444 !important; /* red-500 */
+  color: #ef4444 !important;
 }
 
-/* Error container for Give Medicine Tab */
 .dark .bg-red-50 {
   background-color: rgba(239, 68, 68, 0.1) !important;
 }
@@ -175,7 +159,6 @@
   color: #ef4444 !important;
 }
 
-/* ContactSelector Dark Mode Styles */
 .dark .contact-selector-clear-button:hover {
   color: rgba(255, 255, 255, 0.7);
 }

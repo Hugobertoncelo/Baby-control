@@ -11,14 +11,6 @@ import {
   FormPageContent,
   FormPageFooter,
 } from "@/src/components/ui/form-page";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/src/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useTimezone } from "@/app/context/timezone";
 import { useTheme } from "@/src/context/theme";
@@ -48,16 +40,14 @@ export default function NoteForm({
   const { showToast } = useToast();
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(() => {
     try {
-      // Try to parse the initialTime
       const date = new Date(initialTime);
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
-        return new Date(); // Fallback to current date if invalid
+        return new Date();
       }
       return date;
     } catch (error) {
       console.error("Error parsing initialTime:", error);
-      return new Date(); // Fallback to current date
+      return new Date();
     }
   });
   const [formData, setFormData] = useState({
@@ -75,7 +65,6 @@ export default function NoteForm({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -94,19 +83,18 @@ export default function NoteForm({
     };
   }, []);
 
-  // Fetch existing categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/note?categories=true");
-        if (!response.ok) throw new Error("Failed to fetch categories");
+        if (!response.ok) throw new Error("Falha ao buscar categorias");
         const data = await response.json();
         if (data.success) {
           setCategories(data.data);
           setFilteredCategories(data.data);
         }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Erro ao buscar categorias:", error);
       }
     };
 
@@ -115,11 +103,9 @@ export default function NoteForm({
     }
   }, [isOpen]);
 
-  // Filter categories based on input
   useEffect(() => {
     if (formData.category.trim() === "") {
       setFilteredCategories(categories);
-      // Close dropdown when input is empty
       setDropdownOpen(false);
     } else {
       const filtered = categories.filter((category) =>
@@ -129,12 +115,9 @@ export default function NoteForm({
     }
   }, [formData.category, categories]);
 
-  // Handle date/time change
   const handleDateTimeChange = (date: Date) => {
     setSelectedDateTime(date);
 
-    // Also update the time in formData for compatibility with existing code
-    // Format the date as ISO string for storage in formData
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -148,10 +131,8 @@ export default function NoteForm({
   useEffect(() => {
     if (isOpen && !isInitialized) {
       if (activity) {
-        // Editing mode - populate with activity data
         try {
           const activityDate = new Date(activity.time);
-          // Check if the date is valid
           if (!isNaN(activityDate.getTime())) {
             setSelectedDateTime(activityDate);
           }
@@ -159,7 +140,6 @@ export default function NoteForm({
           console.error("Error parsing activity time:", error);
         }
 
-        // Format the date for the time property
         const date = new Date(activity.time);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -174,13 +154,11 @@ export default function NoteForm({
           category: activity.category || "",
         });
       } else {
-        // New entry mode - initialize from initialTime prop
         try {
           const date = new Date(initialTime);
           if (!isNaN(date.getTime())) {
             setSelectedDateTime(date);
 
-            // Also update the time in formData
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, "0");
             const day = String(date.getDate()).padStart(2, "0");
@@ -194,14 +172,11 @@ export default function NoteForm({
           console.error("Error parsing initialTime:", error);
         }
 
-        // Store the initial time used for new entry
         setInitializedTime(initialTime);
       }
 
-      // Mark as initialized
       setIsInitialized(true);
     } else if (!isOpen) {
-      // Reset initialization flag and stored time when form closes
       setIsInitialized(false);
       setInitializedTime(null);
     }
@@ -211,13 +186,11 @@ export default function NoteForm({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate required fields
     if (!formData.content) {
       console.error("Required fields missing: content");
       return;
     }
 
-    // Validate date time
     if (!selectedDateTime || isNaN(selectedDateTime.getTime())) {
       console.error("Required fields missing: valid date time");
       return;
@@ -226,8 +199,6 @@ export default function NoteForm({
     setLoading(true);
 
     try {
-      // Convert local time to UTC ISO string using the timezone context
-      // We use selectedDateTime instead of formData.time for better accuracy
       const utcTimeString = toUTCString(selectedDateTime);
 
       console.log("Original time (local):", formData.time);
@@ -235,12 +206,11 @@ export default function NoteForm({
 
       const payload = {
         babyId,
-        time: utcTimeString, // Send the UTC ISO string instead of local time
+        time: utcTimeString,
         content: formData.content,
         category: formData.category || null,
       };
 
-      // Get auth token from localStorage
       const authToken = localStorage.getItem("authToken");
 
       const response = await fetch(
@@ -256,18 +226,15 @@ export default function NoteForm({
       );
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
             showToast,
-            "saving notes"
+            "salvando notas"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, handle it normally
           if (errorData) {
             showToast({
               variant: "error",
@@ -279,7 +246,6 @@ export default function NoteForm({
           }
         }
 
-        // Handle other errors
         const errorData = await response.json();
         showToast({
           variant: "error",
@@ -293,7 +259,6 @@ export default function NoteForm({
       onClose();
       onSuccess?.();
 
-      // Reset form data
       setSelectedDateTime(new Date(initialTime));
       setFormData({
         time: initialTime,
@@ -302,7 +267,6 @@ export default function NoteForm({
       });
     } catch (error) {
       console.error("Error saving note:", error);
-      // Error toast already shown above for non-expiration errors
     } finally {
       setLoading(false);
     }
@@ -311,7 +275,6 @@ export default function NoteForm({
   const handleCategorySelect = (category: string) => {
     setFormData((prev) => ({ ...prev, category }));
     setDropdownOpen(false);
-    // Remove focus from the input after selection
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
@@ -323,17 +286,14 @@ export default function NoteForm({
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, category: value }));
 
-    // Reset highlighted index when input changes
     setHighlightedIndex(-1);
 
-    // Open dropdown when typing, but let the useEffect handle closing it when empty
     if (value.trim() !== "") {
       setDropdownOpen(true);
     }
   };
 
   const handleCategoryInputFocus = () => {
-    // Only open dropdown if there's already text in the input
     if (formData.category.trim() !== "") {
       setDropdownOpen(true);
     }
@@ -367,13 +327,10 @@ export default function NoteForm({
           highlightedIndex >= 0 &&
           highlightedIndex < filteredCategories.length
         ) {
-          // Select the highlighted category
           handleCategorySelect(filteredCategories[highlightedIndex]);
         } else if (formData.category.trim() !== "") {
-          // Create a new category with the current input value
           handleCategorySelect(formData.category.trim());
         }
-        // Blur the input to remove focus
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
@@ -381,7 +338,6 @@ export default function NoteForm({
       case "Escape":
         e.preventDefault();
         setDropdownOpen(false);
-        // Blur the input to remove focus
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
@@ -405,7 +361,6 @@ export default function NoteForm({
       <FormPageContent>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
-            {/* Time Selection - Full width on all screens */}
             <div>
               <label className="form-label">Hora</label>
               <DateTimePicker
@@ -416,7 +371,6 @@ export default function NoteForm({
               />
             </div>
 
-            {/* Category Selection - Full width on all screens */}
             <div>
               <label className="form-label">Categoria</label>
               <div className="relative">
@@ -436,7 +390,6 @@ export default function NoteForm({
                       className="absolute right-3 h-4 w-4 text-gray-500 note-form-dropdown-icon"
                       onClick={() => {
                         setDropdownOpen(!dropdownOpen);
-                        // Remove focus when toggling dropdown with the icon
                         if (document.activeElement instanceof HTMLElement) {
                           document.activeElement.blur();
                         }

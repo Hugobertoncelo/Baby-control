@@ -1,112 +1,36 @@
 import { Medicine, MedicineLog } from "@prisma/client";
 
-/**
- * Tab types for the MedicineForm component
- */
 export type MedicineFormTab = "active-doses" | "manage-medicines";
 
-/**
- * Props for the MedicineForm component
- */
 export interface MedicineFormProps {
-  /**
-   * Whether the form is open
-   */
   isOpen: boolean;
-
-  /**
-   * Function to call when the form should be closed
-   */
   onClose: () => void;
-
-  /**
-   * The ID of the baby for whom medicine is being administered
-   */
   babyId: string | undefined;
-
   initialTime: string;
-
-  /**
-   * Optional callback function to call when a medicine log is successfully created or updated
-   */
   onSuccess?: () => void;
-
-  /**
-   * Optional medicine activity for editing
-   */
   activity?: any;
 }
 
-/**
- * Props for the ActiveDosesTab component
- */
 export interface ActiveDosesTabProps {
-  /**
-   * The ID of the baby for whom to show active doses
-   */
   babyId: string | undefined;
-
-  /**
-   * Function to refresh the active doses data
-   */
   refreshData: () => void;
-
-  /**
-   * Function to open the Give Medicine form
-   */
   onGiveMedicine?: () => void;
-
-  /**
-   * Trigger value that changes when data should be refreshed
-   */
   refreshTrigger?: number;
 }
 
-/**
- * Props for the GiveMedicineTab component
- */
 export interface GiveMedicineTabProps {
-  /**
-   * The ID of the baby for whom medicine is being administered
-   */
   babyId: string | undefined;
-
   initialTime: string;
-
-  /**
-   * Optional callback function to call when a medicine log is successfully created or updated
-   */
   onSuccess?: () => void;
-
-  /**
-   * Function to refresh the active doses data
-   */
   refreshData: () => void;
-
-  /**
-   * Function to set the submitting state in the parent component
-   */
   setIsSubmitting?: React.Dispatch<React.SetStateAction<boolean>>;
-
-  /**
-   * Optional existing medicine log activity for editing
-   */
   activity?: any;
 }
 
-/**
- * Props for the ManageMedicinesTab component
- */
 export interface ManageMedicinesTabProps {
-  /**
-   * Function to refresh the medicines data
-   */
   refreshData: () => void;
 }
 
-/**
- * Medicine data with related contact information
- */
 export interface MedicineWithContacts extends Medicine {
   contacts: {
     contact: {
@@ -121,9 +45,6 @@ export interface MedicineWithContacts extends Medicine {
   } | null;
 }
 
-/**
- * Medicine log data with related medicine information
- */
 export interface MedicineLogWithDetails extends MedicineLog {
   medicine: MedicineWithContacts;
   unit?: {
@@ -132,9 +53,6 @@ export interface MedicineLogWithDetails extends MedicineLog {
   } | null;
 }
 
-/**
- * Form data for creating or updating a medicine
- */
 export interface MedicineFormData {
   id?: string;
   name: string;
@@ -155,9 +73,6 @@ export interface MedicineLogFormData {
   notes?: string;
 }
 
-/**
- * Active dose information with countdown status
- */
 export interface ActiveDose {
   id: string;
   medicineName: string;

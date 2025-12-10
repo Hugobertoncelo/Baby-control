@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  GiveMedicineTabProps,
   MedicineWithContacts,
   MedicineLogFormData,
 } from "../MedicineForm/medicine-form.types";
@@ -39,12 +38,6 @@ interface GiveMedicineFormProps {
   activity?: any;
 }
 
-/**
- * GiveMedicineForm Component
- *
- * A standalone form for recording medicine administration
- * Follows the same pattern as other forms in the app (CaretakerForm, etc.)
- */
 const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
   isOpen,
   onClose,
@@ -73,7 +66,6 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
   const [formData, setFormData] = useState<
     Omit<MedicineLogFormData, "familyId">
   >(() => {
-    // Handle potentially invalid initialTime
     const safeInitialTime = initialTime ? new Date(initialTime) : new Date();
     const isValidDate =
       safeInitialTime instanceof Date && !isNaN(safeInitialTime.getTime());
@@ -96,17 +88,14 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
   const [initializedTime, setInitializedTime] = useState<string | null>(null);
   const [lastActivityId, setLastActivityId] = useState<string | null>(null);
 
-  // Update form data when form opens or activity changes (for editing)
   useEffect(() => {
     if (isOpen) {
-      // Only initialize if not already initialized, or if activity ID changed (switching between edit/new/different activities)
       const currentActivityId = activity?.id || null;
       const shouldInitialize =
         !isInitialized || currentActivityId !== lastActivityId;
 
       if (shouldInitialize) {
         if (activity) {
-          // Editing mode - populate with activity data
           setFormData({
             babyId: babyId || "",
             medicineId: activity.medicineId || "",
@@ -119,15 +108,12 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
             notes: activity.notes || "",
           });
 
-          // Update the selected date time as well
           if (activity.time) {
             setSelectedDateTime(new Date(activity.time));
           }
 
-          // Store the initial time used for editing
           setInitializedTime(activity.time || initialTime);
 
-          // Find and set the selected medicine if we have medicines loaded
           if (medicines.length > 0 && activity.medicineId) {
             const currentMedicine = medicines.find(
               (m: MedicineWithContacts) => m.id === activity.medicineId
@@ -135,7 +121,6 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
             setSelectedMedicine(currentMedicine || null);
           }
         } else {
-          // New entry mode - initialize from initialTime prop
           const safeResetTime = initialTime
             ? new Date(initialTime)
             : new Date();
@@ -157,16 +142,13 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
           setSelectedDateTime(defaultResetDate);
           setSelectedMedicine(null);
 
-          // Store the initial time used for new entry
           setInitializedTime(initialTime);
         }
 
-        // Mark as initialized and track activity ID
         setIsInitialized(true);
         setLastActivityId(currentActivityId);
       }
     } else if (!isOpen) {
-      // Reset initialization flag and stored time when form closes
       setIsInitialized(false);
       setInitializedTime(null);
       setLastActivityId(null);
@@ -197,7 +179,7 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
             fetchOptions
           );
           if (!medicinesResponse.ok)
-            throw new Error("Failed to load medicines");
+            throw new Error("Falha ao carregar os medicamentos");
           const medicinesData = await medicinesResponse.json();
           if (medicinesData.success) {
             setMedicines(medicinesData.data);
@@ -208,20 +190,23 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               setSelectedMedicine(currentMedicine || null);
             }
           } else {
-            setError(medicinesData.error || "Failed to load medicines");
+            setError(
+              medicinesData.error || "Falha ao carregar os medicamentos"
+            );
           }
 
           const unitsResponse = await fetch(
             "/api/units?activityType=medicine",
             fetchOptions
           );
-          if (!unitsResponse.ok) throw new Error("Failed to load units");
+          if (!unitsResponse.ok)
+            throw new Error("Falha ao carregar as unidades");
           const unitsData = await unitsResponse.json();
           if (unitsData.success) setUnits(unitsData.data);
-          else setError(unitsData.error || "Failed to load units");
+          else setError(unitsData.error || "Falha ao carregar as unidades");
         } catch (err) {
           setError(
-            err instanceof Error ? err.message : "An unknown error occurred."
+            err instanceof Error ? err.message : "Ocorreu um erro desconhecido."
           );
         } finally {
           setIsFetching(false);
@@ -263,13 +248,11 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Allow any input during typing
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Validate and convert number input on blur
   const handleNumberBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -282,8 +265,10 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
     if (!isNaN(numValue) && numValue >= 0) {
       setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
-      // Invalid number - show error and reset
-      setErrors((prev) => ({ ...prev, [name]: "Please enter a valid number" }));
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Por favor, insira um número válido.",
+      }));
       setFormData((prev) => ({ ...prev, [name]: 0 }));
     }
   };
@@ -295,12 +280,12 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.medicineId) newErrors.medicineId = "Please select a medicine";
-    if (!formData.time) newErrors.time = "Please select a time";
+    if (!formData.medicineId) newErrors.medicineId = "Selecione um medicamento";
+    if (!formData.time) newErrors.time = "Selecione um horário";
     if (formData.doseAmount < 0)
-      newErrors.doseAmount = "Dose cannot be negative";
+      newErrors.doseAmount = "A dose não pode ser negativa.";
     if (formData.doseAmount > 0 && !formData.unitAbbr)
-      newErrors.unitAbbr = "Please select a unit";
+      newErrors.unitAbbr = "Selecione uma unidade";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -332,76 +317,73 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
       });
 
       if (!response.ok) {
-        // Check if this is an account expiration error
         if (response.status === 403) {
           const { isExpirationError, errorData } = await handleExpirationError(
             response,
             showToast,
-            "logging medicine"
+            "medicina madeireira"
           );
           if (isExpirationError) {
-            // Don't close the form, let user see the error
             return;
           }
-          // If it's a 403 but not an expiration error, handle it normally
           if (errorData) {
             showToast({
               variant: "error",
               title: "Error",
               message:
                 errorData.error ||
-                `Failed to ${activity ? "update" : "save"} log`,
+                `Falha ao ${activity ? "atualizar" : "salvar"} registro`,
               duration: 5000,
             });
             setError(
-              errorData.error || `Failed to ${activity ? "update" : "save"} log`
+              errorData.error ||
+                `Falha ao ${activity ? "atualizar" : "salvar"} registro`
             );
             return;
           }
         }
 
-        // Handle other errors
         const errorData = await response.json();
         showToast({
           variant: "error",
           title: "Error",
           message:
-            errorData.error || `Failed to ${activity ? "update" : "save"} log`,
+            errorData.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`,
           duration: 5000,
         });
         throw new Error(
-          errorData.error || `Failed to ${activity ? "update" : "save"} log`
+          errorData.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`
         );
       }
 
       const result = await response.json();
 
       if (result.success) {
-        // Clear any existing errors
         setError(null);
 
-        // Refresh data first
         refreshData?.();
 
-        // Then call onSuccess to close the form
         onSuccess?.();
       } else {
         showToast({
           variant: "error",
           title: "Error",
           message:
-            result.error || `Failed to ${activity ? "update" : "save"} log`,
+            result.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`,
           duration: 5000,
         });
         throw new Error(
-          result.error || `Failed to ${activity ? "update" : "save"} log`
+          result.error ||
+            `Falha ao ${activity ? "atualizar" : "salvar"} registro`
         );
       }
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred."
+        err instanceof Error ? err.message : "Ocorreu um erro desconhecido."
       );
-      // Error toast already shown above for non-expiration errors
     } finally {
       setIsLoading(false);
     }
@@ -411,11 +393,11 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
     <FormPage
       isOpen={isOpen}
       onClose={onClose}
-      title={activity ? "Edit Medicine Log" : "Give Medicine"}
+      title={activity ? "Editar registro de medicamentos" : "Dê remédio"}
       description={
         activity
-          ? "Update medicine administration details"
-          : "Record medicine administration"
+          ? "Atualizar detalhes de administração de medicamentos"
+          : "Registrar administração de medicamentos"
       }
     >
       <form
@@ -427,7 +409,9 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
           {isFetching ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-              <p className="mt-2 text-gray-600">Loading form data...</p>
+              <p className="mt-2 text-gray-600">
+                Carregando dados do formulário...
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -439,7 +423,7 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               )}
 
               <div>
-                <Label htmlFor="medicine">Medicine</Label>
+                <Label htmlFor="medicine">Medicamento</Label>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -448,12 +432,14 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
                     >
                       {selectedMedicine
                         ? selectedMedicine.name
-                        : "Select a medicine"}
+                        : "Selecione um medicamento"}
                       <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Available Medicines</DropdownMenuLabel>
+                    <DropdownMenuLabel>
+                      Medicamentos Disponíveis
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {medicines.map((med) => (
                       <DropdownMenuItem
@@ -473,7 +459,7 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               </div>
 
               <div>
-                <Label htmlFor="time">Time</Label>
+                <Label htmlFor="time">Tempo</Label>
                 <DateTimePicker
                   value={selectedDateTime}
                   onChange={handleDateTimeChange}
@@ -495,12 +481,12 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
                     onChange={handleNumberChange}
                     onBlur={handleNumberBlur}
                     className="flex-1"
-                    placeholder="Enter dose amount"
+                    placeholder="Insira a quantidade da dose"
                   />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="min-w-[70px]">
-                        {formData.unitAbbr || "Unit"}
+                        {formData.unitAbbr || "Unidade"}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -526,13 +512,13 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               </div>
 
               <div>
-                <Label htmlFor="notes">Notes (optional)</Label>
+                <Label htmlFor="notes">Notas (optional)</Label>
                 <Textarea
                   id="notes-give-medicine-form"
                   name="notes"
                   value={formData.notes}
                   onChange={handleChange}
-                  placeholder="Enter any additional notes about this medicine administration"
+                  placeholder="Insira quaisquer observações adicionais sobre a administração deste medicamento."
                 />
               </div>
             </div>
@@ -547,18 +533,18 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               onClick={onClose}
               disabled={isLoading}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={isLoading || isFetching}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  Salvando...
                 </>
               ) : activity ? (
-                "Update"
+                "Atualizar"
               ) : (
-                "Save"
+                "Salvar"
               )}
             </Button>
           </div>

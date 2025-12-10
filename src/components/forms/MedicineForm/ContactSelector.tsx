@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { cn } from '@/src/lib/utils';
-import { Check, X, Plus, Phone, Mail, Edit, User } from 'lucide-react';
-import { Label } from '@/src/components/ui/label';
-import { Input } from '@/src/components/ui/input';
-import { Button } from '@/src/components/ui/button';
-import ContactForm from '@/src/components/forms/ContactForm';
-import { Contact } from '@/src/components/CalendarEvent/calendar-event.types';
+import React, { useState, useEffect, useCallback } from "react";
+import { cn } from "@/src/lib/utils";
+import { Check, X, Plus, Phone, Mail, Edit, User } from "lucide-react";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import ContactForm from "@/src/components/forms/ContactForm";
+import { Contact } from "@/src/components/CalendarEvent/calendar-event.types";
 
 interface ContactSelectorProps {
   contacts: Contact[];
@@ -16,12 +15,6 @@ interface ContactSelectorProps {
   onDeleteContact?: (contactId: string) => void;
 }
 
-/**
- * ContactSelector Component
- * 
- * A component for selecting contacts for medicines.
- * Allows searching, selecting, and managing contacts.
- */
 const ContactSelector: React.FC<ContactSelectorProps> = ({
   contacts,
   selectedContactIds,
@@ -30,151 +23,130 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
   onEditContact,
   onDeleteContact,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showContactForm, setShowContactForm] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<Contact | undefined>(undefined);
+  const [selectedContact, setSelectedContact] = useState<Contact | undefined>(
+    undefined
+  );
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Fetch contacts from API - memoized to avoid dependency issues
+
   const fetchContacts = useCallback(async () => {
     try {
-      // Fetch contacts from API
       const url = `/api/contact`;
       const response = await fetch(url);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch contacts');
+        throw new Error("Não foi possível obter os contatos.");
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success && result.data) {
-        // If we have a callback to update contacts in the parent component
         if (onAddNewContact && Array.isArray(result.data)) {
-          // Update the contacts list with any new contacts
           result.data.forEach((contact: Contact) => {
-            if (!contacts.some(c => c.id === contact.id)) {
+            if (!contacts.some((c) => c.id === contact.id)) {
               onAddNewContact(contact);
             }
           });
         }
       }
     } catch (error) {
-      console.error('Error fetching contacts:', error);
+      console.error("Error fetching contacts:", error);
     }
-  }, [onAddNewContact]); // Remove contacts dependency to prevent repeated calls
-  
-  // Fetch contacts on component mount only
+  }, [onAddNewContact]);
   useEffect(() => {
-    // Only fetch if we have the callback to update contacts and haven't fetched yet
     if (onAddNewContact && contacts.length === 0) {
       fetchContacts();
     }
-  }, [onAddNewContact]); // Remove fetchContacts dependency to prevent repeated calls
-  
-  // Filter contacts based on search term
-  const filteredContacts = contacts.filter(contact => 
-    contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.role.toLowerCase().includes(searchTerm.toLowerCase())
+  }, [onAddNewContact]);
+
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  // Get selected contacts
-  const selectedContacts = contacts.filter(contact => 
+
+  const selectedContacts = contacts.filter((contact) =>
     selectedContactIds.includes(contact.id)
   );
-  
-  // Toggle contact selection
+
   const toggleContact = (contactId: string) => {
     if (selectedContactIds.includes(contactId)) {
-      onContactsChange(selectedContactIds.filter(id => id !== contactId));
+      onContactsChange(selectedContactIds.filter((id) => id !== contactId));
     } else {
       onContactsChange([...selectedContactIds, contactId]);
     }
   };
-  
-  // Remove contact from selection
+
   const removeContact = (contactId: string) => {
-    onContactsChange(selectedContactIds.filter(id => id !== contactId));
+    onContactsChange(selectedContactIds.filter((id) => id !== contactId));
   };
-  
-  // Group contacts by role
-  const contactsByRole = filteredContacts.reduce<Record<string, Contact[]>>((acc, contact) => {
-    if (!acc[contact.role]) {
-      acc[contact.role] = [];
-    }
-    acc[contact.role].push(contact);
-    return acc;
-  }, {});
-  
-  // Handle saving a contact
+
+  const contactsByRole = filteredContacts.reduce<Record<string, Contact[]>>(
+    (acc, contact) => {
+      if (!acc[contact.role]) {
+        acc[contact.role] = [];
+      }
+      acc[contact.role].push(contact);
+      return acc;
+    },
+    {}
+  );
+
   const handleSaveContact = async (contactData: any) => {
     setIsLoading(true);
-    
+
     try {
-      // Close only the contact form
       setShowContactForm(false);
       setSelectedContact(undefined);
-      
-      // Then update the parent component
-      // If it's a new contact
+
       if (onAddNewContact) {
-        // Always pass the contact data to the parent component
         onAddNewContact(contactData);
-        
-        // Auto-select the newly added contact if it has an ID
+
         if (contactData.id) {
           onContactsChange([...selectedContactIds, contactData.id]);
         }
-      } 
-      // If it's an existing contact
-      else if (contactData.id && onEditContact) {
+      } else if (contactData.id && onEditContact) {
         onEditContact(contactData);
       }
-      
-      // Immediately refresh contacts list from the API
+
       await fetchContacts();
     } catch (error) {
-      console.error('Error handling saved contact:', error);
+      console.error("Error handling saved contact:", error);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  // Handle deleting a contact
+
   const handleDeleteContact = async (contactId: string) => {
     if (onDeleteContact) {
       setIsLoading(true);
-      
+
       try {
-        // Close the form first to prevent UI issues
         setShowContactForm(false);
         setSelectedContact(undefined);
-        
-        // Update the parent component
+
         onDeleteContact(contactId);
-        
-        // Remove the contact from selection if it's selected
+
         if (selectedContactIds.includes(contactId)) {
-          onContactsChange(selectedContactIds.filter(id => id !== contactId));
+          onContactsChange(selectedContactIds.filter((id) => id !== contactId));
         }
-        
-        // Refresh contacts list from the API
+
         await fetchContacts();
       } catch (error) {
-        console.error('Error handling contact deletion:', error);
+        console.error("Error handling contact deletion:", error);
       } finally {
         setIsLoading(false);
       }
     }
   };
-  
+
   return (
     <div className="space-y-2">
-      {/* Search input */}
       <div className="relative">
         <Input
           type="text"
-          placeholder="Search contacts..."
+          placeholder="Pesquisar contatos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
@@ -182,31 +154,31 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
         {searchTerm && (
           <button
             type="button"
-            onClick={() => setSearchTerm('')}
+            onClick={() => setSearchTerm("")}
             className="contact-selector-clear-button absolute right-2 top-2 text-gray-400 hover:text-gray-600"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
-      
-      {/* Contact list */}
+
       <div className="contact-selector-list max-h-40 overflow-y-auto rounded-md border border-gray-300 bg-white p-1">
         {Object.entries(contactsByRole).map(([role, roleContacts]) => (
           <div key={role} className="mb-2 last:mb-0">
             <div className="contact-selector-role-header px-2 py-1 text-xs font-semibold text-gray-500 uppercase">
               {role}
             </div>
-            {roleContacts.map(contact => (
+            {roleContacts.map((contact) => (
               <div
                 key={contact.id}
                 className={cn(
                   "contact-selector-item flex items-center px-2 py-1 rounded-md hover:bg-gray-100",
-                  selectedContactIds.includes(contact.id) && "contact-selector-item-selected bg-teal-50",
+                  selectedContactIds.includes(contact.id) &&
+                    "contact-selector-item-selected bg-teal-50",
                   "cursor-pointer flex justify-between"
                 )}
               >
-                <div 
+                <div
                   className="flex-1 flex items-start"
                   onClick={() => toggleContact(contact.id)}
                 >
@@ -251,14 +223,13 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
             ))}
           </div>
         ))}
-        
+
         {filteredContacts.length === 0 && (
           <div className="contact-selector-empty-state p-2 text-sm text-gray-500 text-center">
-            {searchTerm ? 'No contacts found' : 'No contacts available'}
+            {searchTerm ? "No contacts found" : "No contacts available"}
           </div>
         )}
-        
-        {/* Contact Form */}
+
         {showContactForm && (
           <ContactForm
             isOpen={showContactForm}
@@ -273,12 +244,14 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
           />
         )}
       </div>
-      
-      {/* Selected contacts */}
+
       {selectedContacts.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
-          {selectedContacts.map(contact => (
-            <div key={contact.id} className="contact-selector-selected-tag flex items-center rounded-full bg-teal-100 px-2 py-1 text-xs text-teal-800">
+          {selectedContacts.map((contact) => (
+            <div
+              key={contact.id}
+              className="contact-selector-selected-tag flex items-center rounded-full bg-teal-100 px-2 py-1 text-xs text-teal-800"
+            >
               <User className="contact-selector-selected-tag-icon h-3 w-3 mr-1 text-teal-600" />
               <span>{contact.name}</span>
               <button
@@ -295,8 +268,7 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
           ))}
         </div>
       )}
-      
-      {/* Add new contact button */}
+
       {onAddNewContact && (
         <div className="mt-2">
           <Button
@@ -310,7 +282,7 @@ const ContactSelector: React.FC<ContactSelectorProps> = ({
             size="sm"
           >
             <Plus className="h-4 w-4 mr-1.5" />
-            Add New Contact
+            Adicionar novo contato
           </Button>
         </div>
       )}
