@@ -26,11 +26,11 @@ const TimelineV2ActivityList = ({
 
   const getTimeOfDay = (date: Date): string => {
     const hour = date.getHours();
-    if (hour >= 0 && hour < 6) return "early-morning";
-    if (hour >= 6 && hour < 12) return "morning";
-    if (hour >= 12 && hour < 17) return "afternoon";
-    if (hour >= 17 && hour < 21) return "evening";
-    return "night";
+    if (hour >= 0 && hour < 6) return "de manhã cedo";
+    if (hour >= 6 && hour < 12) return "manhã";
+    if (hour >= 12 && hour < 17) return "tarde";
+    if (hour >= 17 && hour < 21) return "noite";
+    return "noite";
   };
 
   const getTimeOfDayLabel = (timeOfDay: string): string => {
@@ -52,7 +52,7 @@ const TimelineV2ActivityList = ({
 
   const groupedActivities = useMemo(() => {
     const groups: { [key: string]: ActivityType[] } = {
-      "early-morning": [],
+      "de manhã cedo": [],
       morning: [],
       afternoon: [],
       evening: [],
@@ -264,32 +264,32 @@ const TimelineV2ActivityList = ({
 
                           let activityTypeClass = "";
                           if ("duration" in activity)
-                            activityTypeClass = "sleep";
+                            activityTypeClass = "dormir";
                           else if ("amount" in activity)
-                            activityTypeClass = "feed";
+                            activityTypeClass = "alimentar";
                           else if ("condition" in activity)
-                            activityTypeClass = "diaper";
+                            activityTypeClass = "fralda";
                           else if ("content" in activity)
-                            activityTypeClass = "note";
+                            activityTypeClass = "notas";
                           else if ("soapUsed" in activity)
-                            activityTypeClass = "bath";
+                            activityTypeClass = "banho";
                           else if (
                             "leftAmount" in activity ||
                             "rightAmount" in activity
                           )
-                            activityTypeClass = "pump";
+                            activityTypeClass = "bomba";
                           else if (
                             "title" in activity &&
                             "category" in activity
                           )
-                            activityTypeClass = "milestone";
+                            activityTypeClass = "marco";
                           else if ("value" in activity && "unit" in activity)
-                            activityTypeClass = "measurement";
+                            activityTypeClass = "medição";
                           else if (
                             "doseAmount" in activity &&
                             "medicineId" in activity
                           )
-                            activityTypeClass = "medicine";
+                            activityTypeClass = "medicamento";
 
                           return (
                             <motion.div
@@ -358,7 +358,7 @@ const TimelineV2ActivityList = ({
                                       if (location) parts.push(location);
                                       if (duration) parts.push(duration);
                                       if (!("endTime" in activity))
-                                        parts.push("Still asleep");
+                                        parts.push("Ainda dormindo");
                                       return parts.length > 0
                                         ? parts.join(" • ")
                                         : "Atividade de sono";
@@ -424,7 +424,7 @@ const TimelineV2ActivityList = ({
                                         );
                                       }
                                       if (activity.blowout) {
-                                        details.push("Blowout/Leakage");
+                                        details.push("Estouro/Vazamento");
                                       }
                                       return details.length > 0
                                         ? details.join(" • ")
@@ -445,7 +445,7 @@ const TimelineV2ActivityList = ({
                                       if (activity.shampooUsed)
                                         details.push("Shampoo");
                                       if (details.length === 0)
-                                        details.push("Water only");
+                                        details.push("Somente água");
                                       if (activity.notes) {
                                         const notes =
                                           activity.notes.length > 30
@@ -529,7 +529,7 @@ const TimelineV2ActivityList = ({
                                       const dose = activity.doseAmount
                                         ? `${activity.doseAmount} ${unit}`.trim()
                                         : "";
-                                      let medName = "Medicine";
+                                      let medName = "Medicamento";
                                       if (
                                         "medicine" in activity &&
                                         activity.medicine &&
@@ -546,7 +546,7 @@ const TimelineV2ActivityList = ({
                                       return `${medName} - ${dose}`;
                                     }
 
-                                    return "Activity logged";
+                                    return "Atividade registrada";
                                   })()}
                                 </div>
                               </div>

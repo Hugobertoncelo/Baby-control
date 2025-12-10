@@ -1,16 +1,24 @@
-import { Settings } from '@prisma/client';
-import { ActivityType as ImportedActivityType } from '@/src/components/ui/activity-tile/activity-tile.types';
+import { Settings } from "@prisma/client";
+import { ActivityType as ImportedActivityType } from "@/src/components/ui/activity-tile/activity-tile.types";
 
-// Define the extended ActivityType that includes caretaker information
 export type FullLogActivityType = ImportedActivityType & {
   caretakerId?: string | null;
   caretakerName?: string;
 };
 
-// Use FullLogActivityType for internal component logic
 export type ActivityType = FullLogActivityType;
 
-export type FilterType = 'sleep' | 'feed' | 'diaper' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement' | 'medicine' | null;
+export type FilterType =
+  | "sleep"
+  | "feed"
+  | "diaper"
+  | "note"
+  | "bath"
+  | "pump"
+  | "milestone"
+  | "measurement"
+  | "medicine"
+  | null;
 
 export interface FullLogTimelineProps {
   activities: ImportedActivityType[];
@@ -52,7 +60,19 @@ export interface FullLogActivityDetailsProps {
   isOpen: boolean;
   onClose: () => void;
   onDelete: (activity: ActivityType) => void;
-  onEdit: (activity: ActivityType, type: 'sleep' | 'feed' | 'diaper' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement' | 'medicine') => void;
+  onEdit: (
+    activity: ActivityType,
+    type:
+      | "sleep"
+      | "feed"
+      | "diaper"
+      | "note"
+      | "bath"
+      | "pump"
+      | "milestone"
+      | "measurement"
+      | "medicine"
+  ) => void;
 }
 
 export interface ActivityDetail {

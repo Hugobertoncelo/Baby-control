@@ -17,9 +17,7 @@ interface NoteModalProps {
   babyId: string | undefined;
   initialTime: string;
   activity?: NoteResponse;
-  /**
-   * Optional variant to control the modal styling
-   */
+
   variant?: "note" | "default";
 }
 
@@ -42,13 +40,11 @@ export default function NoteModal({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Filter categories based on input
   const filteredCategories = categories.filter((category) =>
     category.toLowerCase().includes(formData.category.toLowerCase())
   );
 
   useEffect(() => {
-    // Fetch existing categories
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/note?categories=true");
@@ -67,7 +63,6 @@ export default function NoteModal({
     }
   }, [open]);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -86,17 +81,14 @@ export default function NoteModal({
     };
   }, []);
 
-  // Reset selected index when input changes
   useEffect(() => {
     setSelectedIndex(-1);
   }, [formData.category]);
 
-  // Format date string to be compatible with datetime-local input
   const formatDateForInput = (dateStr: string) => {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return "";
 
-    // Format as YYYY-MM-DDThh:mm in local time
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -109,14 +101,12 @@ export default function NoteModal({
   useEffect(() => {
     if (open) {
       if (activity) {
-        // Editing mode - populate with activity data
         setFormData({
           time: formatDateForInput(initialTime),
           content: activity.content,
           category: activity.category || "",
         });
       } else {
-        // New entry mode
         setFormData((prev) => ({
           ...prev,
           time: formatDateForInput(initialTime),
@@ -129,7 +119,6 @@ export default function NoteModal({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate required fields
     if (!formData.content || !formData.time) {
       console.error("Required fields missing");
       return;
@@ -155,12 +144,11 @@ export default function NoteModal({
       );
 
       if (!response.ok) {
-        throw new Error("Failed to save note");
+        throw new Error("Falha ao salvar a nota");
       }
 
       onClose();
 
-      // Reset form data
       setFormData({
         time: initialTime,
         content: "",
@@ -240,7 +228,7 @@ export default function NoteModal({
                       }
                     }}
                   />
-                  {/* Suggestions dropdown */}
+
                   {showDropdown &&
                     formData.category &&
                     categories.length > 0 && (

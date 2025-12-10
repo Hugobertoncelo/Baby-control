@@ -88,11 +88,11 @@ export const formatTime = (
   settings: Settings | null,
   includeDate: boolean = true
 ) => {
-  if (!date) return "Invalid Date";
+  if (!date) return "Data inválida";
 
   try {
     const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return "Invalid Date";
+    if (isNaN(dateObj.getTime())) return "Data inválida";
 
     const timeStr = dateObj.toLocaleTimeString("pt-BR", {
       hour: "numeric",
@@ -110,9 +110,9 @@ export const formatTime = (
     const isYesterday = dateObj.toDateString() === yesterday.toDateString();
 
     const dateStr = isToday
-      ? "Today"
+      ? "Hoje"
       : isYesterday
-      ? "Yesterday"
+      ? "Ontem"
       : dateObj
           .toLocaleDateString("pt-BR", {
             month: "short",
@@ -122,7 +122,7 @@ export const formatTime = (
     return `${dateStr} ${timeStr}`;
   } catch (error) {
     console.error("Error formatting time:", error);
-    return "Invalid Date";
+    return "Data inválida";
   }
 };
 
@@ -159,28 +159,28 @@ export const getActivityDetails = (
       const formatSleepQuality = (quality: string) => {
         switch (quality) {
           case "POOR":
-            return "Poor";
+            return "Pobre";
           case "FAIR":
-            return "Fair";
+            return "Justo";
           case "GOOD":
-            return "Good";
+            return "Bom";
           case "EXCELLENT":
-            return "Excellent";
+            return "Excelente";
           default:
             return quality;
         }
       };
       const formatLocation = (location: string) => {
-        if (location === "OTHER") return "Other";
+        if (location === "OTHER") return "Outro";
 
         return location;
       };
       const details = [
         {
-          label: "Type",
-          value: activity.type === "NAP" ? "Nap" : "Night Sleep",
+          label: "Tipo",
+          value: activity.type === "NAP" ? "Sesta" : "Noite de sono",
         },
-        { label: "Start Time", value: startTime },
+        { label: "Hora de início", value: startTime },
       ];
 
       if (activity.endTime) {
@@ -191,12 +191,12 @@ export const getActivityDetails = (
           durationValue = `${hours}h ${mins}m`;
         }
         details.push(
-          { label: "End Time", value: endTime },
-          { label: "Duration", value: durationValue }
+          { label: "Hora de término", value: endTime },
+          { label: "Duraçao", value: durationValue }
         );
         if (activity.quality) {
           details.push({
-            label: "Quality",
+            label: "Qualidade",
             value: formatSleepQuality(activity.quality),
           });
         }
@@ -204,13 +204,13 @@ export const getActivityDetails = (
 
       if (activity.location) {
         details.push({
-          label: "Location",
+          label: "Localização",
           value: formatLocation(activity.location),
         });
       }
 
       return {
-        title: "Sleep Record",
+        title: "Registro de sono",
         details: [...details, ...caretakerDetail],
       };
     }
@@ -218,11 +218,11 @@ export const getActivityDetails = (
       const formatFeedType = (type: string) => {
         switch (type) {
           case "BREAST":
-            return "Breast";
+            return "Seios";
           case "BOTTLE":
-            return "Bottle";
+            return "Mamadeira";
           case "SOLIDS":
-            return "Solid Food";
+            return "Alimentos Sólidos";
           default:
             return type;
         }
@@ -238,8 +238,8 @@ export const getActivityDetails = (
         }
       };
       const details = [
-        { label: "Time", value: formatTime(activity.time, settings) },
-        { label: "Type", value: formatFeedType(activity.type) },
+        { label: "Tempo", value: formatTime(activity.time, settings) },
+        { label: "Tipo", value: formatFeedType(activity.type) },
       ];
 
       if (
@@ -248,7 +248,7 @@ export const getActivityDetails = (
       ) {
         const unit =
           (activity as any).unitAbbr ||
-          (activity.type === "BOTTLE" ? "oz" : "g");
+          (activity.type === "BOTTLE" ? "l" : "g");
         details.push({
           label: "Quantia",
           value: `${activity.amount} ${unit}`,
@@ -310,7 +310,7 @@ export const getActivityDetails = (
           case "LOOSE":
             return "Solta";
           case "FIRM":
-            return "Firma";
+            return "Firme";
           case "OTHER":
             return "Outra";
           default:
@@ -352,7 +352,7 @@ export const getActivityDetails = (
       }
 
       if (activity.blowout) {
-        details.push({ label: "Blowout/Leakage", value: "Yes" });
+        details.push({ label: "Estouro/Vazamento", value: "Sim" });
       }
 
       return {
@@ -364,7 +364,7 @@ export const getActivityDetails = (
   if ("content" in activity) {
     const noteDetails = [
       { label: "Tempo", value: formatTime(activity.time, settings) },
-      { label: "Contente", value: activity.content },
+      { label: "Notas", value: activity.content },
       { label: "Categoria", value: activity.category || "Não especificado" },
     ];
 
@@ -425,21 +425,21 @@ export const getActivityDetails = (
       if (activity.leftAmount) {
         pumpDetails.push({
           label: "Peito Esquerdo",
-          value: `${activity.leftAmount} ${activity.unit || "oz"}`,
+          value: `${activity.leftAmount} ${activity.unit || "g"}`,
         });
       }
 
       if (activity.rightAmount) {
         pumpDetails.push({
           label: "Seio direito",
-          value: `${activity.rightAmount} ${activity.unit || "oz"}`,
+          value: `${activity.rightAmount} ${activity.unit || "g"}`,
         });
       }
 
       if (activity.totalAmount) {
         pumpDetails.push({
-          label: "Montante total",
-          value: `${activity.totalAmount} ${activity.unit || "oz"}`,
+          label: "Seio Esquerdo",
+          value: `${activity.totalAmount} ${activity.unit || "g"}`,
         });
       }
 
@@ -492,16 +492,16 @@ export const getActivityDetails = (
       let ageString = "";
 
       if (years > 0) {
-        ageString += `${years} year${years !== 1 ? "s" : ""} `;
+        ageString += `${years} ano${years !== 1 ? "s" : ""} `;
       }
       if (months > 0) {
-        ageString += `${months} month${months !== 1 ? "s" : ""} `;
+        ageString += `${months} mês${months !== 1 ? "s" : ""} `;
       }
       if (days > 0 || (years === 0 && months === 0)) {
-        ageString += `${days} day${days !== 1 ? "s" : ""}`;
+        ageString += `${days} dia${days !== 1 ? "s" : ""}`;
       }
 
-      milestoneDetails.push({ label: "Age", value: ageString.trim() });
+      milestoneDetails.push({ label: "Idade", value: ageString.trim() });
     }
 
     return {
@@ -529,13 +529,13 @@ export const getActivityDetails = (
     };
 
     const measurementDetails = [
-      { label: "Date", value: formatTime(activity.date, settings) },
-      { label: "Type", value: formatMeasurementType(activity.type) },
-      { label: "Value", value: `${activity.value} ${activity.unit}` },
+      { label: "Data", value: formatTime(activity.date, settings) },
+      { label: "Tipo", value: formatMeasurementType(activity.type) },
+      { label: "Valor", value: `${activity.value} ${activity.unit}` },
     ];
 
     if (activity.notes) {
-      measurementDetails.push({ label: "Notes", value: activity.notes });
+      measurementDetails.push({ label: "Notas", value: activity.notes });
     }
 
     return {
@@ -544,7 +544,7 @@ export const getActivityDetails = (
     };
   }
 
-  return { title: "Activity", details: [...caretakerDetail] };
+  return { title: "Atividade", details: [...caretakerDetail] };
 };
 
 export const getActivityDescription = (
@@ -552,7 +552,7 @@ export const getActivityDescription = (
   settings: Settings | null
 ): ActivityDescription => {
   if ("doseAmount" in activity && "medicineId" in activity) {
-    let medName = "Medicine";
+    let medName = "Medicamento";
     if (
       "medicine" in activity &&
       activity.medicine &&
@@ -696,7 +696,7 @@ export const getActivityDescription = (
           case "LOOSE":
             return "Solta";
           case "FIRM":
-            return "Empresa";
+            return "Firme";
           case "OTHER":
             return "Outra";
           default:
@@ -741,7 +741,7 @@ export const getActivityDescription = (
         }
       }
 
-      const blowoutText = activity.blowout ? " - Blowout/Leakage" : "";
+      const blowoutText = activity.blowout ? " - Estouro/Vazamento" : "";
 
       const time = formatTime(activity.time, settings, true);
       return {
@@ -766,13 +766,13 @@ export const getActivityDescription = (
     let bathDetails = "";
 
     if (!activity.soapUsed && !activity.shampooUsed) {
-      bathDetails = "water only";
+      bathDetails = "apenas água";
     } else if (activity.soapUsed && activity.shampooUsed) {
-      bathDetails = "with soap and shampoo";
+      bathDetails = "com sabonete e shampoo";
     } else if (activity.soapUsed) {
-      bathDetails = "with soap";
+      bathDetails = "com sabão";
     } else if (activity.shampooUsed) {
-      bathDetails = "with shampoo";
+      bathDetails = "com  shampoo";
     }
 
     let notesText = "";
@@ -825,11 +825,11 @@ export const getActivityDescription = (
       const amountDetails = [];
       if (activity.leftAmount)
         amountDetails.push(
-          `Left: ${activity.leftAmount} ${activity.unit || "oz"}`
+          `Esquerda: ${activity.leftAmount} ${activity.unit || "oz"}`
         );
       if (activity.rightAmount)
         amountDetails.push(
-          `Right: ${activity.rightAmount} ${activity.unit || "oz"}`
+          `Direita: ${activity.rightAmount} ${activity.unit || "oz"}`
         );
       if (activity.totalAmount)
         amountDetails.push(

@@ -27,20 +27,17 @@ export default function PinLogin({
   const [authType, setAuthType] = useState<"SYSTEM" | "CARETAKER">("SYSTEM");
   const [activeInput, setActiveInput] = useState<"loginId" | "pin">("loginId");
 
-  // Admin mode state
   const [adminMode, setAdminMode] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [goButtonClicks, setGoButtonClicks] = useState(0);
   const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Reset form when component mounts and check for server-side IP lockout
   useEffect(() => {
     setPin("");
     setLoginId("");
     setError("");
 
-    // Check for server-side IP lockout
     const checkIpLockout = async () => {
       try {
         const response = await fetch("/api/auth/ip-lockout");
@@ -50,7 +47,7 @@ export default function PinLogin({
         }>;
 
         if (data.success && data.data && data.data.locked) {
-          const remainingTime = data.data.remainingTime || 300000; // Default to 5 minutes if not provided
+          const remainingTime = data.data.remainingTime || 300000;
           const remainingMinutes = Math.ceil(remainingTime / 60000);
           onLockoutChange(Date.now() + remainingTime);
           setError(
@@ -67,7 +64,6 @@ export default function PinLogin({
     checkIpLockout();
   }, [onLockoutChange]);
 
-  // Timer para lockout automático
   useEffect(() => {
     if (lockoutTime) {
       const interval = setInterval(() => {
@@ -76,7 +72,6 @@ export default function PinLogin({
           setError("");
           clearInterval(interval);
         } else {
-          // Atualiza a mensagem de erro com o tempo restante
           const remainingMinutes = Math.ceil(
             (lockoutTime - Date.now()) / 60000
           );
@@ -91,11 +86,9 @@ export default function PinLogin({
     }
   }, [lockoutTime, onLockoutChange]);
 
-  // Check authentication type and caretakers
   useEffect(() => {
     const checkAuthSettings = async () => {
       try {
-        // Check caretakers and authType in one call
         let caretakerUrl = "/api/auth/caretaker-exists";
         if (familySlug) {
           caretakerUrl += `?familySlug=${encodeURIComponent(familySlug)}`;
@@ -112,12 +105,10 @@ export default function PinLogin({
 
             setAuthType(familyAuthType);
 
-            // Set initial active input based on auth type
             if (familyAuthType === "CARETAKER") {
               setActiveInput("loginId");
             } else {
               setActiveInput("pin");
-              // Focus the PIN input for SYSTEM auth type
               setTimeout(() => {
                 const pinInput = document.querySelector(
                   'input[placeholder="PIN"]'
@@ -148,7 +139,6 @@ export default function PinLogin({
     }
     if (value.length === 2) {
       setActiveInput("pin");
-      // Focus the PIN input after state update
       setTimeout(() => {
         const pinInput = document.querySelector(
           'input[placeholder="PIN"]'
@@ -169,12 +159,10 @@ export default function PinLogin({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Determine which field is actually focused based on the target element
     const target = e.target as HTMLInputElement;
     const isLoginIdField = target.placeholder === "ID";
     const isPinField = target.placeholder === "PIN";
 
-    // Allow only numbers, backspace, delete, arrow keys, tab, and enter
     const allowedKeys = [
       "Backspace",
       "Delete",
@@ -191,7 +179,6 @@ export default function PinLogin({
       e.preventDefault();
     }
 
-    // Handle number input based on which field is focused
     if (isNumber) {
       e.preventDefault();
       if (isLoginIdField && loginId.length < 2) {
@@ -200,7 +187,6 @@ export default function PinLogin({
         setError("");
         setActiveInput("loginId");
 
-        // Auto-switch to PIN when login ID is complete
         if (newLoginId.length === 2) {
           setActiveInput("pin");
           setTimeout(() => {
@@ -219,7 +205,6 @@ export default function PinLogin({
       }
     }
 
-    // Handle backspace and delete for removing characters
     if (e.key === "Backspace" || e.key === "Delete") {
       e.preventDefault();
       if (isLoginIdField && loginId.length > 0) {
@@ -236,7 +221,6 @@ export default function PinLogin({
         loginId.length > 0 &&
         authType === "CARETAKER"
       ) {
-        // Switch back to login ID if PIN is empty and there's content in login ID
         setActiveInput("loginId");
         setTimeout(() => {
           const loginInput = document.querySelector(
@@ -249,7 +233,6 @@ export default function PinLogin({
       }
     }
 
-    // Handle tab and arrow key navigation between fields
     if (
       (e.key === "Tab" || e.key === "ArrowUp" || e.key === "ArrowDown") &&
       authType === "CARETAKER"
@@ -278,28 +261,23 @@ export default function PinLogin({
       }
     }
 
-    // Handle enter key for authentication
     if (e.key === "Enter") {
       e.preventDefault();
       handleAuthenticate();
     }
   };
 
-  // Handle number pad input for either login ID or PIN
   const handleNumberClick = (number: string) => {
-    if (lockoutTime) return; // Prevent input during lockout
+    if (lockoutTime) return;
 
     if (activeInput === "loginId") {
-      // Handle login ID input
       if (loginId.length < 2) {
         const newLoginId = loginId + number;
         setLoginId(newLoginId);
         setError("");
 
-        // Automatically switch to PIN input when login ID is complete
         if (newLoginId.length === 2) {
           setActiveInput("pin");
-          // Focus the PIN input after state update
           setTimeout(() => {
             const pinInput = document.querySelector(
               'input[placeholder="PIN"]'
@@ -311,7 +289,6 @@ export default function PinLogin({
         }
       }
     } else {
-      // Handle PIN input
       const newPin = pin + number;
       if (newPin.length <= 10) {
         setPin(newPin);
@@ -327,7 +304,6 @@ export default function PinLogin({
     }
 
     try {
-      // Check for server-side IP lockout first
       const ipCheckResponse = await fetch("/api/auth/ip-lockout");
       const ipCheckData = (await ipCheckResponse.json()) as ApiResponse<{
         locked: boolean;
@@ -359,20 +335,16 @@ export default function PinLogin({
       const data = await response.json();
 
       if (data.success && data.data.isSysAdmin) {
-        // Store sysadmin authentication
         localStorage.setItem("authToken", data.data.token);
         localStorage.setItem("unlockTime", Date.now().toString());
 
-        // Clear any existing caretaker auth
         localStorage.removeItem("caretakerId");
 
-        // Call the onUnlock callback
         onUnlock("sysadmin");
       } else {
         setError("Senha de administrador inválida");
         setAdminPassword("");
 
-        // Check if we're now locked out
         const lockoutCheckResponse = await fetch("/api/auth/ip-lockout");
         const lockoutCheckData =
           (await lockoutCheckResponse.json()) as ApiResponse<{
@@ -403,20 +375,17 @@ export default function PinLogin({
   };
 
   const handleAuthenticate = async () => {
-    // Handle admin mode authentication
     if (adminMode) {
       await handleAdminAuthenticate();
       return;
     }
 
-    // Don't attempt authentication if login ID is required but not complete (for CARETAKER auth type)
     if (authType === "CARETAKER" && loginId.length !== 2) {
       setError("Digite um ID de login válido (2 caracteres)");
       setActiveInput("loginId");
       return;
     }
 
-    // Don't attempt authentication if PIN is too short
     if (pin.length < 6) {
       setError("Digite um PIN com pelo menos 6 dígitos");
       setActiveInput("pin");
@@ -424,7 +393,6 @@ export default function PinLogin({
     }
 
     try {
-      // Check for server-side IP lockout first
       const ipCheckResponse = await fetch("/api/auth/ip-lockout");
       const ipCheckData = (await ipCheckResponse.json()) as ApiResponse<{
         locked: boolean;
@@ -432,7 +400,7 @@ export default function PinLogin({
       }>;
 
       if (ipCheckData.success && ipCheckData.data && ipCheckData.data.locked) {
-        const remainingTime = ipCheckData.data.remainingTime || 300000; // Default to 5 minutes if not provided
+        const remainingTime = ipCheckData.data.remainingTime || 300000;
         const remainingMinutes = Math.ceil(remainingTime / 60000);
         onLockoutChange(Date.now() + remainingTime);
         setError(
@@ -458,32 +426,26 @@ export default function PinLogin({
       const data = await response.json();
 
       if (data.success) {
-        // Store unlock time, token, and caretaker ID
         localStorage.setItem("unlockTime", Date.now().toString());
         localStorage.setItem("caretakerId", data.data.id);
         localStorage.setItem("authToken", data.data.token);
 
-        // Get the AUTH_LIFE and IDLE_TIME values for client-side timeout checks
         const authLifeResponse = await fetch("/api/settings/auth-life");
         const authLifeData = await authLifeResponse.json();
         if (authLifeData.success) {
           localStorage.setItem("authLifeSeconds", authLifeData.data.toString());
         }
 
-        // Get the IDLE_TIME value
         const idleTimeResponse = await fetch("/api/settings/idle-time");
         const idleTimeData = await idleTimeResponse.json();
         if (idleTimeData.success) {
           localStorage.setItem("idleTimeSeconds", idleTimeData.data.toString());
         }
-        // Call the onUnlock callback
         onUnlock(data.data.id);
       } else {
-        // Failed authentication attempt - the server will handle counting attempts
         setError("Credenciais inválidas");
         setPin("");
 
-        // Check if we're now locked out
         const lockoutCheckResponse = await fetch("/api/auth/ip-lockout");
         const lockoutCheckData =
           (await lockoutCheckResponse.json()) as ApiResponse<{
@@ -496,7 +458,7 @@ export default function PinLogin({
           lockoutCheckData.data &&
           lockoutCheckData.data.locked
         ) {
-          const remainingTime = lockoutCheckData.data.remainingTime || 300000; // Default to 5 minutes if not provided
+          const remainingTime = lockoutCheckData.data.remainingTime || 300000;
           const remainingMinutes = Math.ceil(remainingTime / 60000);
           onLockoutChange(Date.now() + remainingTime);
           setError(
@@ -524,7 +486,6 @@ export default function PinLogin({
         pin.length === 0 &&
         loginId.length > 0
       ) {
-        // Switch back to login ID if PIN is empty
         setActiveInput("loginId");
       }
       setError("");
@@ -539,9 +500,7 @@ export default function PinLogin({
     setActiveInput("pin");
   };
 
-  // Handle secret admin mode activation
   const handleGoButtonClick = () => {
-    // If button is enabled, perform normal authentication
     const isButtonDisabled =
       !!lockoutTime ||
       (authType === "CARETAKER" && loginId.length !== 2) ||
@@ -553,21 +512,17 @@ export default function PinLogin({
       return;
     }
 
-    // Secret admin mode: count clicks on disabled button
     setGoButtonClicks((prev) => prev + 1);
 
-    // Reset timer if it exists
     if (clickTimer) {
       clearTimeout(clickTimer);
     }
 
-    // Set new timer for 5 seconds
     const newTimer = setTimeout(() => {
       setGoButtonClicks(0);
     }, 5000);
     setClickTimer(newTimer);
 
-    // Check if we've reached 10 clicks
     if (goButtonClicks + 1 >= 10) {
       setAdminMode(true);
       setGoButtonClicks(0);
@@ -579,7 +534,6 @@ export default function PinLogin({
     }
   };
 
-  // Reset admin mode
   const resetToNormalMode = () => {
     setAdminMode(false);
     setAdminPassword("");
@@ -592,7 +546,6 @@ export default function PinLogin({
     }
   };
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (clickTimer) {
@@ -633,7 +586,6 @@ export default function PinLogin({
 
       <div className="w-full max-w-[240px] mx-auto space-y-6">
         {adminMode ? (
-          /* Admin Password Section */
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900 text-center login-card-title">
               Senha do Administrador
@@ -669,7 +621,6 @@ export default function PinLogin({
           </div>
         ) : (
           <>
-            {/* Login ID section - only show if authType is CARETAKER */}
             {authType === "CARETAKER" && (
               <div
                 className={`space-y-2 p-1rounded-lg transition-all duration-200 ${
@@ -682,14 +633,12 @@ export default function PinLogin({
                   ID de Login
                 </h2>
 
-                {/* Login ID Display */}
                 <div
                   className="flex gap-2 justify-center my-2 cursor-pointer"
                   onClick={handleFocusLoginId}
                 >
                   {loginId.length === 0
-                    ? // Show 2 placeholder dots when no input
-                      Array.from({ length: 2 }).map((_, i) => (
+                    ? Array.from({ length: 2 }).map((_, i) => (
                         <div
                           key={i}
                           className={`w-3 h-3 rounded-full ${
@@ -699,8 +648,7 @@ export default function PinLogin({
                           }`}
                         />
                       ))
-                    : // Show actual characters for entered login ID
-                      Array.from({ length: 2 }).map((_, i) => (
+                    : Array.from({ length: 2 }).map((_, i) => (
                         <div
                           key={i}
                           className={`w-3 h-3 rounded-full ${
@@ -725,7 +673,6 @@ export default function PinLogin({
               </div>
             )}
 
-            {/* PIN input section */}
             <div
               className={`space-y-2 p-1 rounded-lg transition-all duration-200 ${
                 activeInput === "pin"
@@ -737,14 +684,12 @@ export default function PinLogin({
                 PIN de Segurança
               </h2>
 
-              {/* PIN Display */}
               <div
                 className="flex gap-2 justify-center my-2 cursor-pointer"
                 onClick={handleFocusPin}
               >
                 {pin.length === 0
-                  ? // Show 6 placeholder dots when no input
-                    Array.from({ length: 6 }).map((_, i) => (
+                  ? Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
                         className={`w-3 h-3 rounded-full ${
@@ -754,8 +699,7 @@ export default function PinLogin({
                         }`}
                       />
                     ))
-                  : // Show actual number of dots for entered digits
-                    Array.from({ length: Math.max(pin.length, 6) }).map(
+                  : Array.from({ length: Math.max(pin.length, 6) }).map(
                       (_, i) => (
                         <div
                           key={i}
@@ -792,7 +736,6 @@ export default function PinLogin({
         </p>
       )}
 
-      {/* Number Pad - only show in normal mode */}
       {!adminMode && (
         <div className="grid grid-cols-3 gap-4 w-full max-w-[240px] mx-auto">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
@@ -823,19 +766,17 @@ export default function PinLogin({
           >
             <X className="h-6 w-6" />
           </Button>
-          {/* Go Button integrated into keypad */}
           <Button
             variant="default"
             className="w-14 h-14 text-sm font-semibold rounded-xl bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50 security-go-button"
             onClick={handleGoButtonClick}
-            disabled={false} // Never disable for secret click detection
+            disabled={false}
           >
             Entrar
           </Button>
         </div>
       )}
 
-      {/* Admin mode Go button */}
       {adminMode && (
         <div className="w-full max-w-[240px] mx-auto">
           <Button

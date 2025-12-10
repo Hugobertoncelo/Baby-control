@@ -21,7 +21,6 @@ const SecuritySetupStage: React.FC<SecuritySetupStageProps> = ({
   confirmSystemPin,
   setConfirmSystemPin,
   caretakers,
-  setCaretakers,
   newCaretaker,
   setNewCaretaker,
   addCaretaker,
@@ -484,7 +483,7 @@ const SecuritySetupStage: React.FC<SecuritySetupStageProps> = ({
                   "setup-wizard-caretaker-title"
                 )}
               >
-                Caractere
+                Zelador
               </h3>
               <ul
                 className={cn(

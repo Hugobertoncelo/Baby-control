@@ -34,19 +34,16 @@ export default function AccountLogin({
     e.preventDefault();
     if (isSubmitting) return;
 
-    // Validate email
     if (!validateEmail(email)) {
       setError("Por favor, insira um e-mail válido");
       return;
     }
 
     if (mode === "forgot-password") {
-      // For forgot password, we only need email
       await handleForgotPassword();
       return;
     }
 
-    // Validate password for login mode
     if (!password) {
       setError("A senha é obrigatória");
       return;
@@ -70,13 +67,10 @@ export default function AccountLogin({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Store the token in localStorage
         localStorage.setItem("authToken", result.data.token);
 
-        // Set unlock time for session management (account holders are considered "unlocked")
         localStorage.setItem("unlockTime", Date.now().toString());
 
-        // Store user info
         localStorage.setItem(
           "accountUser",
           JSON.stringify({
@@ -86,35 +80,29 @@ export default function AccountLogin({
           })
         );
 
-        // Get the AUTH_LIFE and IDLE_TIME values for client-side timeout checks
         const authLifeResponse = await fetch("/api/settings/auth-life");
         const authLifeData = await authLifeResponse.json();
         if (authLifeData.success) {
           localStorage.setItem("authLifeSeconds", authLifeData.data.toString());
         }
 
-        // Get the IDLE_TIME value
         const idleTimeResponse = await fetch("/api/settings/idle-time");
         const idleTimeData = await idleTimeResponse.json();
         if (idleTimeData.success) {
           localStorage.setItem("idleTimeSeconds", idleTimeData.data.toString());
         }
 
-        // Clear form
         setEmail("");
         setPassword("");
 
-        // Redirect to the family URL if they have one
         if (result.data.user.familySlug) {
           router.push(`/${result.data.user.familySlug}`);
         } else {
-          // If no family, redirect to setup or account page
           router.push("/setup");
         }
       } else {
         setError(result.error || "Falha no login. Tente novamente.");
 
-        // Check if we're now locked out
         const lockoutCheckResponse = await fetch("/api/auth/ip-lockout");
         const lockoutCheckData = await lockoutCheckResponse.json();
 
@@ -169,12 +157,10 @@ export default function AccountLogin({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Show success message
         setShowSuccess(true);
         setEmail("");
         setPassword("");
 
-        // Auto-switch back to login after 5 seconds
         setTimeout(() => {
           setShowSuccess(false);
           setMode("login");
@@ -256,7 +242,6 @@ export default function AccountLogin({
             onSubmit={handleSubmit}
             className="w-full max-w-[320px] mx-auto space-y-4"
           >
-            {/* Email */}
             <div>
               <label className="account-modal-label">E-mail</label>
               <Input
@@ -274,7 +259,6 @@ export default function AccountLogin({
               />
             </div>
 
-            {/* Password - Not shown in forgot password mode */}
             {mode !== "forgot-password" && (
               <div>
                 <label className="account-modal-label">Senha</label>
@@ -293,7 +277,6 @@ export default function AccountLogin({
               </div>
             )}
 
-            {/* Error message */}
             {error && (
               <div className="account-modal-error text-center">
                 {error}
@@ -301,7 +284,6 @@ export default function AccountLogin({
               </div>
             )}
 
-            {/* Submit button */}
             <Button
               type="submit"
               className="account-modal-submit"
@@ -316,7 +298,6 @@ export default function AccountLogin({
                 : "Enviar e-mail de redefinição"}
             </Button>
 
-            {/* Forgot Password link for login mode */}
             {mode === "login" && (
               <div className="text-center">
                 <button
@@ -330,7 +311,6 @@ export default function AccountLogin({
               </div>
             )}
 
-            {/* Back to login link for forgot password mode */}
             {mode === "forgot-password" && (
               <div className="text-center">
                 <button

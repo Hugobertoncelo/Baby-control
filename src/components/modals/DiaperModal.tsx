@@ -24,9 +24,7 @@ interface DiaperModalProps {
   babyId: string | undefined;
   initialTime: string;
   activity?: DiaperLogResponse;
-  /**
-   * Optional variant to control the modal styling
-   */
+
   variant?: "diaper" | "default";
 }
 
@@ -45,12 +43,10 @@ export default function DiaperModal({
     color: "",
   });
 
-  // Format date string to be compatible with datetime-local input
   const formatDateForInput = (dateStr: string) => {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return "";
 
-    // Format as YYYY-MM-DDThh:mm in local time
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -63,7 +59,6 @@ export default function DiaperModal({
   useEffect(() => {
     if (open) {
       if (activity) {
-        // Editing mode - populate with activity data
         setFormData({
           time: formatDateForInput(initialTime),
           type: activity.type,
@@ -71,7 +66,6 @@ export default function DiaperModal({
           color: activity.color || "",
         });
       } else {
-        // New entry mode
         setFormData((prev) => ({
           ...prev,
           time: formatDateForInput(initialTime),
@@ -84,7 +78,6 @@ export default function DiaperModal({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate required fields
     if (!formData.type || !formData.time) {
       console.error("Required fields missing");
       return;
@@ -111,12 +104,11 @@ export default function DiaperModal({
       );
 
       if (!response.ok) {
-        throw new Error("Failed to save diaper log");
+        throw new Error("Falha ao salvar o registro de fraldas");
       }
 
       onClose();
 
-      // Reset form data
       setFormData({
         time: initialTime,
         type: "" as DiaperType | "",

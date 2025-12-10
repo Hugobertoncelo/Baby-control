@@ -35,39 +35,41 @@ const TimelineFilter = ({
   onDateSelection,
   onFilterChange,
 }: TimelineFilterProps) => {
-  // State for popover open/close
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // Define filter types and their icons
   const filterOptions = [
-    { type: "sleep", icon: <Moon className="h-4 w-4" />, label: "Sleep" },
+    { type: "sleep", icon: <Moon className="h-4 w-4" />, label: "Dormir" },
     {
       type: "feed",
       icon: <Icon iconNode={bottleBaby} className="h-4 w-4" />,
-      label: "Feed",
+      label: "Alimentar",
     },
     {
       type: "diaper",
       icon: <Icon iconNode={diaper} className="h-4 w-4" />,
-      label: "Diaper",
+      label: "Fralda",
     },
-    { type: "bath", icon: <Bath className="h-4 w-4" />, label: "Bath" },
-    { type: "note", icon: <Edit className="h-4 w-4" />, label: "Note" },
-    { type: "pump", icon: <LampWallDown className="h-4 w-4" />, label: "Pump" },
+    { type: "bath", icon: <Bath className="h-4 w-4" />, label: "Banho" },
+    { type: "note", icon: <Edit className="h-4 w-4" />, label: "Nota" },
+    {
+      type: "pump",
+      icon: <LampWallDown className="h-4 w-4" />,
+      label: "Bomba",
+    },
     {
       type: "milestone",
       icon: <Trophy className="h-4 w-4" />,
-      label: "Milestone",
+      label: "Marco",
     },
     {
       type: "measurement",
       icon: <Ruler className="h-4 w-4" />,
-      label: "Measurement",
+      label: "Medição",
     },
     {
       type: "medicine",
       icon: <PillBottle className="h-4 w-4" />,
-      label: "Medicine",
+      label: "Medicamento",
     },
   ] as const;
 
@@ -79,7 +81,7 @@ const TimelineFilter = ({
           size="icon"
           onClick={() => onDateChange(-1)}
           className="h-7 w-7 text-white hover:bg-transparent hover:text-white/90 p-0 -ml-2"
-          aria-label="Previous day"
+          aria-label="Dia anterior"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -105,7 +107,7 @@ const TimelineFilter = ({
                 if (date) {
                   date.setHours(0, 0, 0, 0);
                   onDateSelection(date);
-                  setCalendarOpen(false); // Close the popover after selection
+                  setCalendarOpen(false);
                 }
               }}
               initialFocus
@@ -118,7 +120,7 @@ const TimelineFilter = ({
           size="icon"
           onClick={() => onDateChange(1)}
           className="h-7 w-7 text-white hover:bg-transparent hover:text-white/90 p-0"
-          aria-label="Next day"
+          aria-label="Dia seguinte"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -131,7 +133,7 @@ const TimelineFilter = ({
             size="sm"
             className="flex items-center gap-1 h-7 text-sm font-medium text-white hover:bg-transparent hover:text-white/90 p-0"
           >
-            Filters <ChevronDown className="h-4 w-4 ml-1" />
+            Filtros <ChevronDown className="h-4 w-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

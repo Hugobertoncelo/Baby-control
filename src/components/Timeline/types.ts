@@ -1,16 +1,25 @@
-import { Settings } from '@prisma/client';
-import { ActivityType as ImportedActivityType } from '@/src/components/ui/activity-tile/activity-tile.types';
+import { Settings } from "@prisma/client";
+import { ActivityType as ImportedActivityType } from "@/src/components/ui/activity-tile/activity-tile.types";
 
-// Define the extended ActivityType that includes caretaker information
 export type TimelineActivityType = ImportedActivityType & {
   caretakerId?: string | null;
   caretakerName?: string;
 };
 
-// Use TimelineActivityType for internal component logic
 export type ActivityType = TimelineActivityType;
 
-export type FilterType = 'sleep' | 'feed' | 'diaper' | 'poop' | 'medicine' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement' | null;
+export type FilterType =
+  | "sleep"
+  | "feed"
+  | "diaper"
+  | "poop"
+  | "medicine"
+  | "note"
+  | "bath"
+  | "pump"
+  | "milestone"
+  | "measurement"
+  | null;
 
 export interface TimelineProps {
   activities: ImportedActivityType[];
@@ -37,8 +46,8 @@ export interface TimelineActivityListProps {
   onActivitySelect: (activity: ActivityType) => void;
   onPageChange?: (page: number) => void;
   onItemsPerPageChange?: (itemsPerPage: number) => void;
-  onSwipeLeft?: () => void; // Handler for swiping left (next day)
-  onSwipeRight?: () => void; // Handler for swiping right (previous day)
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
 }
 
 export interface TimelineActivityDetailsProps {
@@ -47,7 +56,19 @@ export interface TimelineActivityDetailsProps {
   isOpen: boolean;
   onClose: () => void;
   onDelete: (activity: ActivityType) => void;
-  onEdit: (activity: ActivityType, type: 'sleep' | 'feed' | 'diaper' | 'medicine' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement') => void;
+  onEdit: (
+    activity: ActivityType,
+    type:
+      | "sleep"
+      | "feed"
+      | "diaper"
+      | "medicine"
+      | "note"
+      | "bath"
+      | "pump"
+      | "milestone"
+      | "measurement"
+  ) => void;
 }
 
 export interface ActivityDetail {

@@ -12,17 +12,6 @@ import BabySetupStage from "./BabySetupStage";
 import { Gender } from "@prisma/client";
 import "./setup-wizard.css";
 
-/**
- * SetupWizard Component
- *
- * A multi-stage wizard component that guides users through the initial setup process
- * for the Baby Control application.
- *
- * @example
- * ```tsx
- * <SetupWizard onComplete={(family) => console.log('Setup complete!', family)} />
- * ```
- */
 const SetupWizard: React.FC<SetupWizardProps> = ({
   onComplete,
   token,
@@ -31,7 +20,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   const [stage, setStage] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Stage 1: Family setup
   const [familyName, setFamilyName] = useState("");
   const [familySlug, setFamilySlug] = useState("");
   const [createdFamily, setCreatedFamily] = useState<{
@@ -40,7 +28,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     slug: string;
   } | null>(null);
 
-  // Stage 2: Security setup
   const [useSystemPin, setUseSystemPin] = useState(true);
   const [systemPin, setSystemPin] = useState("");
   const [confirmSystemPin, setConfirmSystemPin] = useState("");
@@ -57,11 +44,10 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     loginId: "",
     name: "",
     type: "",
-    role: "ADMIN" as "ADMIN" | "USER", // Default to ADMIN for first caretaker
+    role: "ADMIN" as "ADMIN" | "USER",
     securityPin: "",
   });
 
-  // Stage 3: Baby setup
   const [babyFirstName, setBabyFirstName] = useState("");
   const [babyLastName, setBabyLastName] = useState("");
   const [babyBirthDate, setBabyBirthDate] = useState<Date | null>(null);
@@ -69,10 +55,8 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   const [feedWarningTime, setFeedWarningTime] = useState("02:00");
   const [diaperWarningTime, setDiaperWarningTime] = useState("03:00");
 
-  // Error handling
   const [error, setError] = useState("");
 
-  // Get auth headers for API calls
   const getAuthHeaders = () => {
     const authToken = localStorage.getItem("authToken");
     return {
@@ -81,13 +65,11 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     };
   };
 
-  // Check if this is account-based authentication
   const isAccountAuth = () => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) return false;
 
     try {
-      // Decode token to check if it's account auth (without verifying signature)
       const base64Url = authToken.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const jsonPayload = decodeURIComponent(
@@ -111,7 +93,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
     setError("");
 
     if (stage === 1) {
-      // Validate family name and slug
       if (!familyName.trim()) {
         setError("Por favor, insira o nome da família");
         return;
@@ -122,7 +103,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
         return;
       }
 
-      // Basic slug validation
       const slugPattern = /^[a-z0-9-]+$/;
       if (!slugPattern.test(familySlug)) {
         setError(
@@ -138,21 +118,19 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
 
       try {
         setLoading(true);
-        // Create family using the setup/start endpoint
         const response = await fetch("/api/setup/start", {
           method: "POST",
           headers: getAuthHeaders(),
           body: JSON.stringify({
             name: familyName,
             slug: familySlug,
-            token: token, // Include token if this is invitation-based setup
+            token: token,
           }),
         });
 
         const data = await response.json();
 
         if (data.success) {
-          // Store the created family for later use
           setCreatedFamily(data.data);
           setStage(2);
         } else {
@@ -165,7 +143,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
         setLoading(false);
       }
     } else if (stage === 2) {
-      // Validate security setup
       if (useSystemPin) {
         if (systemPin.length < 6 || systemPin.length > 10) {
           setError("O PIN deve ter entre 6 e 10 dígitos");
@@ -177,8 +154,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           return;
         }
 
-        // For token-based setup or account-based setup, defer system PIN saving until final stage
-        // to avoid authentication conflicts
         if (token || isAccountAuth()) {
           setStage(3);
           return;
@@ -187,7 +162,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
         try {
           setLoading(true);
 
-          // Save system PIN to settings (this will also update system caretaker automatically)
           const settingsResponse = await fetch(
             `/api/settings?familyId=${createdFamily?.id}`,
             {
@@ -200,10 +174,11 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           );
 
           if (!settingsResponse.ok) {
-            throw new Error("Failed to save security PIN to settings");
+            throw new Error(
+              "Não foi possível salvar o PIN de segurança nas configurações."
+            );
           }
 
-          // For non-token auth, update system caretaker if we have a caretaker ID
           const caretakerId = localStorage.getItem("caretakerId");
           if (caretakerId) {
             const caretakerResponse = await fetch("/api/caretaker", {
@@ -228,14 +203,11 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           setLoading(false);
         }
       } else {
-        // Validate caretakers
         if (caretakers.length === 0) {
           setError("Adicione pelo menos um cuidador");
           return;
         }
 
-        // For token-based setup or account-based setup, defer caretaker creation until final stage
-        // to avoid authentication conflicts
         if (token || isAccountAuth()) {
           setStage(3);
           return;
@@ -243,7 +215,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
 
         try {
           setLoading(true);
-          // Save caretakers for the created family (non-token setup only)
           for (const caretaker of caretakers) {
             const response = await fetch("/api/caretaker", {
               method: "POST",
@@ -255,7 +226,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             });
 
             if (!response.ok) {
-              throw new Error(`Failed to save caretaker: ${caretaker.name}`);
+              throw new Error(`Falha em salvar o zelador: ${caretaker.name}`);
             }
           }
 
@@ -268,7 +239,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
         }
       }
     } else if (stage === 3) {
-      // Validate baby information
       if (!babyFirstName.trim()) {
         setError("Por favor, insira o primeiro nome do bebê");
         return;
@@ -292,10 +262,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
       try {
         setLoading(true);
 
-        // For token-based setup or account-based setup, save baby first, then security settings/caretakers
-        // This avoids authentication conflicts where creating caretakers disables token access
         if (token || isAccountAuth()) {
-          // Step 1: Save baby information first
           const babyResponse = await fetch("/api/baby", {
             method: "POST",
             headers: getAuthHeaders(),
@@ -314,9 +281,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             throw new Error("Falha ao salvar informações do bebê");
           }
 
-          // Step 2: Save security settings/caretakers after baby is created
           if (useSystemPin) {
-            // Save system PIN to settings
             const settingsResponse = await fetch(
               `/api/settings?familyId=${createdFamily?.id}`,
               {
@@ -329,13 +294,13 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
             );
 
             if (!settingsResponse.ok) {
-              throw new Error("Failed to save security PIN to settings");
+              throw new Error(
+                "Não foi possível salvar o PIN de segurança nas configurações."
+              );
             }
 
-            // For account authentication, link to the system caretaker
             if (isAccountAuth()) {
               try {
-                // Get the system caretaker (loginId '00') for this family
                 const systemCaretakerResponse = await fetch(
                   `/api/caretaker/system?familyId=${createdFamily?.id}`,
                   {
@@ -350,7 +315,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
                     systemCaretakerData.success &&
                     systemCaretakerData.data?.id
                   ) {
-                    // Link the account to the system caretaker
                     const linkResponse = await fetch(
                       "/api/accounts/link-caretaker",
                       {
@@ -361,30 +325,20 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
                         }),
                       }
                     );
-
                     if (!linkResponse.ok) {
-                      console.error(
-                        "Failed to link account to system caretaker"
-                      );
                     } else {
-                      console.log(
-                        "Successfully linked account to system caretaker"
-                      );
                     }
                   }
                 } else {
-                  console.error("Failed to fetch system caretaker for linking");
                 }
               } catch (error) {
                 console.error(
                   "Error linking account to system caretaker:",
                   error
                 );
-                // Don't throw error here as the main setup is complete
               }
             }
           } else {
-            // Save caretakers
             let accountCaretakerId: string | null = null;
 
             for (const caretaker of caretakers) {
@@ -398,10 +352,9 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
               });
 
               if (!caretakerResponse.ok) {
-                throw new Error(`Failed to save caretaker: ${caretaker.name}`);
+                throw new Error(`Falha em salvar o zelador: ${caretaker.name}`);
               }
 
-              // For account authentication, link the first (and only) caretaker to the account
               if (isAccountAuth() && !accountCaretakerId) {
                 const caretakerData = await caretakerResponse.json();
                 if (caretakerData.success && caretakerData.data?.id) {
@@ -410,7 +363,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
               }
             }
 
-            // Link the caretaker to the account
             if (isAccountAuth() && accountCaretakerId) {
               try {
                 const linkResponse = await fetch(
@@ -425,19 +377,13 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
                 );
 
                 if (!linkResponse.ok) {
-                  console.error(
-                    "Failed to link caretaker to account, but continuing setup"
-                  );
-                  // Don't throw error here as the main setup is complete
                 }
               } catch (error) {
                 console.error("Error linking caretaker to account:", error);
-                // Don't throw error here as the main setup is complete
               }
             }
           }
         } else {
-          // For non-token setup, just save baby (security was already handled in stage 2)
           const babyResponse = await fetch("/api/baby", {
             method: "POST",
             headers: getAuthHeaders(),
@@ -457,15 +403,12 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           }
         }
 
-        // Setup complete - pass the family data to the callback
         if (createdFamily) {
           const accountAuth = isAccountAuth();
 
           console.log("Setup completion - account auth check:", accountAuth);
 
-          // For account authentication, refresh the token to include family info
           if (accountAuth) {
-            console.log("Refreshing token for account auth with family info");
             try {
               const refreshResponse = await fetch("/api/auth/refresh-token", {
                 method: "POST",
@@ -475,9 +418,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
               if (refreshResponse.ok) {
                 const refreshData = await refreshResponse.json();
                 if (refreshData.success && refreshData.data?.token) {
-                  // Update the token in localStorage
                   localStorage.setItem("authToken", refreshData.data.token);
-                  console.log("Token refreshed successfully with family info");
                 } else {
                   console.error("Failed to refresh token:", refreshData.error);
                 }
@@ -491,8 +432,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
               console.error("Error refreshing token:", error);
             }
           } else {
-            // For non-account authentication, clear tokens to force re-login with new family context
-            console.log("Clearing tokens for non-account auth");
             localStorage.removeItem("authToken");
             localStorage.removeItem("unlockTime");
             localStorage.removeItem("caretakerId");
@@ -521,25 +460,21 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   };
 
   const addCaretaker = () => {
-    // Validate caretaker
     if (newCaretaker.loginId.length !== 2) {
       setError("O ID de login deve ter exatamente 2 dígitos");
       return;
     }
 
-    // Check if login ID contains only digits
     if (!/^\d+$/.test(newCaretaker.loginId)) {
       setError("O ID de login deve conter apenas dígitos");
       return;
     }
 
-    // Check if login ID is "00" (reserved)
     if (newCaretaker.loginId === "00") {
       setError('O ID de login "00" é reservado para uso do sistema');
       return;
     }
 
-    // Check if login ID is already taken
     if (caretakers.some((c) => c.loginId === newCaretaker.loginId)) {
       setError("Este ID de login já está em uso");
       return;
@@ -558,10 +493,8 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
       return;
     }
 
-    // Add caretaker to list
     setCaretakers([...caretakers, { ...newCaretaker }]);
 
-    // Reset form
     setNewCaretaker({
       loginId: "",
       name: "",
@@ -582,7 +515,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
   return (
     <div className={cn(styles.container, "setup-wizard-container")}>
       <div className={cn(styles.formContainer, "setup-wizard-form-container")}>
-        {/* Stage-specific image and Header */}
         <div
           className={cn(
             styles.headerContainer,
@@ -627,7 +559,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           </p>
         </div>
 
-        {/* Stage 1: Family Setup */}
         {stage === 1 && (
           <FamilySetupStage
             familyName={familyName}
@@ -639,7 +570,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           />
         )}
 
-        {/* Stage 2: Security Setup */}
         {stage === 2 && (
           <SecuritySetupStage
             useSystemPin={useSystemPin}
@@ -657,7 +587,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           />
         )}
 
-        {/* Stage 3: Baby Setup */}
         {stage === 3 && (
           <BabySetupStage
             babyFirstName={babyFirstName}
@@ -675,7 +604,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           />
         )}
 
-        {/* Error message */}
         {error && (
           <div
             className={cn(
@@ -687,7 +615,6 @@ const SetupWizard: React.FC<SetupWizardProps> = ({
           </div>
         )}
 
-        {/* Navigation buttons */}
         <div
           className={cn(
             styles.navigationContainer,

@@ -1,16 +1,15 @@
-/* Light mode styles for timeline components */
 .timeline-activity-scroll-container {
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-  contain: layout style paint; /* CSS containment for performance */
+  contain: layout style paint;
 }
 
 .timeline-vertical-line {
-  background-color: #e5e7eb; /* gray-200 */
+  background-color: #e5e7eb;
 }
 
 .timeline-hour-marker {
-  background-color: #f3f4f6; /* gray-100 */
+  background-color: #f3f4f6;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   position: sticky !important;
   top: 8px !important;
@@ -20,40 +19,43 @@
 }
 
 .timeline-hour-text {
-  color: #4b5563; /* gray-600 */
+  color: #4b5563;
 }
 
 .timeline-hour-divider {
-  background-color: #e5e7eb; /* gray-200 */
+  background-color: #e5e7eb;
 }
 
 .timeline-connector-line {
-  background-color: #d1d5db; /* gray-300 */
+  background-color: #d1d5db;
   z-index: 5;
 }
 
 .timeline-activity-card {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease-in-out;
   position: relative;
   will-change: transform, box-shadow;
-  transform: translateZ(0); /* Force hardware acceleration */
-  backface-visibility: hidden; /* Prevent flickering */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .timeline-activity-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px) translateZ(0);
 }
 
 .timeline-activity-card:active {
   transform: translateY(1px) translateZ(0);
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06);
   transition: all 0.1s ease-in-out;
 }
 
 .timeline-activity-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -61,7 +63,7 @@
   width: 4px;
   background-color: transparent;
   transition: background-color 0.2s ease-in-out;
-  border-radius: 12px 0 0 12px; /* Rounded left edge to match card */
+  border-radius: 12px 0 0 12px;
 }
 
 .timeline-activity-card:hover::before {
@@ -69,162 +71,161 @@
 }
 
 .timeline-activity-time {
-  color: #6b7280; /* gray-500 */
+  color: #6b7280;
 }
 
-/* Timeline - Style 2 Minimal List (matching mockup) */
 .timeline-container {
-  border-left: 2px solid #e5e7eb; /* gray-200 */
-  padding-left: 1.25rem; /* 20px */
-  margin-left: 0.625rem; /* 10px */
+  border-left: 2px solid #e5e7eb;
+  padding-left: 1.25rem;
+  margin-left: 0.625rem;
 }
 
 .timeline-hour-group {
-  margin-bottom: 1.5rem; /* 25px */
+  margin-bottom: 1.5rem;
 }
 
 .timeline-event {
   display: flex;
   align-items: center;
-  gap: 0.9375rem; /* 15px */
-  padding: 0.75rem; /* 12px */
-  margin-bottom: 0.625rem; /* 10px */
+  gap: 0.9375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.625rem;
   position: relative;
   transition: all 0.2s ease;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   cursor: pointer;
 }
 
 .timeline-event::before {
-  content: '';
+  content: "";
   position: absolute;
-  left: -1.75rem; /* -28px - adjusted for larger dot */
-  width: 1rem; /* 16px - twice the size */
-  height: 1rem; /* 16px - twice the size */
+  left: -1.75rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 50%;
-  background: var(--activity-color); /* solid color using activity color */
-  border: none; /* no border for solid dot */
+  background: var(--activity-color);
+  border: none;
   transition: all 0.2s ease;
   z-index: 10;
 }
 
 .timeline-event:hover {
-  background: #f3f4f6; /* gray-100 - matches selected filter color */
+  background: #f3f4f6;
 }
 
 .timeline-event:hover::before {
   transform: scale(1.3);
 }
 
-.timeline-event.sleep::before { 
-  background: #9ca3af !important; /* gray-400 - matches old timeline */
+.timeline-event.sleep::before {
+  background: #9ca3af !important;
 }
-.timeline-event.feed::before { 
-  background: #7dd3fc !important; /* sky-300 - matches old timeline */
+.timeline-event.feed::before {
+  background: #7dd3fc !important;
 }
-.timeline-event.diaper::before { 
-  background: #0d9488 !important; /* teal-600 - matches old timeline */
+.timeline-event.diaper::before {
+  background: #0d9488 !important;
 }
-.timeline-event.note::before { 
-  background: #fef08a !important; /* yellow-200 - matches old timeline */
+.timeline-event.note::before {
+  background: #fef08a !important;
 }
-.timeline-event.bath::before { 
-  background: #fb923c !important; /* orange-400 - matches old timeline */
+.timeline-event.bath::before {
+  background: #fb923c !important;
 }
-.timeline-event.pump::before { 
-  background: #c084fc !important; /* purple-400 - matches old timeline */
+.timeline-event.pump::before {
+  background: #c084fc !important;
 }
-.timeline-event.milestone::before { 
-  background: #4875EC !important; /* blue - matches old timeline */
+.timeline-event.milestone::before {
+  background: #4875ec !important;
 }
-.timeline-event.measurement::before { 
-  background: #EA6A5E !important; /* red - matches old timeline */
+.timeline-event.measurement::before {
+  background: #ea6a5e !important;
 }
-.timeline-event.medicine::before { 
-  background: #43B755 !important; /* green - matches old timeline */
+.timeline-event.medicine::before {
+  background: #43b755 !important;
 }
 
 .event-icon {
-  width: 2.25rem; /* 36px */
-  height: 2.25rem; /* 36px */
-  border-radius: 0.625rem; /* 10px */
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb; /* gray-50 */
+  background: #f9fafb;
   padding: 0.5rem;
 }
 
-.event-icon.sleep { 
-  background: linear-gradient(to bottom right, #9ca3af, #6b7280, #4b5563); /* gray gradient - matches old timeline */
+.event-icon.sleep {
+  background: linear-gradient(to bottom right, #9ca3af, #6b7280, #4b5563);
 }
 .event-icon.sleep svg,
 .event-icon.sleep svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.feed { 
-  background: #bae6fd; /* sky-200 - matches old timeline */
+.event-icon.feed {
+  background: #bae6fd;
 }
 .event-icon.feed svg,
 .event-icon.feed svg path {
-  color: #374151 !important; /* gray-700 - matches old timeline */
+  color: #374151 !important;
   stroke: #374151 !important;
 }
-.event-icon.diaper { 
-  background: linear-gradient(to right, #0d9488, #0f766e); /* teal gradient - matches old timeline */
+.event-icon.diaper {
+  background: linear-gradient(to right, #0d9488, #0f766e);
 }
 .event-icon.diaper svg,
 .event-icon.diaper svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.note { 
-  background: #ffff99; /* yellow - matches old timeline */
+.event-icon.note {
+  background: #ffff99;
 }
 .event-icon.note svg,
 .event-icon.note svg path {
-  color: #374151 !important; /* gray-700 - matches old timeline */
+  color: #374151 !important;
   stroke: #374151 !important;
 }
-.event-icon.bath { 
-  background: linear-gradient(to right, #fb923c, #f97316); /* orange gradient - matches old timeline */
+.event-icon.bath {
+  background: linear-gradient(to right, #fb923c, #f97316);
 }
 .event-icon.bath svg,
 .event-icon.bath svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.pump { 
-  background: linear-gradient(to right, #e9d5ff, #d8b4fe); /* purple gradient - matches old timeline */
+.event-icon.pump {
+  background: linear-gradient(to right, #e9d5ff, #d8b4fe);
 }
 .event-icon.pump svg,
 .event-icon.pump svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.milestone { 
-  background: #4875EC; /* blue - matches old timeline */
+.event-icon.milestone {
+  background: #4875ec;
 }
 .event-icon.milestone svg,
 .event-icon.milestone svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.measurement { 
-  background: #EA6A5E; /* red - matches old timeline */
+.event-icon.measurement {
+  background: #ea6a5e;
 }
 .event-icon.measurement svg,
 .event-icon.measurement svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
-.event-icon.medicine { 
-  background: #43B755; /* green - matches old timeline */
+.event-icon.medicine {
+  background: #43b755;
 }
 .event-icon.medicine svg,
 .event-icon.medicine svg path {
-  color: #ffffff !important; /* white - matches old timeline */
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }
 
@@ -234,19 +235,19 @@
 
 .event-title {
   font-weight: 600;
-  font-size: 0.875rem; /* 14px */
-  color: #1f2937; /* gray-800 */
-  margin-bottom: 0.125rem; /* 2px */
+  font-size: 0.875rem;
+  color: #1f2937;
+  margin-bottom: 0.125rem;
 }
 
 .event-details {
-  font-size: 0.75rem; /* 12px */
-  color: #4b5563; /* gray-600 */
+  font-size: 0.75rem;
+  color: #4b5563;
 }
 
 .event-time {
-  font-size: 0.75rem; /* 12px */
-  color: #6b7280; /* gray-500 */
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 .timeline-activity-wrapper {
@@ -262,51 +263,50 @@
 }
 
 .timeline-activity-wrapper:hover .timeline-connector-line {
-  width: 3rem !important; /* Expand connector line on hover */
+  width: 3rem !important;
 }
 
 .timeline-hour-group:not(:last-child) .timeline-activity-wrapper:last-child {
   margin-bottom: 0;
 }
 
-/* Dark mode overrides for TimelineActivityList component */
 html.dark .timeline-activity-list,
 html.dark .timeline-activity-scroll-container {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 html.dark .timeline-vertical-line {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
 html.dark .timeline-hour-marker {
-  background: rgba(55, 65, 81, 0.95) !important; /* semi-transparent gray-700 */
+  background: rgba(55, 65, 81, 0.95) !important;
   backdrop-filter: blur(8px) !important;
 }
 
 html.dark .timeline-hour-group > div:first-child {
-  background-color: transparent !important; /* Remove background in dark mode */
+  background-color: transparent !important;
 }
 
 html.dark .timeline-hour-text {
-  color: #d1d5db !important; /* gray-300 */
+  color: #d1d5db !important;
 }
 
 html.dark .timeline-hour-divider {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
 html.dark .timeline-connector-line {
-  background-color: #6b7280 !important; /* gray-500 */
+  background-color: #6b7280 !important;
 }
 
 html.dark .timeline-activity-card {
-  background-color: #374151 !important; /* gray-700 */
-  border-color: #4b5563 !important; /* gray-600 */
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
 }
 
 html.dark .timeline-activity-card:hover {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
 html.dark .timeline-activity-card::before {
@@ -318,102 +318,106 @@ html.dark .timeline-activity-card:hover::before {
 }
 
 html.dark .timeline-activity-item {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 html.dark .timeline-activity-item:hover {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 html.dark .timeline-activity-type {
-  background-color: #374151 !important; /* gray-700 */
-  color: #e5e7eb !important; /* gray-200 */
-  border-color: #4b5563 !important; /* gray-600 */
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
 }
 
 html.dark .timeline-activity-details {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .timeline-activity-time {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .timeline-empty-state {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .timeline-empty-description {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .timeline-swipe-shadow-left {
-  background: linear-gradient(to right, rgba(75, 85, 99, 0.5), transparent) !important;
+  background: linear-gradient(
+    to right,
+    rgba(75, 85, 99, 0.5),
+    transparent
+  ) !important;
 }
 
 html.dark .timeline-swipe-shadow-right {
-  background: linear-gradient(to left, rgba(75, 85, 99, 0.5), transparent) !important;
+  background: linear-gradient(
+    to left,
+    rgba(75, 85, 99, 0.5),
+    transparent
+  ) !important;
 }
 
 html.dark .timeline-activity-wrapper {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 html.dark .timeline-activity-wrapper:hover {
-  background-color: #4b5563 !important; /* gray-600 */
+  background-color: #4b5563 !important;
 }
 
-/* Dark mode styles for TimelineV2ActivityList */
 html.dark .timeline-activity-list {
-  background-color: #1f2937 !important; /* gray-800 - matches activity-tile background */
+  background-color: #1f2937 !important;
 }
 
 html.dark .timeline-activity-scroll-container {
-  background-color: #1f2937 !important; /* gray-800 - matches activity-tile background */
+  background-color: #1f2937 !important;
 }
 
-  /* Gradient at top - from dark background to transparent - override all Tailwind gradient utilities */
 html.dark .timeline-top-gradient,
 html.dark .timeline-top-gradient.bg-gradient-to-b,
 html.dark .timeline-top-gradient.from-white,
 html.dark .timeline-top-gradient.to-transparent {
-  background-image: linear-gradient(to bottom, #1f2937, transparent) !important; /* gray-800 to transparent */
+  background-image: linear-gradient(to bottom, #1f2937, transparent) !important;
   background: linear-gradient(to bottom, #1f2937, transparent) !important;
 }
 
-/* Timeline container border */
 html.dark .timeline-container {
-  border-color: rgb(55, 65, 81) !important; /* gray-700 */
+  border-color: rgb(55, 65, 81) !important;
 }
 
-/* Time of day header */
 html.dark .timeline-hour-group .text-gray-500 {
-  color: rgb(209, 213, 219) !important; /* gray-300 */
+  color: rgb(209, 213, 219) !important;
 }
 
-/* Timeline event hover - matches selected filter color */
 html.dark .timeline-event:hover {
-  background-color: rgb(55, 65, 81) !important; /* gray-700 - matches selected filter color */
+  background-color: rgb(55, 65, 81) !important;
 }
 
-/* Event title */
 html.dark .event-title {
-  color: rgb(243, 244, 246) !important; /* gray-100 */
+  color: rgb(243, 244, 246) !important;
 }
 
-/* Event details */
 html.dark .event-details {
-  color: rgb(209, 213, 219) !important; /* gray-300 */
+  color: rgb(209, 213, 219) !important;
 }
 
-/* Event time */
 html.dark .event-time {
-  color: rgb(156, 163, 175) !important; /* gray-400 */
+  color: rgb(156, 163, 175) !important;
 }
 
-/* Event icon backgrounds - maintain activity colors in dark mode */
 html.dark .event-icon.sleep {
-  background: linear-gradient(to bottom right, #9ca3af, #6b7280, #4b5563) !important; /* gray gradient */
+  background: linear-gradient(
+    to bottom right,
+    #9ca3af,
+    #6b7280,
+    #4b5563
+  ) !important;
 }
 
 html.dark .event-icon.sleep svg,
@@ -423,17 +427,17 @@ html.dark .event-icon.sleep svg path {
 }
 
 html.dark .event-icon.feed {
-  background: #bae6fd !important; /* sky-200 - keep light blue background */
+  background: #bae6fd !important;
 }
 
 html.dark .event-icon.feed svg,
 html.dark .event-icon.feed svg path {
-  color: #374151 !important; /* gray-700 - dark text on light background */
+  color: #374151 !important;
   stroke: #374151 !important;
 }
 
 html.dark .event-icon.diaper {
-  background: linear-gradient(to right, #0d9488, #0f766e) !important; /* teal gradient */
+  background: linear-gradient(to right, #0d9488, #0f766e) !important;
 }
 
 html.dark .event-icon.diaper svg,
@@ -443,17 +447,17 @@ html.dark .event-icon.diaper svg path {
 }
 
 html.dark .event-icon.note {
-  background: #ffff99 !important; /* yellow */
+  background: #ffff99 !important;
 }
 
 html.dark .event-icon.note svg,
 html.dark .event-icon.note svg path {
-  color: #374151 !important; /* gray-700 - dark text on light background */
+  color: #374151 !important;
   stroke: #374151 !important;
 }
 
 html.dark .event-icon.bath {
-  background: linear-gradient(to right, #fb923c, #f97316) !important; /* orange gradient */
+  background: linear-gradient(to right, #fb923c, #f97316) !important;
 }
 
 html.dark .event-icon.bath svg,
@@ -463,7 +467,7 @@ html.dark .event-icon.bath svg path {
 }
 
 html.dark .event-icon.pump {
-  background: linear-gradient(to right, #e9d5ff, #d8b4fe) !important; /* purple gradient */
+  background: linear-gradient(to right, #e9d5ff, #d8b4fe) !important;
 }
 
 html.dark .event-icon.pump svg,
@@ -473,7 +477,7 @@ html.dark .event-icon.pump svg path {
 }
 
 html.dark .event-icon.milestone {
-  background: #4875EC !important; /* blue */
+  background: #4875ec !important;
 }
 
 html.dark .event-icon.milestone svg,
@@ -483,7 +487,7 @@ html.dark .event-icon.milestone svg path {
 }
 
 html.dark .event-icon.measurement {
-  background: #EA6A5E !important; /* red */
+  background: #ea6a5e !important;
 }
 
 html.dark .event-icon.measurement svg,
@@ -493,11 +497,118 @@ html.dark .event-icon.measurement svg path {
 }
 
 html.dark .event-icon.medicine {
-  background: #43B755 !important; /* green */
+  background: #43b755 !important;
 }
 
 html.dark .event-icon.medicine svg,
 html.dark .event-icon.medicine svg path {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+html.dark .timeline-v2-daily-stats {
+  background-color: #1f2937 !important;
+  border-color: rgb(55, 65, 81) !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-gray-600 {
+  color: rgb(209, 213, 219) !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-gray-800 {
+  color: rgb(243, 244, 246) !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-gray-700 {
+  color: rgb(229, 231, 235) !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-gray-500 {
+  color: rgb(156, 163, 175) !important;
+}
+
+html.dark .timeline-v2-daily-stats .border-gray-300 {
+  border-color: rgb(75, 85, 99) !important;
+}
+
+html.dark .timeline-v2-daily-stats .border-gray-200 {
+  border-color: rgb(55, 65, 81) !important;
+}
+
+html.dark .timeline-v2-daily-stats .border-gray-500 {
+  border-color: rgb(107, 114, 128) !important;
+}
+
+html.dark .timeline-v2-daily-stats button:not(.bg-gray-100):hover {
+  background-color: transparent !important;
+}
+
+html.dark .timeline-v2-daily-stats .hover\:bg-gray-100:hover:not(.bg-gray-100) {
+  background-color: transparent !important;
+}
+
+html.dark .timeline-v2-daily-stats .hover\:bg-gray-50:hover:not(.bg-gray-100) {
+  background-color: transparent !important;
+}
+
+html.dark
+  .timeline-v2-daily-stats
+  .hover\:border-gray-300:hover:not(.bg-gray-100) {
+  border-color: transparent !important;
+}
+
+html.dark .timeline-v2-daily-stats .bg-transparent {
+  background-color: transparent !important;
+}
+
+html.dark .timeline-v2-daily-stats .bg-gray-50 {
+  background-color: transparent !important;
+}
+
+html.dark .timeline-v2-daily-stats .bg-gray-100 {
+  background-color: rgb(55, 65, 81) !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#9ca3af\] {
+  color: #9ca3af !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#7dd3fc\] {
+  color: #7dd3fc !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#0d9488\] {
+  color: #0d9488 !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#43B755\] {
+  color: #43b755 !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#fef08a\] {
+  color: #fef08a !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#fb923c\] {
+  color: #fb923c !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#c084fc\] {
+  color: #c084fc !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#4875EC\] {
+  color: #4875ec !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-\[#EA6A5E\] {
+  color: #ea6a5e !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-amber-600 {
+  color: #d97706 !important;
+}
+
+html.dark .timeline-v2-daily-stats .text-amber-700 {
+  color: #b45309 !important;
 }

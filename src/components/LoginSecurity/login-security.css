@@ -1,63 +1,59 @@
-/* Dark mode overrides for LoginSecurity component */
-
 html.dark .login-container {
-  background-color: #1f2937; /* gray-800 */
-  color: #e5e7eb; /* gray-200 */
+  background-color: #1f2937;
+  color: #e5e7eb;
 }
 
 html.dark .login-title {
-  color: #e5e7eb; /* gray-200 */
+  color: #e5e7eb;
 }
 
 html.dark .login-description {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .login-card {
-  background-color: #374151; /* gray-700 */
-  border-color: #4b5563; /* gray-600 */
+  background-color: #374151;
+  border-color: #4b5563;
 }
 
 html.dark .login-card-title {
-  color: #e5e7eb; /* gray-200 */
+  color: #e5e7eb;
 }
 
 html.dark .login-card-description {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .login-input {
-  background-color: #4b5563; /* gray-600 */
-  border-color: #6b7280; /* gray-500 */
-  color: #e5e7eb; /* gray-200 */
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #e5e7eb;
 }
 
 html.dark .login-input::placeholder {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .login-input:focus {
-  border-color: #5eead4; /* teal-300 */
-  ring-color: rgba(94, 234, 212, 0.5); /* teal-300 with opacity */
+  border-color: #5eead4;
 }
 
 html.dark .login-button {
-  background-color: #0d9488; /* teal-600 */
-  color: #f3f4f6; /* gray-100 */
+  background-color: #0d9488;
+  color: #f3f4f6;
 }
 
 html.dark .login-button:hover:not(:disabled) {
-  background-color: #0f766e; /* teal-700 */
+  background-color: #0f766e;
 }
 
 html.dark .login-error {
-  color: #f87171; /* red-400 */
+  color: #f87171;
 }
 
-/* Field highlighting styles */
 .login-field-active {
-  background-color: rgba(20, 184, 166, 0.05); /* teal-500 with very low opacity */
-  border: 1px solid rgba(20, 184, 166, 0.2); /* teal-500 with low opacity */
+  background-color: rgba(20, 184, 166, 0.05);
+  border: 1px solid rgba(20, 184, 166, 0.2);
 }
 
 .login-field-inactive {
@@ -65,10 +61,9 @@ html.dark .login-error {
   border: 1px solid transparent;
 }
 
-/* Dark mode field highlighting */
 html.dark .login-field-active {
-  background-color: rgba(94, 234, 212, 0.05); /* teal-300 with very low opacity */
-  border: 1px solid rgba(94, 234, 212, 0.15); /* teal-300 with low opacity */
+  background-color: rgba(94, 234, 212, 0.05);
+  border: 1px solid rgba(94, 234, 212, 0.15);
 }
 
 html.dark .login-field-inactive {

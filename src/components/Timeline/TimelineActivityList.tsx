@@ -19,21 +19,14 @@ const TimelineActivityList = ({
   isLoading,
   isAnimated = true,
   selectedDate,
-  itemsPerPage,
-  currentPage,
-  totalPages,
   onActivitySelect,
-  onPageChange,
-  onItemsPerPageChange,
   onSwipeLeft,
   onSwipeRight,
 }: TimelineActivityListProps) => {
-  // Extract activeFilter from props if available
   const activeFilter = (onSwipeLeft as any)?.activeFilter as
     | FilterType
     | undefined;
 
-  // Filter activities based on the activeFilter
   const filteredActivities = useMemo(() => {
     if (!activeFilter || activeFilter === null) {
       return activities;
@@ -42,21 +35,24 @@ const TimelineActivityList = ({
     return activities.filter((activity) => {
       switch (activeFilter) {
         case "sleep":
-          return "duration" in activity;
+          return "Duração" in activity;
         case "feed":
-          return "amount" in activity;
+          return "Quantia" in activity;
         case "diaper":
-          return "condition" in activity;
+          return "Condição" in activity;
         case "note":
-          return "content" in activity;
+          return "Nota" in activity;
         case "bath":
-          return "soapUsed" in activity;
+          return "Sabonete Usado" in activity;
         case "pump":
-          return "leftAmount" in activity || "rightAmount" in activity;
+          return (
+            "Quantidade Esquerda" in activity ||
+            "Quantidade Direita" in activity
+          );
         case "milestone":
-          return "title" in activity && "category" in activity;
+          return "Título" in activity && "Categoria" in activity;
         case "measurement":
-          return "value" in activity && "unit" in activity;
+          return "Valor" in activity && "Unidade" in activity;
         default:
           return true;
       }
@@ -64,25 +60,21 @@ const TimelineActivityList = ({
   }, [activities, activeFilter]);
   const { theme } = useTheme();
 
-  // Swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
     null
   );
-  const [swipeProgress, setSwipeProgress] = useState(0); // 0-1 value representing swipe progress
+  const [swipeProgress, setSwipeProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Required minimum distance traveled to be considered a swipe
   const minSwipeDistance = 50;
-  // Maximum distance to consider for full shadow effect
   const maxSwipeDistance = 150;
 
   const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null); // Reset touchEnd
+    setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
     setSwipeProgress(0);
-    // Add a subtle haptic feedback if available
     if (navigator.vibrate) {
       navigator.vibrate(10);
     }
@@ -93,15 +85,12 @@ const TimelineActivityList = ({
     const currentTouch = e.targetTouches[0].clientX;
     setTouchEnd(currentTouch);
 
-    // Calculate swipe distance and direction
     const distance = touchStart - currentTouch;
     const absDistance = Math.abs(distance);
 
-    // Calculate progress as a value between 0 and 1
     const progress = Math.min(absDistance / maxSwipeDistance, 1);
     setSwipeProgress(progress);
 
-    // Determine swipe direction
     if (distance > 0) {
       setSwipeDirection("left");
     } else if (distance < 0) {
@@ -117,29 +106,24 @@ const TimelineActivityList = ({
 
     if (isSwipe) {
       if (distance > 0) {
-        // Swiped left (next day)
         onSwipeLeft?.();
       } else {
-        // Swiped right (previous day)
         onSwipeRight?.();
       }
     }
 
-    // Reset values
     setTouchStart(null);
     setTouchEnd(null);
     setSwipeDirection(null);
     setSwipeProgress(0);
   };
 
-  // Group activities by hour
   const groupedActivities = useMemo(() => {
     const groups: { [key: string]: ActivityType[] } = {};
 
     filteredActivities.forEach((activity) => {
       let groupingTime: Date;
 
-      // Special logic for sleep activities to determine which time to use for grouping
       if (
         "duration" in activity &&
         "startTime" in activity &&
@@ -148,33 +132,26 @@ const TimelineActivityList = ({
         const startTime = new Date(activity.startTime);
         const endTime = new Date(activity.endTime);
 
-        // Check if start and end are on the same day
         const startDate = startTime.toDateString();
         const endDate = endTime.toDateString();
 
         if (startDate === endDate) {
-          // Same day: use start time
           groupingTime = startTime;
         } else {
-          // Multi-day sleep: determine which time falls on the selected day
           const viewingDate = selectedDate || new Date();
           const viewingDateStr = viewingDate.toDateString();
           const startDateStr = startTime.toDateString();
           const endDateStr = endTime.toDateString();
 
           if (startDateStr === viewingDateStr) {
-            // Start time is on the selected day - use start time
             groupingTime = startTime;
           } else if (endDateStr === viewingDateStr) {
-            // End time is on the selected day - use end time
             groupingTime = endTime;
           } else {
-            // Neither start nor end is on the selected day, default to start time
             groupingTime = startTime;
           }
         }
       } else {
-        // For all other activities, use the standard getActivityTime logic
         groupingTime = new Date(getActivityTime(activity));
       }
 
@@ -186,12 +163,10 @@ const TimelineActivityList = ({
       groups[hourKey].push(activity);
     });
 
-    // Sort groups by time and sort activities within each group
     const sortedGroups = Object.entries(groups)
       .map(([hourKey, activities]) => {
         const firstActivity = activities[0];
 
-        // Use the same logic as grouping to get the correct time for the hour label
         let hourTime: Date;
         if (
           "duration" in firstActivity &&
@@ -229,7 +204,6 @@ const TimelineActivityList = ({
           hour12: true,
         });
 
-        // Sort activities within the group by time (newest first)
         const sortedActivities = activities.sort((a, b) => {
           const timeA = new Date(getActivityTime(a));
           const timeB = new Date(getActivityTime(b));
@@ -243,12 +217,11 @@ const TimelineActivityList = ({
           activities: sortedActivities,
         };
       })
-      .sort((a, b) => b.hourTime.getTime() - a.hourTime.getTime()); // Sort by hour (newest first)
+      .sort((a, b) => b.hourTime.getTime() - a.hourTime.getTime());
 
     return sortedGroups;
   }, [filteredActivities]);
 
-  // Reset when activities change
   useEffect(() => {
     setTouchStart(null);
     setTouchEnd(null);
@@ -257,7 +230,6 @@ const TimelineActivityList = ({
   }, [activities]);
   return (
     <>
-      {/* Scrollable Content */}
       <div
         className="flex-1 overflow-y-auto relative bg-white timeline-activity-scroll-container"
         ref={contentRef}
@@ -265,10 +237,8 @@ const TimelineActivityList = ({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Visual swipe shadow effect */}
         {swipeProgress > 0 && (
           <>
-            {/* Left shadow (for right swipe - previous day) */}
             {swipeDirection === "right" && (
               <div
                 className="absolute inset-y-0 left-0 pointer-events-none z-10 bg-gradient-to-r from-gray-400/50 to-transparent timeline-swipe-shadow-left"
@@ -279,7 +249,6 @@ const TimelineActivityList = ({
               ></div>
             )}
 
-            {/* Right shadow (for left swipe - next day) */}
             {swipeDirection === "left" && (
               <div
                 className="absolute inset-y-0 right-0 pointer-events-none z-10 bg-gradient-to-l from-gray-400/50 to-transparent timeline-swipe-shadow-right"
@@ -292,11 +261,9 @@ const TimelineActivityList = ({
           </>
         )}
 
-        {/* Timeline View */}
         <div className="min-h-full bg-white relative timeline-activity-list">
           {activities.length > 0 ? (
             <div className="relative">
-              {/* Timeline vertical line */}
               <div className="absolute left-16 top-0 bottom-0 w-0.5 bg-gray-200 timeline-vertical-line"></div>
 
               <AnimatePresence>
@@ -309,14 +276,13 @@ const TimelineActivityList = ({
                     transition={
                       isAnimated
                         ? {
-                            delay: groupIndex * 0.05, // Reduced delay for faster loading
-                            duration: 0.2, // Faster duration
+                            delay: groupIndex * 0.05,
+                            duration: 0.2,
                             ease: "easeOut",
                           }
                         : { duration: 0 }
                     }
                   >
-                    {/* Hour Header */}
                     <div className="flex items-center px-4 sticky top-0 z-20">
                       <div className="flex items-center justify-center w-12 h-8 bg-gray-100 rounded-lg mr-6 relative z-10 timeline-hour-marker">
                         <span className="text-sm font-semibold text-gray-600 timeline-hour-text">
@@ -325,7 +291,6 @@ const TimelineActivityList = ({
                       </div>
                     </div>
 
-                    {/* Activities in this hour */}
                     <div className="space-y-4 pb-8">
                       {group.activities.map((activity, activityIndex) => {
                         const style = getActivityStyle(activity);
@@ -333,14 +298,12 @@ const TimelineActivityList = ({
                           activity,
                           settings
                         );
-                        // Handle time display for sleep activities with start-end time format
                         const activityTime = new Date(
                           getActivityTime(activity)
                         );
                         let timeStr: string;
 
                         if ("duration" in activity && "startTime" in activity) {
-                          // Sleep activity - show start-end time or just start time
                           const startTime = new Date(activity.startTime);
                           const startTimeStr = startTime.toLocaleTimeString(
                             "pt-BR",
@@ -366,7 +329,6 @@ const TimelineActivityList = ({
                             timeStr = startTimeStr;
                           }
                         } else {
-                          // Other activities - use existing time display
                           timeStr = activityTime.toLocaleTimeString("pt-BR", {
                             hour: "numeric",
                             minute: "2-digit",
@@ -374,34 +336,33 @@ const TimelineActivityList = ({
                           });
                         }
 
-                        // Extract background color for timeline connector and hover border
                         const getActivityColor = (bgClass: string) => {
                           if (
                             bgClass.includes("bg-gradient-to-br from-gray-400")
                           )
-                            return "#9ca3af"; // gray-400
-                          if (bgClass.includes("bg-sky-200")) return "#7dd3fc"; // sky-300
+                            return "#9ca3af";
+                          if (bgClass.includes("bg-sky-200")) return "#7dd3fc";
                           if (
                             bgClass.includes("bg-gradient-to-r from-teal-600")
                           )
-                            return "#0d9488"; // teal-600
+                            return "#0d9488";
                           if (bgClass.includes("bg-[#FFFF99]"))
-                            return "#fef08a"; // yellow-200
+                            return "#fef08a";
                           if (
                             bgClass.includes("bg-gradient-to-r from-orange-400")
                           )
-                            return "#fb923c"; // orange-400
+                            return "#fb923c";
                           if (
                             bgClass.includes("bg-gradient-to-r from-purple-200")
                           )
-                            return "#c084fc"; // purple-400
+                            return "#c084fc";
                           if (bgClass.includes("bg-[#4875EC]"))
-                            return "#4875EC"; // blue
+                            return "#4875EC";
                           if (bgClass.includes("bg-[#EA6A5E]"))
-                            return "#EA6A5E"; // red
+                            return "#EA6A5E";
                           if (bgClass.includes("bg-[#43B755]"))
-                            return "#43B755"; // green
-                          return "#9ca3af"; // default gray
+                            return "#43B755";
+                          return "#9ca3af";
                         };
 
                         const activityColor = getActivityColor(style.bg);
@@ -425,14 +386,13 @@ const TimelineActivityList = ({
                                 ? {
                                     delay:
                                       groupIndex * 0.1 + activityIndex * 0.05,
-                                    duration: 0.3, // Reduced duration for faster rendering
-                                    type: "tween", // Use tween instead of spring for better performance
+                                    duration: 0.3,
+                                    type: "tween",
                                     ease: "easeOut",
                                   }
                                 : { duration: 0 }
                             }
                           >
-                            {/* Timeline connector line - centered on card, responsive width */}
                             <div
                               className="absolute left-16 h-0.5 timeline-connector-line w-4 md:w-12"
                               style={{
@@ -442,18 +402,16 @@ const TimelineActivityList = ({
                               }}
                             ></div>
 
-                            {/* Timeline dot on vertical line - centered on card */}
                             <div
                               className="absolute w-2 h-2 rounded-full z-10 timeline-dot"
                               style={{
                                 backgroundColor: activityColor,
-                                left: "calc(4rem - 4px)" /* 4rem (left-16) - 4px to center on 0.5w line */,
+                                left: "calc(4rem - 4px)",
                                 top: "50%",
                                 transform: "translateY(-50%)",
                               }}
                             ></div>
 
-                            {/* Activity Card */}
                             <div className="ml-20 md:ml-28 mr-4">
                               <Card
                                 className="cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 timeline-activity-card rounded-xl"
@@ -466,18 +424,15 @@ const TimelineActivityList = ({
                               >
                                 <CardContent className="p-4">
                                   <div className="flex items-center space-x-3">
-                                    {/* Activity Icon */}
                                     <div
                                       className={`flex-shrink-0 ${style.bg} p-2 rounded-xl shadow-sm`}
                                     >
                                       {getActivityIcon(activity)}
                                     </div>
 
-                                    {/* Activity Content */}
                                     <div
                                       className="flex-1 min-w-0"
                                       onClick={() => {
-                                        // Add a small delay to allow the click animation to be visible
                                         setTimeout(
                                           () => onActivitySelect(activity),
                                           0
@@ -494,9 +449,7 @@ const TimelineActivityList = ({
                                       </div>
                                       <p className="text-sm text-gray-900 timeline-activity-details truncate">
                                         {(() => {
-                                          // Generate meaningful summaries for each activity type
                                           if ("duration" in activity) {
-                                            // Sleep activity
                                             const location =
                                               "location" in activity &&
                                               activity.location &&
@@ -535,7 +488,6 @@ const TimelineActivityList = ({
                                           }
 
                                           if ("amount" in activity) {
-                                            // Feed activity
                                             if (activity.type === "BREAST") {
                                               const side = activity.side
                                                 ? activity.side.charAt(0) +
@@ -583,7 +535,6 @@ const TimelineActivityList = ({
                                           }
 
                                           if ("condition" in activity) {
-                                            // Diaper activity - only show details if there's actually something to show
                                             const details = [];
                                             if (activity.condition) {
                                               details.push(
@@ -602,13 +553,12 @@ const TimelineActivityList = ({
                                               );
                                             }
                                             if (activity.blowout) {
-                                              details.push("Blowout/Leakage");
+                                              details.push("Estouro/Vazamento");
                                             }
                                             return details.join(" • ");
                                           }
 
                                           if ("content" in activity) {
-                                            // Note activity
                                             return activity.content.length > 50
                                               ? activity.content.substring(
                                                   0,
@@ -618,14 +568,13 @@ const TimelineActivityList = ({
                                           }
 
                                           if ("soapUsed" in activity) {
-                                            // Bath activity
                                             const details = [];
                                             if (activity.soapUsed)
-                                              details.push("Soap");
+                                              details.push("Sabão");
                                             if (activity.shampooUsed)
                                               details.push("Shampoo");
                                             if (details.length === 0)
-                                              details.push("Water only");
+                                              details.push("Somente água");
                                             if (activity.notes) {
                                               const notes =
                                                 activity.notes.length > 30
@@ -643,7 +592,6 @@ const TimelineActivityList = ({
                                             "leftAmount" in activity ||
                                             "rightAmount" in activity
                                           ) {
-                                            // Pump activity
                                             const amounts = [];
                                             const unit = (
                                               (activity as any).unit || "oz"
@@ -673,7 +621,6 @@ const TimelineActivityList = ({
                                             "title" in activity &&
                                             "category" in activity
                                           ) {
-                                            // Milestone activity
                                             const title =
                                               activity.title.length > 40
                                                 ? activity.title.substring(
@@ -688,24 +635,20 @@ const TimelineActivityList = ({
                                             "value" in activity &&
                                             "unit" in activity
                                           ) {
-                                            // Measurement activity - keep temperature units uppercase, others lowercase with proper pluralization
                                             let unit =
                                               "type" in activity &&
                                               activity.type === "TEMPERATURE"
                                                 ? activity.unit
                                                 : activity.unit.toLowerCase();
 
-                                            // Proper pluralization for non-temperature units when value >= 1
                                             if (
                                               "type" in activity &&
                                               activity.type !== "TEMPERATURE" &&
                                               activity.value >= 1
                                             ) {
-                                              // Only pounds (lb) gets pluralized to lbs, most other abbreviated units stay the same
                                               if (unit === "lb") {
                                                 unit = "lbs";
                                               }
-                                              // Most other units like in, cm, kg, g stay the same in plural
                                             }
 
                                             return `${activity.value} ${unit}`;
@@ -715,7 +658,6 @@ const TimelineActivityList = ({
                                             "doseAmount" in activity &&
                                             "medicineId" in activity
                                           ) {
-                                            // Medicine activity
                                             const unit = activity.unitAbbr
                                               ? activity.unitAbbr.toLowerCase()
                                               : "";
@@ -740,7 +682,7 @@ const TimelineActivityList = ({
                                             return `${medName} - ${dose}`;
                                           }
 
-                                          return "Activity logged";
+                                          return "Atividade registrada";
                                         })()}
                                       </p>
                                     </div>
@@ -764,17 +706,17 @@ const TimelineActivityList = ({
                     <BabyIcon className="h-8 w-8 text-indigo-600" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-1 timeline-empty-state">
-                    No activities recorded
+                    Nenhuma atividade registrada
                   </h3>
                   <p className="text-sm text-gray-500 timeline-empty-description">
-                    Activities will appear here once you start tracking
+                    As atividades aparecerão aqui assim que você começar a
+                    registrá-las.
                   </p>
                 </div>
               </div>
             )
           )}
         </div>
-        {/* Loading State - positioned the same way as the empty state */}
         {isLoading && activities.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center h-full">
             <div className="text-center p-6">
@@ -782,14 +724,12 @@ const TimelineActivityList = ({
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-1 timeline-empty-state">
-                Loading activities...
+                Carregando atividades...
               </h3>
             </div>
           </div>
         )}
       </div>
-
-      {/* Pagination Controls removed as it breaks up view by day */}
     </>
   );
 };

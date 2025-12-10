@@ -36,9 +36,7 @@ interface SettingsModalProps {
   onBabySelect?: (babyId: string) => void;
   onBabyStatusChange?: () => void;
   selectedBabyId?: string;
-  /**
-   * Optional variant to control the modal styling
-   */
+
   variant?: "settings" | "default";
 }
 
@@ -91,7 +89,6 @@ export default function SettingsModal({
     }
   };
 
-  // Fetch data when modal opens
   useEffect(() => {
     if (open) {
       fetchData();
@@ -119,8 +116,8 @@ export default function SettingsModal({
 
   const handleBabyModalClose = async () => {
     setShowBabyModal(false);
-    await fetchData(); // Refresh local babies list
-    onBabyStatusChange?.(); // Refresh parent's babies list
+    await fetchData();
+    onBabyStatusChange?.();
   };
 
   const handleBackup = async () => {
@@ -143,7 +140,7 @@ export default function SettingsModal({
       document.body.removeChild(a);
     } catch (error) {
       console.error("Backup error:", error);
-      alert("Failed to create backup");
+      alert("Falha ao criar o backup");
     }
   };
 
@@ -165,11 +162,10 @@ export default function SettingsModal({
         throw new Error("Restore failed");
       }
 
-      // Refresh the page to reflect the restored data
       window.location.reload();
     } catch (error) {
       console.error("Restore error:", error);
-      alert("Failed to restore backup");
+      alert("Falha ao restaurar o backup");
     } finally {
       setIsRestoring(false);
       if (fileInputRef.current) {
@@ -191,7 +187,7 @@ export default function SettingsModal({
         open={open}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
-            onBabyStatusChange?.(); // Refresh parent's babies list when settings modal closes
+            onBabyStatusChange?.();
           }
           onClose();
         }}
@@ -199,29 +195,29 @@ export default function SettingsModal({
         <DialogContent className="dialog-content max-w-2xl w-full">
           <DialogHeader className="dialog-header">
             <DialogTitle className="dialog-title text-slate-800">
-              Settings
+              Configurações
             </DialogTitle>
             <DialogDescription className="dialog-description">
-              Configure your preferences for the Baby Tracker app
+              Configure suas preferências para o aplicativo Baby Control
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 w-full max-w-lg mx-auto">
             <div className="space-y-4">
               <div>
-                <Label className="form-label">Family Name</Label>
+                <Label className="form-label">Nome de família</Label>
                 <Input
                   disabled={loading}
                   value={settings?.familyName || ""}
                   onChange={(e) =>
                     handleSettingsChange({ familyName: e.target.value })
                   }
-                  placeholder="Enter family name"
+                  placeholder="Digite o nome da família"
                   className="w-full"
                 />
               </div>
 
               <div>
-                <Label className="form-label">Security PIN</Label>
+                <Label className="form-label">PIN de segurança</Label>
                 <div className="flex gap-2">
                   <Input
                     type="password"
@@ -234,11 +230,11 @@ export default function SettingsModal({
                     onClick={() => setShowChangePinModal(true)}
                     disabled={loading}
                   >
-                    Change PIN
+                    Alterar PIN
                   </Button>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  PIN must be between 6 and 10 digits
+                  O PIN deve ter entre 6 e 10 dígitos.
                 </p>
               </div>
             </div>
@@ -252,7 +248,7 @@ export default function SettingsModal({
                   disabled={loading}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Backup Database
+                  Banco de dados de backup
                 </Button>
                 <Button
                   variant="outline"
@@ -261,13 +257,13 @@ export default function SettingsModal({
                   disabled={loading || isRestoring}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  Restore Database
+                  Restaurar banco de dados
                 </Button>
               </div>
             </div>
 
             <div className="border-t border-slate-200 pt-6">
-              <h3 className="form-label mb-4">Manage Babies</h3>
+              <h3 className="form-label mb-4">Gerenciar bebês</h3>
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2 w-full">
                   <div className="flex-1 min-w-[200px]">
@@ -279,7 +275,7 @@ export default function SettingsModal({
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a baby" />
+                        <SelectValue placeholder="Selecione um bebê" />
                       </SelectTrigger>
                       <SelectContent>
                         {babies.map((baby) => (
@@ -303,7 +299,7 @@ export default function SettingsModal({
                     }}
                   >
                     <Edit className="h-4 w-3 mr-2" />
-                    Edit
+                    Editar
                   </Button>
                   <Button
                     variant="outline"
@@ -314,7 +310,7 @@ export default function SettingsModal({
                     }}
                   >
                     <Plus className="h-4 w-3 mr-2" />
-                    Add
+                    Adicionar
                   </Button>
                 </div>
               </div>

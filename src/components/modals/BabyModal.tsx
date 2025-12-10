@@ -1,21 +1,21 @@
-import { Baby, Gender } from '@prisma/client';
+import { Baby, Gender } from "@prisma/client";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/src/components/ui/dialog';
-import { Button } from '@/src/components/ui/button';
-import { Input } from '@/src/components/ui/input';
+} from "@/src/components/ui/dialog";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/src/components/ui/select';
-import { useState, useEffect } from 'react';
+} from "@/src/components/ui/select";
+import { useState, useEffect } from "react";
 
 interface BabyModalProps {
   open: boolean;
@@ -25,13 +25,13 @@ interface BabyModalProps {
 }
 
 const defaultFormData = {
-  firstName: '',
-  lastName: '',
-  birthDate: '',
-  gender: '',
+  firstName: "",
+  lastName: "",
+  birthDate: "",
+  gender: "",
   inactive: false,
-  feedWarningTime: '03:00',
-  diaperWarningTime: '02:00',
+  feedWarningTime: "03:00",
+  diaperWarningTime: "02:00",
 };
 
 export default function BabyModal({
@@ -43,21 +43,21 @@ export default function BabyModal({
   const [formData, setFormData] = useState(defaultFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset form when modal opens/closes or baby changes
   useEffect(() => {
     if (baby && open) {
-      const birthDate = baby.birthDate instanceof Date 
-        ? baby.birthDate.toISOString().split('T')[0]
-        : new Date(baby.birthDate as string).toISOString().split('T')[0];
+      const birthDate =
+        baby.birthDate instanceof Date
+          ? baby.birthDate.toISOString().split("T")[0]
+          : new Date(baby.birthDate as string).toISOString().split("T")[0];
 
       setFormData({
         firstName: baby.firstName,
         lastName: baby.lastName,
         birthDate,
-        gender: baby.gender || '',
+        gender: baby.gender || "",
         inactive: baby.inactive || false,
-        feedWarningTime: baby.feedWarningTime || '03:00',
-        diaperWarningTime: baby.diaperWarningTime || '02:00',
+        feedWarningTime: baby.feedWarningTime || "03:00",
+        diaperWarningTime: baby.diaperWarningTime || "02:00",
       });
     } else if (!open) {
       setFormData(defaultFormData);
@@ -70,10 +70,10 @@ export default function BabyModal({
 
     try {
       setIsSubmitting(true);
-      const response = await fetch('/api/baby', {
-        method: isEditing ? 'PUT' : 'POST',
+      const response = await fetch("/api/baby", {
+        method: isEditing ? "PUT" : "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...formData,
@@ -84,12 +84,12 @@ export default function BabyModal({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save baby');
+        throw new Error("Não conseguiram salvar o bebê.");
       }
 
       onClose();
     } catch (error) {
-      console.error('Error saving baby:', error);
+      console.error("Error saving baby:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -105,44 +105,43 @@ export default function BabyModal({
       <DialogContent className="dialog-content !p-4 sm:!p-6">
         <DialogHeader className="dialog-header">
           <DialogTitle className="dialog-title">
-            {isEditing ? 'Edit Baby' : 'Add New Baby'}
+            {isEditing ? "Editar bebê" : "Adicionar novo bebê"}
           </DialogTitle>
           <DialogDescription className="dialog-description">
-            {isEditing 
-              ? "Update your baby's information" 
-              : "Enter your baby's information to start tracking"
-            }
+            {isEditing
+              ? "Atualize as informações do seu bebê."
+              : "Insira as informações do seu bebê para começar o acompanhamento."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">First Name</label>
+              <label className="form-label">Primeiro nome</label>
               <Input
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
                 className="w-full"
-                placeholder="Enter first name"
+                placeholder="Digite o primeiro nome"
                 required
               />
             </div>
             <div>
-              <label className="form-label">Last Name</label>
+              <label className="form-label">Sobrenome</label>
               <Input
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
                 className="w-full"
-                placeholder="Enter last name"
+                placeholder="Digite o sobrenome"
                 required
               />
             </div>
           </div>
           <div>
-            <label className="form-label">Birth Date</label>
+            <label className="form-label">Data de nascimento</label>
             <Input
               type="date"
               value={formData.birthDate}
@@ -154,7 +153,7 @@ export default function BabyModal({
             />
           </div>
           <div>
-            <label className="form-label">Gender</label>
+            <label className="form-label">Gênero</label>
             <Select
               value={formData.gender}
               onValueChange={(value) =>
@@ -162,17 +161,19 @@ export default function BabyModal({
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select gender" />
+                <SelectValue placeholder="Selecione o sexo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MALE">Male</SelectItem>
-                <SelectItem value="FEMALE">Female</SelectItem>
+                <SelectItem value="MALE">Masculino</SelectItem>
+                <SelectItem value="FEMALE">Feminino</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="form-label">Feed Warning Time (hh:mm)</label>
+              <label className="form-label">
+                Tempo de aviso de feed (hh:mm)
+              </label>
               <Input
                 type="text"
                 pattern="[0-9]{2}:[0-9]{2}"
@@ -186,13 +187,18 @@ export default function BabyModal({
               />
             </div>
             <div>
-              <label className="form-label">Diaper Warning Time (hh:mm)</label>
+              <label className="form-label">
+                Tempo de aviso de fralda (hh:mm)
+              </label>
               <Input
                 type="text"
                 pattern="[0-9]{2}:[0-9]{2}"
                 value={formData.diaperWarningTime}
                 onChange={(e) =>
-                  setFormData({ ...formData, diaperWarningTime: e.target.value })
+                  setFormData({
+                    ...formData,
+                    diaperWarningTime: e.target.value,
+                  })
                 }
                 className="w-full"
                 placeholder="02:00"
@@ -212,31 +218,30 @@ export default function BabyModal({
                 className="h-4 w-4 rounded border-gray-300"
               />
               <label htmlFor="inactive" className="text-sm text-gray-700">
-                Mark as Inactive
+                Marcar como inativo
               </label>
             </div>
           )}
           <div className="grid grid-cols-2 sm:flex sm:justify-end gap-3 mt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleClose}
               className="hover:bg-slate-50"
               disabled={isSubmitting}
             >
-              Cancel
+              Cancelar
             </Button>
-            <Button 
+            <Button
               type="submit"
               className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:from-teal-700 hover:to-emerald-700"
               disabled={isSubmitting}
             >
-              {isSubmitting 
-                ? 'Saving...' 
-                : isEditing 
-                  ? 'Save Changes' 
-                  : 'Add Baby'
-              }
+              {isSubmitting
+                ? "Salvando..."
+                : isEditing
+                ? "Salvar alterações"
+                : "Adicionar bebê"}
             </Button>
           </div>
         </form>

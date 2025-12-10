@@ -1,32 +1,33 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Settings } from '@prisma/client';
-import { CardHeader } from '@/src/components/ui/card';
-import SleepForm from '@/src/components/forms/SleepForm';
-import FeedForm from '@/src/components/forms/FeedForm';
-import DiaperForm from '@/src/components/forms/DiaperForm';
-import NoteForm from '@/src/components/forms/NoteForm';
-import BathForm from '@/src/components/forms/BathForm';
-import PumpForm from '@/src/components/forms/PumpForm';
-import MilestoneForm from '@/src/components/forms/MilestoneForm';
-import MeasurementForm from '@/src/components/forms/MeasurementForm';
-import GiveMedicineForm from '@/src/components/forms/GiveMedicineForm';
-import { ActivityType, FilterType, FullLogTimelineProps } from './full-log-timeline.types';
-import FullLogFilter from './FullLogFilter';
-import FullLogSearchBar from './FullLogSearchBar';
-import FullLogActivityList from './FullLogActivityList';
-import FullLogActivityDetails from './FullLogActivityDetails';
-import { getActivityEndpoint, getActivityTime } from '@/src/components/Timeline/utils';
-import { PumpLogResponse, MedicineLogResponse } from '@/app/api/types';
-import { cn } from '@/src/lib/utils';
-import styles from './full-log-timeline.styles';
-import './full-log-timeline.css';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Settings } from "@prisma/client";
+import { CardHeader } from "@/src/components/ui/card";
+import SleepForm from "@/src/components/forms/SleepForm";
+import FeedForm from "@/src/components/forms/FeedForm";
+import DiaperForm from "@/src/components/forms/DiaperForm";
+import NoteForm from "@/src/components/forms/NoteForm";
+import BathForm from "@/src/components/forms/BathForm";
+import PumpForm from "@/src/components/forms/PumpForm";
+import MilestoneForm from "@/src/components/forms/MilestoneForm";
+import MeasurementForm from "@/src/components/forms/MeasurementForm";
+import GiveMedicineForm from "@/src/components/forms/GiveMedicineForm";
+import {
+  ActivityType,
+  FilterType,
+  FullLogTimelineProps,
+} from "./full-log-timeline.types";
+import FullLogFilter from "./FullLogFilter";
+import FullLogSearchBar from "./FullLogSearchBar";
+import FullLogActivityList from "./FullLogActivityList";
+import FullLogActivityDetails from "./FullLogActivityDetails";
+import {
+  getActivityEndpoint,
+  getActivityTime,
+} from "@/src/components/Timeline/utils";
+import { PumpLogResponse, MedicineLogResponse } from "@/app/api/types";
+import { cn } from "@/src/lib/utils";
+import styles from "./full-log-timeline.styles";
+import "./full-log-timeline.css";
 
-/**
- * FullLogTimeline Component
- * 
- * A comprehensive timeline view that displays activities over a date range
- * with filtering and pagination capabilities.
- */
 const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
   activities,
   onActivityDeleted,
@@ -35,21 +36,33 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
   onDateRangeChange,
 }) => {
   const [settings, setSettings] = useState<Settings | null>(null);
-  const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(
+    null
+  );
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
-  const [editModalType, setEditModalType] = useState<'sleep' | 'feed' | 'diaper' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement' | 'medicine' | null>(null);
+  const [editModalType, setEditModalType] = useState<
+    | "sleep"
+    | "feed"
+    | "diaper"
+    | "note"
+    | "bath"
+    | "pump"
+    | "milestone"
+    | "measurement"
+    | "medicine"
+    | null
+  >(null);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch settings on component mount
   useEffect(() => {
     const fetchSettings = async () => {
-      const authToken = localStorage.getItem('authToken');
-      const response = await fetch('/api/settings', {
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch("/api/settings", {
         headers: {
-          'Authorization': authToken ? `Bearer ${authToken}` : '',
+          Authorization: authToken ? `Bearer ${authToken}` : "",
         },
       });
       if (response.ok) {
@@ -62,209 +75,326 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
     fetchSettings();
   }, []);
 
-  // Handle quick filter for date ranges
   const handleQuickFilter = (days: number) => {
     const end = new Date();
     const start = new Date();
     start.setDate(end.getDate() - days);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
     onDateRangeChange(start, end);
   };
 
-  // Search function to check if activity matches search query
-  const matchesSearch = useCallback((activity: ActivityType, query: string): boolean => {
-    if (!query) return true;
-    
-    const searchLower = query.toLowerCase();
-    
-    // Check common fields
-    if (activity.babyId && activity.babyId.toLowerCase().includes(searchLower)) return true;
-    if (activity.caretakerName && activity.caretakerName.toLowerCase().includes(searchLower)) return true;
-    
-    // Type guards for different activity types
-    const isSleepActivity = (act: any): act is { 
-      duration: number; 
-      type?: string; 
-      location?: string; 
-      quality?: string;
-    } => {
-      return 'duration' in act;
-    };
-    
-    const isFeedActivity = (act: any): act is { 
-      amount: number; 
-      type?: string; 
-      unitAbbr?: string; 
-      side?: string; 
-      food?: string;
-    } => {
-      return 'amount' in act;
-    };
-    
-    const isDiaperActivity = (act: any): act is { 
-      condition: string; 
-      type?: string; 
-      color?: string;
-    } => {
-      return 'condition' in act;
-    };
-    
-    const isNoteActivity = (act: any): act is { 
-      content: string; 
-      category?: string;
-    } => {
-      return 'content' in act;
-    };
-    
-    const isBathActivity = (act: any): act is { 
-      soapUsed: boolean; 
-      notes?: string;
-    } => {
-      return 'soapUsed' in act;
-    };
-    
-    const isPumpActivity = (act: any): act is { 
-      leftAmount?: number; 
-      rightAmount?: number; 
-      totalAmount?: number; 
-      unit?: string; 
-      notes?: string;
-    } => {
-      return 'leftAmount' in act || 'rightAmount' in act;
-    };
-    
-    const isMilestoneActivity = (act: any): act is { 
-      title: string; 
-      category: string; 
-      description?: string;
-    } => {
-      return 'title' in act && 'category' in act;
-    };
-    
-    const isMeasurementActivity = (act: any): act is { 
-      value: number; 
-      unit: string; 
-      type?: string; 
-      notes?: string;
-    } => {
-      return 'value' in act && 'unit' in act;
-    };
-    
-    const isMedicineActivity = (act: any): act is {
-      doseAmount: number;
-      medicineId: string;
-      unitAbbr?: string;
-      notes?: string;
-      medicine?: { name?: string };
-    } => {
-      return 'doseAmount' in act && 'medicineId' in act;
-    };
-    
-    // Check type-specific fields
-    if (isSleepActivity(activity)) {
-      if (activity.type && activity.type.toLowerCase().includes(searchLower)) return true;
-      if (activity.location && activity.location.toLowerCase().includes(searchLower)) return true;
-      if (activity.quality && activity.quality.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isFeedActivity(activity)) {
-      if (activity.type && activity.type.toLowerCase().includes(searchLower)) return true;
-      if (activity.amount && activity.amount.toString().includes(searchLower)) return true;
-      if (activity.unitAbbr && activity.unitAbbr.toLowerCase().includes(searchLower)) return true;
-      if (activity.side && activity.side.toLowerCase().includes(searchLower)) return true;
-      if (activity.food && activity.food.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isDiaperActivity(activity)) {
-      if (activity.type && activity.type.toLowerCase().includes(searchLower)) return true;
-      if (activity.condition && activity.condition.toLowerCase().includes(searchLower)) return true;
-      if (activity.color && activity.color.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isNoteActivity(activity)) {
-      if (activity.content && activity.content.toLowerCase().includes(searchLower)) return true;
-      if (activity.category && activity.category.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isBathActivity(activity)) {
-      if (activity.notes && activity.notes.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isPumpActivity(activity)) {
-      if (activity.leftAmount && activity.leftAmount.toString().includes(searchLower)) return true;
-      if (activity.rightAmount && activity.rightAmount.toString().includes(searchLower)) return true;
-      if (activity.totalAmount && activity.totalAmount.toString().includes(searchLower)) return true;
-      if (activity.unit && activity.unit.toLowerCase().includes(searchLower)) return true;
-      if (activity.notes && activity.notes.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isMilestoneActivity(activity)) {
-      if (activity.title && activity.title.toLowerCase().includes(searchLower)) return true;
-      if (activity.category && activity.category.toLowerCase().includes(searchLower)) return true;
-      if (activity.description && activity.description.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isMeasurementActivity(activity)) {
-      if (activity.type && activity.type.toLowerCase().includes(searchLower)) return true;
-      if (activity.value && activity.value.toString().includes(searchLower)) return true;
-      if (activity.unit && activity.unit.toLowerCase().includes(searchLower)) return true;
-      if (activity.notes && activity.notes.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    if (isMedicineActivity(activity)) {
-      if (activity.doseAmount && activity.doseAmount.toString().includes(searchLower)) return true;
-      if (activity.unitAbbr && activity.unitAbbr.toLowerCase().includes(searchLower)) return true;
-      if (activity.notes && activity.notes.toLowerCase().includes(searchLower)) return true;
-      if (activity.medicine && activity.medicine.name && 
-          activity.medicine.name.toLowerCase().includes(searchLower)) return true;
-      return false;
-    }
-    
-    return false;
-  }, []);
+  const matchesSearch = useCallback(
+    (activity: ActivityType, query: string): boolean => {
+      if (!query) return true;
 
-  // Filter and sort activities
+      const searchLower = query.toLowerCase();
+
+      if (
+        activity.babyId &&
+        activity.babyId.toLowerCase().includes(searchLower)
+      )
+        return true;
+      if (
+        activity.caretakerName &&
+        activity.caretakerName.toLowerCase().includes(searchLower)
+      )
+        return true;
+
+      const isSleepActivity = (
+        act: any
+      ): act is {
+        duration: number;
+        type?: string;
+        location?: string;
+        quality?: string;
+      } => {
+        return "duration" in act;
+      };
+
+      const isFeedActivity = (
+        act: any
+      ): act is {
+        amount: number;
+        type?: string;
+        unitAbbr?: string;
+        side?: string;
+        food?: string;
+      } => {
+        return "amount" in act;
+      };
+
+      const isDiaperActivity = (
+        act: any
+      ): act is {
+        condition: string;
+        type?: string;
+        color?: string;
+      } => {
+        return "condition" in act;
+      };
+
+      const isNoteActivity = (
+        act: any
+      ): act is {
+        content: string;
+        category?: string;
+      } => {
+        return "content" in act;
+      };
+
+      const isBathActivity = (
+        act: any
+      ): act is {
+        soapUsed: boolean;
+        notes?: string;
+      } => {
+        return "soapUsed" in act;
+      };
+
+      const isPumpActivity = (
+        act: any
+      ): act is {
+        leftAmount?: number;
+        rightAmount?: number;
+        totalAmount?: number;
+        unit?: string;
+        notes?: string;
+      } => {
+        return "leftAmount" in act || "rightAmount" in act;
+      };
+
+      const isMilestoneActivity = (
+        act: any
+      ): act is {
+        title: string;
+        category: string;
+        description?: string;
+      } => {
+        return "title" in act && "category" in act;
+      };
+
+      const isMeasurementActivity = (
+        act: any
+      ): act is {
+        value: number;
+        unit: string;
+        type?: string;
+        notes?: string;
+      } => {
+        return "value" in act && "unit" in act;
+      };
+
+      const isMedicineActivity = (
+        act: any
+      ): act is {
+        doseAmount: number;
+        medicineId: string;
+        unitAbbr?: string;
+        notes?: string;
+        medicine?: { name?: string };
+      } => {
+        return "doseAmount" in act && "medicineId" in act;
+      };
+
+      if (isSleepActivity(activity)) {
+        if (activity.type && activity.type.toLowerCase().includes(searchLower))
+          return true;
+        if (
+          activity.location &&
+          activity.location.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.quality &&
+          activity.quality.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isFeedActivity(activity)) {
+        if (activity.type && activity.type.toLowerCase().includes(searchLower))
+          return true;
+        if (activity.amount && activity.amount.toString().includes(searchLower))
+          return true;
+        if (
+          activity.unitAbbr &&
+          activity.unitAbbr.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (activity.side && activity.side.toLowerCase().includes(searchLower))
+          return true;
+        if (activity.food && activity.food.toLowerCase().includes(searchLower))
+          return true;
+        return false;
+      }
+
+      if (isDiaperActivity(activity)) {
+        if (activity.type && activity.type.toLowerCase().includes(searchLower))
+          return true;
+        if (
+          activity.condition &&
+          activity.condition.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.color &&
+          activity.color.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isNoteActivity(activity)) {
+        if (
+          activity.content &&
+          activity.content.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.category &&
+          activity.category.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isBathActivity(activity)) {
+        if (
+          activity.notes &&
+          activity.notes.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isPumpActivity(activity)) {
+        if (
+          activity.leftAmount &&
+          activity.leftAmount.toString().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.rightAmount &&
+          activity.rightAmount.toString().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.totalAmount &&
+          activity.totalAmount.toString().includes(searchLower)
+        )
+          return true;
+        if (activity.unit && activity.unit.toLowerCase().includes(searchLower))
+          return true;
+        if (
+          activity.notes &&
+          activity.notes.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isMilestoneActivity(activity)) {
+        if (
+          activity.title &&
+          activity.title.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.category &&
+          activity.category.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.description &&
+          activity.description.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isMeasurementActivity(activity)) {
+        if (activity.type && activity.type.toLowerCase().includes(searchLower))
+          return true;
+        if (activity.value && activity.value.toString().includes(searchLower))
+          return true;
+        if (activity.unit && activity.unit.toLowerCase().includes(searchLower))
+          return true;
+        if (
+          activity.notes &&
+          activity.notes.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      if (isMedicineActivity(activity)) {
+        if (
+          activity.doseAmount &&
+          activity.doseAmount.toString().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.unitAbbr &&
+          activity.unitAbbr.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.notes &&
+          activity.notes.toLowerCase().includes(searchLower)
+        )
+          return true;
+        if (
+          activity.medicine &&
+          activity.medicine.name &&
+          activity.medicine.name.toLowerCase().includes(searchLower)
+        )
+          return true;
+        return false;
+      }
+
+      return false;
+    },
+    []
+  );
+
   const sortedActivities = useMemo(() => {
-    // First filter by activity type
-    const typeFiltered = !activeFilter 
-      ? activities 
-      : activities.filter(activity => {
+    const typeFiltered = !activeFilter
+      ? activities
+      : activities.filter((activity) => {
           switch (activeFilter) {
-            case 'sleep':
-              return 'duration' in activity;
-            case 'feed':
-              return 'amount' in activity;
-            case 'diaper':
-              return 'condition' in activity;
-            case 'note':
-              return 'content' in activity;
-            case 'bath':
-              return 'soapUsed' in activity;
-            case 'pump':
-              return 'leftAmount' in activity || 'rightAmount' in activity;
-            case 'milestone':
-              return 'title' in activity && 'category' in activity;
-            case 'measurement':
-              return 'value' in activity && 'unit' in activity;
-            case 'medicine':
-              return 'doseAmount' in activity && 'medicineId' in activity;
+            case "sleep":
+              return "Duração" in activity;
+            case "feed":
+              return "Quantia" in activity;
+            case "diaper":
+              return "Condição" in activity;
+            case "note":
+              return "Notas" in activity;
+            case "bath":
+              return "Sabonete Usado" in activity;
+            case "pump":
+              return (
+                "Quantidade Esquerda" in activity ||
+                "Quantidade Direita" in activity
+              );
+            case "milestone":
+              return "Título" in activity && "Categoria" in activity;
+            case "measurement":
+              return "Valor" in activity && "Unidade" in activity;
+            case "medicine":
+              return (
+                "Quantidade de Dose" in activity &&
+                "Id do Medicamento" in activity
+              );
             default:
               return true;
           }
         });
-    
-    // Then filter by search query
-    const searchFiltered = !searchQuery 
-      ? typeFiltered 
-      : typeFiltered.filter(activity => matchesSearch(activity, searchQuery));
+
+    const searchFiltered = !searchQuery
+      ? typeFiltered
+      : typeFiltered.filter((activity) => matchesSearch(activity, searchQuery));
 
     const sorted = [...searchFiltered].sort((a, b) => {
       const timeA = new Date(getActivityTime(a));
@@ -274,58 +404,64 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     return sorted.slice(startIndex, startIndex + itemsPerPage);
-  }, [activities, activeFilter, currentPage, itemsPerPage, searchQuery, matchesSearch]);
+  }, [
+    activities,
+    activeFilter,
+    currentPage,
+    itemsPerPage,
+    searchQuery,
+    matchesSearch,
+  ]);
 
-  // Calculate total pages
   const totalPages = useMemo(() => {
-    // First filter by activity type
-    const typeFiltered = !activeFilter 
-      ? activities 
-      : activities.filter(activity => {
+    const typeFiltered = !activeFilter
+      ? activities
+      : activities.filter((activity) => {
           switch (activeFilter) {
-            case 'sleep':
-              return 'duration' in activity;
-            case 'feed':
-              return 'amount' in activity;
-            case 'diaper':
-              return 'condition' in activity;
-            case 'note':
-              return 'content' in activity;
-            case 'bath':
-              return 'soapUsed' in activity;
-            case 'pump':
-              return 'leftAmount' in activity || 'rightAmount' in activity;
-            case 'milestone':
-              return 'title' in activity && 'category' in activity;
-            case 'measurement':
-              return 'value' in activity && 'unit' in activity;
-            case 'medicine':
-              return 'doseAmount' in activity && 'medicineId' in activity;
+            case "sleep":
+              return "Duração" in activity;
+            case "feed":
+              return "Quantia" in activity;
+            case "diaper":
+              return "Condição" in activity;
+            case "note":
+              return "Notas" in activity;
+            case "bath":
+              return "Sabonete Usado" in activity;
+            case "pump":
+              return (
+                "Quantidade Esquerda" in activity ||
+                "Quantidade Direita" in activity
+              );
+            case "milestone":
+              return "Título" in activity && "Categoria" in activity;
+            case "measurement":
+              return "value" in activity && "Unidade" in activity;
+            case "medicine":
+              return "doseAmount" in activity && "medicineId" in activity;
             default:
               return true;
           }
         });
-    
-    // Then filter by search query
-    const searchFiltered = !searchQuery 
-      ? typeFiltered 
-      : typeFiltered.filter(activity => matchesSearch(activity, searchQuery));
-    
+
+    const searchFiltered = !searchQuery
+      ? typeFiltered
+      : typeFiltered.filter((activity) => matchesSearch(activity, searchQuery));
+
     return Math.ceil(searchFiltered.length / itemsPerPage);
   }, [activities, activeFilter, itemsPerPage, searchQuery, matchesSearch]);
 
-  // Handle activity deletion
   const handleDelete = async (activity: ActivityType) => {
-    if (!confirm('Are you sure you want to delete this activity?')) return;
+    if (!confirm("Tem certeza de que deseja excluir esta atividade?")) return;
 
     const endpoint = getActivityEndpoint(activity);
 
     try {
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem("authToken");
       const response = await fetch(`/api/${endpoint}?id=${activity.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': authToken ? `Bearer ${authToken}` : '',
+          Authorization: authToken ? `Bearer ${authToken}` : "",
         },
       });
 
@@ -334,30 +470,38 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
         onActivityDeleted?.();
       }
     } catch (error) {
-      console.error('Error deleting activity:', error);
+      console.error("Error deleting activity:", error);
     }
   };
 
-  // Handle activity editing
-  const handleEdit = (activity: ActivityType, type: 'sleep' | 'feed' | 'diaper' | 'note' | 'bath' | 'pump' | 'milestone' | 'measurement' | 'medicine') => {
+  const handleEdit = (
+    activity: ActivityType,
+    type:
+      | "sleep"
+      | "feed"
+      | "diaper"
+      | "note"
+      | "bath"
+      | "pump"
+      | "milestone"
+      | "measurement"
+      | "medicine"
+  ) => {
     setSelectedActivity(activity);
     setEditModalType(type);
   };
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Handle items per page change
   const handleItemsPerPageChange = (count: number) => {
     setItemsPerPage(count);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   return (
     <div className={cn(styles.container, "full-log-timeline-container")}>
-      {/* Header */}
       <CardHeader className="py-0 bg-gradient-to-r from-teal-600 to-teal-700 border-0 full-log-timeline-header">
         <FullLogFilter
           activeFilter={activeFilter}
@@ -369,13 +513,11 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
         />
       </CardHeader>
 
-      {/* Search Bar */}
       <FullLogSearchBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
 
-      {/* Activity List */}
       <FullLogActivityList
         activities={sortedActivities}
         settings={settings}
@@ -388,7 +530,6 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
         onItemsPerPageChange={handleItemsPerPageChange}
       />
 
-      {/* Activity Details */}
       <FullLogActivityDetails
         activity={selectedActivity}
         settings={settings}
@@ -398,11 +539,10 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
         onEdit={handleEdit}
       />
 
-      {/* Edit Forms */}
       {selectedActivity && (
         <>
           <SleepForm
-            isOpen={editModalType === 'sleep'}
+            isOpen={editModalType === "sleep"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -410,8 +550,16 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             isSleeping={false}
             onSleepToggle={() => {}}
             babyId={selectedActivity.babyId}
-            initialTime={'startTime' in selectedActivity && selectedActivity.startTime ? String(selectedActivity.startTime) : getActivityTime(selectedActivity)}
-            activity={'duration' in selectedActivity && 'type' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "startTime" in selectedActivity && selectedActivity.startTime
+                ? String(selectedActivity.startTime)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "duration" in selectedActivity && "type" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -419,14 +567,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <FeedForm
-            isOpen={editModalType === 'feed'}
+            isOpen={editModalType === "feed"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'time' in selectedActivity && selectedActivity.time ? String(selectedActivity.time) : getActivityTime(selectedActivity)}
-            activity={'amount' in selectedActivity && 'type' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "time" in selectedActivity && selectedActivity.time
+                ? String(selectedActivity.time)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "amount" in selectedActivity && "type" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -434,14 +590,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <DiaperForm
-            isOpen={editModalType === 'diaper'}
+            isOpen={editModalType === "diaper"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'time' in selectedActivity && selectedActivity.time ? String(selectedActivity.time) : getActivityTime(selectedActivity)}
-            activity={'condition' in selectedActivity && 'type' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "time" in selectedActivity && selectedActivity.time
+                ? String(selectedActivity.time)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "condition" in selectedActivity && "type" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -449,14 +613,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <NoteForm
-            isOpen={editModalType === 'note'}
+            isOpen={editModalType === "note"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'time' in selectedActivity && selectedActivity.time ? String(selectedActivity.time) : getActivityTime(selectedActivity)}
-            activity={'content' in selectedActivity && 'time' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "time" in selectedActivity && selectedActivity.time
+                ? String(selectedActivity.time)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "content" in selectedActivity && "time" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -464,14 +636,20 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <BathForm
-            isOpen={editModalType === 'bath'}
+            isOpen={editModalType === "bath"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'time' in selectedActivity && selectedActivity.time ? String(selectedActivity.time) : getActivityTime(selectedActivity)}
-            activity={'soapUsed' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "time" in selectedActivity && selectedActivity.time
+                ? String(selectedActivity.time)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "soapUsed" in selectedActivity ? selectedActivity : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -479,17 +657,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <PumpForm
-            isOpen={editModalType === 'pump'}
+            isOpen={editModalType === "pump"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'startTime' in selectedActivity && selectedActivity.startTime ? String(selectedActivity.startTime) : getActivityTime(selectedActivity)}
+            initialTime={
+              "startTime" in selectedActivity && selectedActivity.startTime
+                ? String(selectedActivity.startTime)
+                : getActivityTime(selectedActivity)
+            }
             activity={
-              ('leftAmount' in selectedActivity || 'rightAmount' in selectedActivity) ? 
-                (selectedActivity as unknown as PumpLogResponse) : 
-                undefined
+              "leftAmount" in selectedActivity ||
+              "rightAmount" in selectedActivity
+                ? (selectedActivity as unknown as PumpLogResponse)
+                : undefined
             }
             onSuccess={() => {
               setEditModalType(null);
@@ -498,14 +681,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <MilestoneForm
-            isOpen={editModalType === 'milestone'}
+            isOpen={editModalType === "milestone"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'date' in selectedActivity && selectedActivity.date ? String(selectedActivity.date) : getActivityTime(selectedActivity)}
-            activity={'title' in selectedActivity && 'category' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "date" in selectedActivity && selectedActivity.date
+                ? String(selectedActivity.date)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "title" in selectedActivity && "category" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -513,14 +704,22 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <MeasurementForm
-            isOpen={editModalType === 'measurement'}
+            isOpen={editModalType === "measurement"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'date' in selectedActivity && selectedActivity.date ? String(selectedActivity.date) : getActivityTime(selectedActivity)}
-            activity={'value' in selectedActivity && 'unit' in selectedActivity ? selectedActivity : undefined}
+            initialTime={
+              "date" in selectedActivity && selectedActivity.date
+                ? String(selectedActivity.date)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "value" in selectedActivity && "unit" in selectedActivity
+                ? selectedActivity
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);
@@ -528,15 +727,23 @@ const FullLogTimeline: React.FC<FullLogTimelineProps> = ({
             }}
           />
           <GiveMedicineForm
-            isOpen={editModalType === 'medicine'}
+            isOpen={editModalType === "medicine"}
             onClose={() => {
               setEditModalType(null);
               setSelectedActivity(null);
             }}
             babyId={selectedActivity.babyId}
-            initialTime={'time' in selectedActivity && selectedActivity.time ? String(selectedActivity.time) : getActivityTime(selectedActivity)}
-            activity={'doseAmount' in selectedActivity && 'medicineId' in selectedActivity ? 
-              (selectedActivity as unknown as MedicineLogResponse) : undefined}
+            initialTime={
+              "time" in selectedActivity && selectedActivity.time
+                ? String(selectedActivity.time)
+                : getActivityTime(selectedActivity)
+            }
+            activity={
+              "doseAmount" in selectedActivity &&
+              "medicineId" in selectedActivity
+                ? (selectedActivity as unknown as MedicineLogResponse)
+                : undefined
+            }
             onSuccess={() => {
               setEditModalType(null);
               setSelectedActivity(null);

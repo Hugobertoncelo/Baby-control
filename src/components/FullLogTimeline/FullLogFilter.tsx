@@ -4,8 +4,6 @@ import {
   Moon,
   Icon,
   Edit,
-  ChevronLeft,
-  ChevronRight,
   Bath,
   ChevronDown,
   Calendar as CalendarIcon,
@@ -28,16 +26,7 @@ import {
   PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { Calendar } from "@/src/components/ui/calendar";
-import { cn } from "@/src/lib/utils";
 
-/**
- * FullLogFilter Component
- *
- * Displays filter controls for the full log timeline, including:
- * - Date range selection
- * - Quick date range filters
- * - Activity type filtering
- */
 const FullLogFilter: React.FC<FullLogFilterProps> = ({
   activeFilter,
   onFilterChange,
@@ -46,10 +35,8 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
   onDateRangeChange,
   onQuickFilter,
 }) => {
-  // State for popover open/close
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // Define filter types and their icons
   const filterOptions = [
     { type: "sleep", icon: <Moon className="h-4 w-4" />, label: "Dormir" },
     {
@@ -86,7 +73,6 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
     },
   ] as const;
 
-  // Format date range for display
   const formatDateRange = () => {
     const formatDate = (date: Date) => {
       return date.toLocaleDateString("pt-BR", {
@@ -102,7 +88,6 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
   return (
     <div className="flex flex-wrap justify-between py-3 items-center text-sm font-medium">
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:mb-0">
-        {/* Date Range Selector */}
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -125,33 +110,23 @@ const FullLogFilter: React.FC<FullLogFilterProps> = ({
                 const newEndDate = to ? new Date(to) : null;
                 if (newEndDate) newEndDate.setHours(23, 59, 59, 999);
 
-                // Handle state update based on selection phase
                 if (newStartDate && !newEndDate) {
-                  // First click: 'to' is null. Pass newStartDate for both to satisfy type.
-                  // The Calendar component internally knows 'to' is null for rendering.
                   onDateRangeChange(newStartDate, newStartDate);
                 } else if (newStartDate && newEndDate) {
-                  // Second click: Both dates are valid. Update parent state fully.
                   onDateRangeChange(newStartDate, newEndDate);
 
-                  // Close the popover only when the range is complete (second click)
                   setTimeout(() => {
                     setCalendarOpen(false);
                   }, 500);
                 } else if (!newStartDate && !newEndDate) {
-                  // Range reset case (e.g., clicking same day twice)
-                  // Call parent with original dates to reflect no change / reset state
-                  // (Assuming parent handles this appropriately or we adjust later)
                   onDateRangeChange(startDate, endDate);
                 }
-                // If newStartDate is null (shouldn't happen with current Calendar logic), do nothing.
               }}
               initialFocus
             />
           </PopoverContent>
         </Popover>
 
-        {/* Quick Filter Buttons */}
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"

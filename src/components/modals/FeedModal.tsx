@@ -24,9 +24,7 @@ interface FeedModalProps {
   babyId: string | undefined;
   initialTime: string;
   activity?: FeedLogResponse;
-  /**
-   * Optional variant to control the modal styling
-   */
+
   variant?: "feed" | "default";
 }
 
@@ -67,12 +65,10 @@ export default function FeedModal({
     }
   };
 
-  // Format date string to be compatible with datetime-local input
   const formatDateForInput = (dateStr: string) => {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return "";
 
-    // Format as YYYY-MM-DDThh:mm in local time
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -85,7 +81,6 @@ export default function FeedModal({
   useEffect(() => {
     if (open) {
       if (activity) {
-        // Editing mode - populate with activity data
         setFormData({
           time: formatDateForInput(initialTime),
           type: activity.type,
@@ -94,7 +89,6 @@ export default function FeedModal({
           food: activity.food || "",
         });
       } else {
-        // New entry mode
         setFormData((prev) => ({
           ...prev,
           time: formatDateForInput(initialTime),
@@ -110,7 +104,6 @@ export default function FeedModal({
   }, [formData.type, babyId]);
 
   const handleAmountChange = (newAmount: string) => {
-    // Ensure it's a valid number and not negative
     const numValue = parseFloat(newAmount);
     if (!isNaN(numValue) && numValue >= 0) {
       setFormData((prev) => ({
@@ -142,13 +135,11 @@ export default function FeedModal({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate required fields
     if (!formData.type || !formData.time) {
       console.error("Required fields missing");
       return;
     }
 
-    // Validate breast feeding side
     if (formData.type === "BREAST" && !formData.side) {
       console.error("Side is required for breast feeding");
       return;
@@ -157,7 +148,7 @@ export default function FeedModal({
     try {
       const payload = {
         babyId,
-        time: formData.time, // Send the local time directly
+        time: formData.time,
         type: formData.type,
         ...(formData.type === "BREAST" && { side: formData.side }),
         ...((formData.type === "BOTTLE" || formData.type === "SOLIDS") &&
@@ -179,12 +170,13 @@ export default function FeedModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save feed log");
+        throw new Error(
+          errorData.error || "Falha ao salvar o registro de feeds"
+        );
       }
 
       onClose();
 
-      // Reset form data
       setFormData({
         time: initialTime,
         type: "" as FeedType | "",

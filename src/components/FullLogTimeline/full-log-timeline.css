@@ -1,118 +1,106 @@
-/* Dark mode overrides for FullLogTimeline component */
-
-/* Main container */
 html.dark .full-log-timeline-container {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
-/* Search bar */
 html.dark .full-log-timeline-search-bar {
-  background-color: #4b5563 !important; /* gray-600 */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: #4b5563 !important;
+  border-color: #374151 !important;
 }
 
 html.dark .full-log-timeline-search-container {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 html.dark .full-log-timeline-search-input {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .full-log-timeline-search-input::placeholder {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
-/* Filter dropdown */
 html.dark [role="menuitem"] {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark [role="menuitem"]:hover {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
-/* Date range display */
 html.dark button.text-white {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark button.text-white:hover {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
-/* Calendar popover */
 html.dark [role="dialog"] {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
-/* Activity list */
 html.dark .full-log-timeline-content {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 html.dark .full-log-timeline-activity-list {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 html.dark .full-log-timeline-activity-item {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 html.dark .full-log-timeline-activity-item:hover {
-  background-color: #374151 !important; /* gray-700 */
+  background-color: #374151 !important;
 }
 
 html.dark .full-log-timeline-activity-type {
-  background-color: #374151 !important; /* gray-700 */
-  color: #e5e7eb !important; /* gray-200 */
-  border-color: #4b5563 !important; /* gray-600 */
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
 }
 
 html.dark .full-log-timeline-activity-info {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
-/* Empty state */
 html.dark .full-log-timeline-empty-state-title {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .full-log-timeline-empty-state-description {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
-/* Pagination */
 html.dark .full-log-timeline-pagination-container {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
 html.dark .full-log-timeline-pagination-select {
-  background-color: #374151 !important; /* gray-700 */
-  border-color: #4b5563 !important; /* gray-600 */
-  color: #e5e7eb !important; /* gray-200 */
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #e5e7eb !important;
 }
 
 html.dark .full-log-timeline-pagination-text {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
-/* Loading state */
 html.dark .full-log-timeline-loading-container {
-  background-color: #1f2937 !important; /* gray-800 */
+  background-color: #1f2937 !important;
 }
 
 html.dark .full-log-timeline-loading-text {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
-/* Dark mode overrides for FullLogActivityDetails component */
 html.dark .full-log-timeline-details-label {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .full-log-timeline-details-value {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }

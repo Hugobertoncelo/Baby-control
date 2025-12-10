@@ -34,7 +34,6 @@ export default function AccountModal({
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  // Form state
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,7 +42,6 @@ export default function AccountModal({
     lastName: "",
   });
 
-  // Password validation state for real-time feedback
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     lowercase: false,
@@ -52,14 +50,12 @@ export default function AccountModal({
     special: false,
   });
 
-  // Verification state
   const [verificationState, setVerificationState] = useState<
     "loading" | "success" | "error" | "already-verified"
   >("loading");
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationCountdown, setVerificationCountdown] = useState(3);
 
-  // Password reset state
   const [resetState, setResetState] = useState<
     "loading" | "valid" | "invalid" | "success" | "error"
   >("loading");
@@ -67,17 +63,14 @@ export default function AccountModal({
   const [resetCountdown, setResetCountdown] = useState(5);
   const [userEmail, setUserEmail] = useState("");
 
-  // Privacy Policy and Terms of Use modal state
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfUse, setShowTermsOfUse] = useState(false);
 
-  // Refs for focus management
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const firstNameInputRef = useRef<HTMLInputElement>(null);
   const newPasswordInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset form when modal opens/closes or mode changes
   useEffect(() => {
     if (open) {
       setFormData({
@@ -100,13 +93,11 @@ export default function AccountModal({
     }
   }, [open, initialMode]);
 
-  // Email validation
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Password validation - 8+ chars, lowercase, uppercase, numbers, special characters
   const validatePassword = (
     password: string
   ): { isValid: boolean; message?: string } => {
@@ -138,7 +129,6 @@ export default function AccountModal({
       };
     }
 
-    // SQL-safe special characters
     if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(password)) {
       return {
         isValid: false,
@@ -150,7 +140,6 @@ export default function AccountModal({
     return { isValid: true };
   };
 
-  // Real-time password validation for visual feedback
   const updatePasswordValidation = (password: string) => {
     setPasswordValidation({
       length: password.length >= 8,
@@ -165,19 +154,16 @@ export default function AccountModal({
     e.preventDefault();
     if (isSubmitting) return;
 
-    // Validate email
     if (!validateEmail(formData.email)) {
       setError("Por favor, insira um endereço de e-mail válido");
       return;
     }
 
     if (mode === "forgot-password") {
-      // For forgot password, we only need email
       await handleForgotPassword();
       return;
     }
 
-    // Validate password for login and register modes
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid) {
       setError(passwordValidation.message || "Senha inválida");
@@ -185,7 +171,6 @@ export default function AccountModal({
     }
 
     if (mode === "register") {
-      // Validate required fields for registration
       if (!formData.firstName.trim()) {
         setError("O nome é obrigatório");
         return;
@@ -219,7 +204,6 @@ export default function AccountModal({
         throw new Error(data.error || "Falha no registro");
       }
 
-      // Show success message
       setShowSuccess(true);
       setFormData({
         email: "",
@@ -236,7 +220,6 @@ export default function AccountModal({
         special: false,
       });
 
-      // Auto-close after 3 seconds
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
@@ -272,13 +255,10 @@ export default function AccountModal({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Store the token in localStorage
         localStorage.setItem("authToken", result.data.token);
 
-        // Set unlock time for session management (account holders are considered "unlocked")
         localStorage.setItem("unlockTime", Date.now().toString());
 
-        // Store user info for the AccountButton
         localStorage.setItem(
           "accountUser",
           JSON.stringify({
@@ -288,7 +268,6 @@ export default function AccountModal({
           })
         );
 
-        // Clear form
         setFormData({
           email: "",
           password: "",
@@ -304,7 +283,6 @@ export default function AccountModal({
           special: false,
         });
 
-        // Close modal immediately and refresh page to show logged-in state
         onClose();
       } else {
         setError(result.error || "Falha no login. Por favor, tente novamente.");
@@ -347,7 +325,6 @@ export default function AccountModal({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Show success message
         setShowSuccess(true);
         setFormData({
           email: "",
@@ -364,7 +341,6 @@ export default function AccountModal({
           special: false,
         });
 
-        // Auto-close after 3 seconds
         setTimeout(() => {
           setShowSuccess(false);
           onClose();
@@ -403,7 +379,6 @@ export default function AccountModal({
     setShowSuccess(false);
   };
 
-  // Handle email verification
   const handleVerification = async (token: string) => {
     if (!token) {
       setVerificationState("error");
@@ -429,13 +404,11 @@ export default function AccountModal({
           data.data.message || "Conta verificada com sucesso!"
         );
 
-        // Start countdown to login
         setVerificationCountdown(3);
         const timer = setInterval(() => {
           setVerificationCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(timer);
-              // Transition to login mode
               setMode("login");
               setVerificationState("loading");
               setError("");
@@ -458,7 +431,6 @@ export default function AccountModal({
     }
   };
 
-  // Handle password reset token validation
   const handlePasswordReset = async (token: string) => {
     if (!token) {
       setResetState("invalid");
@@ -494,12 +466,10 @@ export default function AccountModal({
     }
   };
 
-  // Handle password reset submission
   const handlePasswordResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    // Validate passwords
     const passwordValidation = validatePassword(formData.password);
     if (!passwordValidation.isValid) {
       setError(passwordValidation.message || "Senha inválida");
@@ -532,13 +502,11 @@ export default function AccountModal({
         setResetState("success");
         setResetMessage(data.data.message || "Senha redefinida com sucesso!");
 
-        // Start countdown to login
         setResetCountdown(5);
         const timer = setInterval(() => {
           setResetCountdown((prev) => {
             if (prev <= 1) {
               clearInterval(timer);
-              // Transition to login mode
               setMode("login");
               setResetState("loading");
               setError("");
@@ -563,36 +531,28 @@ export default function AccountModal({
     }
   };
 
-  // Handle verification when modal opens with verify mode
   useEffect(() => {
     if (mode === "verify" && verificationToken && open) {
       handleVerification(verificationToken);
     }
   }, [mode, verificationToken, open]);
 
-  // Handle password reset when modal opens with reset-password mode
   useEffect(() => {
     if (mode === "reset-password" && resetToken && open) {
       handlePasswordReset(resetToken);
     }
   }, [mode, resetToken, open]);
 
-  // Focus management - focus the first input field when modal opens or mode changes
   useEffect(() => {
     if (open && !showSuccess && !isSubmitting) {
-      // Small delay to ensure the DOM is ready
       const timer = setTimeout(() => {
         if (mode === "register") {
-          // For register mode, focus on email field
           emailInputRef.current?.focus();
         } else if (mode === "login") {
-          // For login mode, focus on email field
           emailInputRef.current?.focus();
         } else if (mode === "forgot-password") {
-          // For forgot password mode, focus on email field
           emailInputRef.current?.focus();
         } else if (mode === "reset-password" && resetState === "valid") {
-          // For password reset mode, focus on new password field
           newPasswordInputRef.current?.focus();
         }
       }, 100);
@@ -628,7 +588,6 @@ export default function AccountModal({
                   : "Digite seu e-mail para receber um link de redefinição de senha"}
               </DialogDescription>
 
-              {/* Mode toggle in header - hide during verification and reset-password */}
               {mode !== "verify" && mode !== "reset-password" && (
                 <div className="mt-4 text-center">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -794,7 +753,6 @@ export default function AccountModal({
                     onSubmit={handlePasswordResetSubmit}
                     className="space-y-4"
                   >
-                    {/* New Password */}
                     <div>
                       <label className="account-modal-label">Nova senha</label>
                       <Input
@@ -813,7 +771,6 @@ export default function AccountModal({
                       />
                     </div>
 
-                    {/* Confirm Password */}
                     <div>
                       <label className="account-modal-label">
                         Confirmar nova senha
@@ -834,7 +791,6 @@ export default function AccountModal({
                       />
                     </div>
 
-                    {/* Password Requirements */}
                     <div className="mt-3 space-y-2">
                       <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Requisitos da senha:
@@ -933,12 +889,10 @@ export default function AccountModal({
                       </div>
                     </div>
 
-                    {/* Error message */}
                     {error && (
                       <div className="account-modal-error">{error}</div>
                     )}
 
-                    {/* Submit Button */}
                     <Button
                       type="submit"
                       className="account-modal-submit"
@@ -1037,7 +991,6 @@ export default function AccountModal({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
               <div>
                 <label className="account-modal-label">E-mail</label>
                 <Input
@@ -1054,7 +1007,6 @@ export default function AccountModal({
                 />
               </div>
 
-              {/* Password - Not shown in forgot password mode */}
               {mode !== "forgot-password" && (
                 <div>
                   <label className="account-modal-label">Senha</label>
@@ -1175,7 +1127,6 @@ export default function AccountModal({
                 </div>
               )}
 
-              {/* Registration fields */}
               {mode === "register" && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
@@ -1213,10 +1164,8 @@ export default function AccountModal({
                 </>
               )}
 
-              {/* Error message */}
               {error && <div className="account-modal-error">{error}</div>}
 
-              {/* Submit button */}
               <Button
                 type="submit"
                 className="account-modal-submit mt-2"
@@ -1235,9 +1184,7 @@ export default function AccountModal({
                   : "Enviar e-mail de redefinição"}
               </Button>
 
-              {/* Mode toggle and forgot password */}
               <div className="space-y-3">
-                {/* Forgot Password link for login mode */}
                 {mode === "login" && (
                   <div className="text-center">
                     <button
@@ -1251,7 +1198,6 @@ export default function AccountModal({
                   </div>
                 )}
 
-                {/* Privacy Policy and Terms of Use links for registration mode */}
                 {mode === "register" && (
                   <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
                     <p className="mb-2">
@@ -1284,13 +1230,11 @@ export default function AccountModal({
         </div>
       </DialogContent>
 
-      {/* Privacy Policy Modal */}
       <PrivacyPolicyModal
         open={showPrivacyPolicy}
         onClose={() => setShowPrivacyPolicy(false)}
       />
 
-      {/* Terms of Use Modal */}
       <TermsOfUseModal
         open={showTermsOfUse}
         onClose={() => setShowTermsOfUse(false)}

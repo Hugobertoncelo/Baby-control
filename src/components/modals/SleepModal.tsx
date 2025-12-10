@@ -26,9 +26,7 @@ interface SleepModalProps {
   babyId: string | undefined;
   initialTime: string;
   activity?: SleepLogResponse;
-  /**
-   * Optional variant to control the modal styling
-   */
+
   variant?: "sleep" | "default";
 }
 
@@ -50,12 +48,10 @@ export default function SleepModal({
     quality: "" as SleepQuality | "",
   });
 
-  // Format date string to be compatible with datetime-local input
   const formatDateForInput = (dateStr: string) => {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return "";
 
-    // Format as YYYY-MM-DDThh:mm in local time
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -68,7 +64,6 @@ export default function SleepModal({
   useEffect(() => {
     if (open) {
       if (activity) {
-        // Editing mode - populate with activity data
         setFormData({
           startTime: formatDateForInput(initialTime),
           endTime: activity.endTime ? formatDateForInput(activity.endTime) : "",
@@ -77,7 +72,6 @@ export default function SleepModal({
           quality: activity.quality || "",
         });
       } else if (isSleeping && babyId) {
-        // Ending sleep mode - fetch current sleep
         const fetchCurrentSleep = async () => {
           try {
             const response = await fetch(`/api/sleep-log?babyId=${babyId}`);
@@ -86,7 +80,6 @@ export default function SleepModal({
             const data = await response.json();
             if (!data.success) return;
 
-            // Find the most recent sleep record without an end time
             const currentSleep = data.data.find(
               (log: SleepLogResponse) => !log.endTime
             );
@@ -97,7 +90,7 @@ export default function SleepModal({
                 endTime: formatDateForInput(initialTime),
                 type: currentSleep.type,
                 location: currentSleep.location || "",
-                quality: "GOOD", // Default to GOOD when ending sleep
+                quality: "GOOD",
               }));
               return;
             }
@@ -107,18 +100,16 @@ export default function SleepModal({
         };
         fetchCurrentSleep();
       } else {
-        // Starting new sleep
         setFormData((prev) => ({
           ...prev,
           startTime: formatDateForInput(initialTime),
           endTime: isSleeping ? formatDateForInput(initialTime) : "",
-          type: prev.type || "NAP", // Default to NAP if not set
+          type: prev.type || "NAP",
           location: prev.location,
           quality: isSleeping ? "GOOD" : prev.quality,
         }));
       }
     } else {
-      // Reset form when modal closes
       setFormData({
         startTime: initialTime,
         endTime: "",
@@ -133,7 +124,6 @@ export default function SleepModal({
     e.preventDefault();
     if (!babyId) return;
 
-    // Validate required fields
     if (
       !formData.type ||
       !formData.startTime ||
@@ -156,7 +146,6 @@ export default function SleepModal({
       let response;
 
       if (activity) {
-        // Editing mode - update existing record
         const payload = {
           startTime,
           endTime,
@@ -174,7 +163,6 @@ export default function SleepModal({
           body: JSON.stringify(payload),
         });
       } else if (isSleeping) {
-        // Ending sleep - update existing record
         const sleepResponse = await fetch(`/api/sleep-log?babyId=${babyId}`);
         if (!sleepResponse.ok) throw new Error("Failed to fetch sleep logs");
         const sleepData = await sleepResponse.json();
@@ -183,7 +171,8 @@ export default function SleepModal({
         const currentSleep = sleepData.data.find(
           (log: SleepLogResponse) => !log.endTime
         );
-        if (!currentSleep) throw new Error("No ongoing sleep record found");
+        if (!currentSleep)
+          throw new Error("Nenhum registro de sono contínuo encontrado");
 
         response = await fetch(`/api/sleep-log?id=${currentSleep.id}`, {
           method: "PUT",
@@ -197,7 +186,6 @@ export default function SleepModal({
           }),
         });
       } else {
-        // Starting new sleep
         const payload = {
           babyId,
           startTime,
@@ -218,13 +206,12 @@ export default function SleepModal({
       }
 
       if (!response.ok) {
-        throw new Error("Failed to save sleep log");
+        throw new Error("Falha ao salvar o registro de sono");
       }
 
       onClose();
-      if (!activity) onSleepToggle(); // Only toggle sleep state when not editing
+      if (!activity) onSleepToggle();
 
-      // Reset form data
       setFormData({
         startTime: initialTime,
         endTime: "",
@@ -271,7 +258,7 @@ export default function SleepModal({
                 className="w-full"
                 required
                 tabIndex={-1}
-                disabled={isSleeping && !isEditMode} // Only disabled when ending sleep and not editing
+                disabled={isSleeping && !isEditMode}
               />
             </div>
             {(isSleeping || isEditMode) && (
@@ -298,7 +285,7 @@ export default function SleepModal({
                 onValueChange={(value: SleepType) =>
                   setFormData({ ...formData, type: value })
                 }
-                disabled={isSleeping && !isEditMode} // Only disabled when ending sleep and not editing
+                disabled={isSleeping && !isEditMode}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione o tipo" />
@@ -316,7 +303,7 @@ export default function SleepModal({
                 onValueChange={(value: string) =>
                   setFormData({ ...formData, location: value })
                 }
-                disabled={isSleeping && !isEditMode} // Only disabled when ending sleep and not editing
+                disabled={isSleeping && !isEditMode}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione o local" />
