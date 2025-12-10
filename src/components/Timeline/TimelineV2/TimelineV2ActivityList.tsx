@@ -53,10 +53,9 @@ const TimelineV2ActivityList = ({
   const groupedActivities = useMemo(() => {
     const groups: { [key: string]: ActivityType[] } = {
       "de manhã cedo": [],
-      morning: [],
-      afternoon: [],
-      evening: [],
-      night: [],
+      manhã: [],
+      tarde: [],
+      noite: [],
     };
 
     activities.forEach((activity) => {
@@ -106,11 +105,10 @@ const TimelineV2ActivityList = ({
     });
 
     return [
-      { timeOfDay: "night", activities: groups.night },
-      { timeOfDay: "evening", activities: groups.evening },
-      { timeOfDay: "afternoon", activities: groups.afternoon },
-      { timeOfDay: "morning", activities: groups.morning },
-      { timeOfDay: "early-morning", activities: groups["early-morning"] },
+      { timeOfDay: "noite", activities: groups["noite"] },
+      { timeOfDay: "tarde", activities: groups["tarde"] },
+      { timeOfDay: "manhã", activities: groups["manhã"] },
+      { timeOfDay: "de manhã cedo", activities: groups["de manhã cedo"] },
     ].filter((group) => group.activities.length > 0);
   }, [activities, selectedDate]);
 
@@ -121,7 +119,7 @@ const TimelineV2ActivityList = ({
         ref={contentRef}
       >
         <div className="min-h-full bg-white relative timeline-activity-list px-5 pb-5">
-          <div className="absolute position: sticky top-0 left-0 right-0 h-2 bg-gradient-to-b from-white to-transparent pointer-events-none z-20 timeline-top-gradient"></div>
+          <div className="sticky top-0 left-0 right-0 h-2 bg-linear-to-b from-white to-transparent pointer-events-none z-20 timeline-top-gradient"></div>
           {activities.length > 0 ? (
             <div className="relative">
               <div className="border-l-2 border-gray-200 pl-5 ml-2.5 timeline-container">
@@ -324,7 +322,7 @@ const TimelineV2ActivityList = ({
                               }
                             >
                               <div
-                                className={`flex-shrink-0 event-icon ${activityTypeClass}`}
+                                className={`shrink-0 event-icon ${activityTypeClass}`}
                               >
                                 {getActivityIcon(activity)}
                               </div>
@@ -551,7 +549,7 @@ const TimelineV2ActivityList = ({
                                 </div>
                               </div>
 
-                              <div className="flex-shrink-0 text-xs text-gray-500 event-time">
+                              <div className="shrink-0 text-xs text-gray-500 event-time">
                                 {timeStr}
                               </div>
                             </motion.div>

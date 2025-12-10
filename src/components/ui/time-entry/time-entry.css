@@ -1,25 +1,25 @@
 html.dark .time-entry-container {
-  color: #e5e7eb !important; 
-  background-color: #1f2937 !important; 
+  color: #e5e7eb !important;
+  background-color: #1f2937 !important;
 }
 
 html.dark .time-entry-header {
-  background-image: linear-gradient(to right, #0d9488, #065f46) !important; /
+  background-image: linear-gradient(to right, #0d9488, #065f46) !important;
 }
 
 html.dark .time-entry-clock-face {
-  background-color: #374151 !important; 
+  background-color: #374151 !important;
 }
 
 html.dark .time-entry-hour-marker,
 html.dark .time-entry-minute-marker {
-  color: #e5e7eb !important; 
+  color: #e5e7eb !important;
 }
 
 html.dark .time-entry-hour-marker-selected,
 html.dark .time-entry-minute-marker-selected {
-  background-color: #0d9488 !important; 
-  color: #f9fafb !important; 
+  background-color: #0d9488 !important;
+  color: #f9fafb !important;
 }
 
 html.dark .time-entry-clock-hand {
@@ -27,20 +27,20 @@ html.dark .time-entry-clock-hand {
 }
 
 html.dark .time-entry-clock-center {
-  background-color: #14b8a6 !important; 
+  background-color: #14b8a6 !important;
 }
 
 html.dark .time-entry-footer {
-  border-color: #374151 !important; 
+  border-color: #374151 !important;
 }
 
 html.dark .time-entry-clear-button,
 html.dark .time-entry-cancel-button {
-  color: #d1d5db !important; 
+  color: #d1d5db !important;
 }
 
 html.dark .time-entry-ok-button {
-  background-image: linear-gradient(to right, #0d9488, #059669) !important; 
+  background-image: linear-gradient(to right, #0d9488, #059669) !important;
 }
 
 .time-entry-clock-face {
@@ -79,7 +79,7 @@ html.dark .time-entry-ok-button {
 
 .time-entry-hour-marker:hover:not(.time-entry-hour-marker-selected),
 .time-entry-minute-marker:hover:not(.time-entry-minute-marker-selected) {
-  background-color: rgba(20, 184, 166, 0.1); 
+  background-color: rgba(20, 184, 166, 0.1);
 }
 
 .time-entry-minute-tick-marker {
@@ -87,8 +87,10 @@ html.dark .time-entry-ok-button {
   cursor: pointer;
 }
 
-.time-entry-minute-tick-marker:hover:not(.time-entry-minute-tick-marker-selected) {
-  background-color: rgba(20, 184, 166, 0.5); 
+.time-entry-minute-tick-marker:hover:not(
+    .time-entry-minute-tick-marker-selected
+  ) {
+  background-color: rgba(20, 184, 166, 0.5);
 }
 
 .time-entry-ampm-button {
@@ -97,7 +99,7 @@ html.dark .time-entry-ok-button {
 }
 
 .time-entry-ampm-button:hover:not(.time-entry-ampm-button-selected) {
-  color: rgba(20, 184, 166, 0.8); 
+  color: rgba(20, 184, 166, 0.8);
 }
 
 .time-entry-footer button {
@@ -110,7 +112,7 @@ html.dark .time-entry-ok-button {
     width: 240px;
     height: 240px;
   }
-  
+
   .time-entry-hour-marker {
     width: 32px;
     height: 32px;
