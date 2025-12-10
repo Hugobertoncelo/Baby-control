@@ -29,14 +29,14 @@ export const getActivityIcon = (activity: ActivityType) => {
       return <Moon className="h-4 w-4 text-white" />;
     }
     if ("amount" in activity) {
-      return <Icon iconNode={bottleBaby} className="h-4 w-4 text-gray-700" />;
+      return <Icon iconNode={bottleBaby} className="h-4 w-4 text-white" />;
     }
     if ("condition" in activity) {
       return <Icon iconNode={diaper} className="h-4 w-4 text-white" />;
     }
   }
   if ("content" in activity) {
-    return <Edit className="h-4 w-4 text-gray-700" />;
+    return <Edit className="h-4 w-4 text-white" />;
   }
   if ("soapUsed" in activity) {
     return <Bath className="h-4 w-4 text-white" />;
@@ -178,7 +178,7 @@ export const getActivityDetails = (
       const details = [
         {
           label: "Tipo",
-          value: activity.type === "NAP" ? "Sesta" : "Noite de sono",
+          value: activity.type === "NAP" ? "Berço" : "Noite de sono",
         },
         { label: "Hora de início", value: startTime },
       ];
@@ -594,7 +594,7 @@ export const getActivityDescription = (
               )
               .join(" ");
       return {
-        type: activity.type === "NAP" ? "Sesta" : "Noite de sono",
+        type: activity.type === "NAP" ? "Berço" : "Noite de sono",
         details: `${startTimeFormatted} - ${endTimeFormatted
           .split(" ")
           .slice(-2)

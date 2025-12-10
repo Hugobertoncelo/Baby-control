@@ -488,7 +488,7 @@ const TimelineV2DailyStats: React.FC<TimelineV2DailyStatsProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5 px-2 py-1">
-                      <div className={`flex-shrink-0 ${tile.iconColor}`}>
+                      <div className={`shrink-0 ${tile.iconColor}`}>
                         <div className="w-5 h-5">{tile.icon}</div>
                       </div>
 

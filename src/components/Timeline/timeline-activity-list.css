@@ -152,12 +152,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb;
+  background: #4a6a8d;
   padding: 0.5rem;
 }
 
 .event-icon.sleep {
-  background: linear-gradient(to bottom right, #9ca3af, #6b7280, #4b5563);
+  background: linear-gradient(to bottom right, #afaf9c, #6b7280, #4b5563);
 }
 .event-icon.sleep svg,
 .event-icon.sleep svg path {
@@ -520,7 +520,7 @@ html.dark .timeline-v2-daily-stats .text-gray-800 {
 }
 
 html.dark .timeline-v2-daily-stats .text-gray-700 {
-  color: rgb(229, 231, 235) !important;
+  color: rgb(235, 235, 229) !important;
 }
 
 html.dark .timeline-v2-daily-stats .text-gray-500 {

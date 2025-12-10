@@ -413,15 +413,15 @@ export function ActivityTileGroup({
   };
 
   const activityDisplayNames: Record<ActivityType, string> = {
-    sleep: "Sleep",
-    feed: "Feed",
-    diaper: "Diaper",
-    note: "Note",
-    bath: "Bath",
-    pump: "Pump",
-    measurement: "Measurement",
-    milestone: "Milestone",
-    medicine: "Medicine",
+    sleep: "Dormir",
+    feed: "Alimentar",
+    diaper: "Fralda",
+    note: "Observação",
+    bath: "Banho",
+    pump: "Bomba",
+    measurement: "Medição",
+    milestone: "Marco",
+    medicine: "Medicamento",
   };
 
   const renderActivityTile = (activity: ActivityType) => {
@@ -718,7 +718,7 @@ export function ActivityTileGroup({
                   id: "milestone-button",
                   babyId: selectedBaby.id,
                   date: new Date().toISOString(),
-                  title: "New Milestone",
+                  title: "Novo marco",
                   description: "",
                   category: "MOTOR",
                   caretakerId: null,
