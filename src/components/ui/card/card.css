@@ -1,34 +1,32 @@
-/* Dark mode overrides for Card component */
 html.dark .card {
-  background-color: rgba(31, 41, 55, 0.95) !important; /* gray-800 with opacity */
-  border-color: #374151 !important; /* gray-700 */
-  color: #e5e7eb !important; /* gray-200 */
+  background-color: rgba(31, 41, 55, 0.95) !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
 }
 
 html.dark .card:hover {
-  background-color: rgba(31, 41, 55, 0.98) !important; /* darker gray-800 with opacity on hover */
+  background-color: rgba(31, 41, 55, 0.98) !important;
 }
 
 html.dark .card-header {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .card-title {
-  /* Keep the gradient but ensure it works in dark mode */
-  background: linear-gradient(to right, #5eead4, #34d399) !important; /* teal-300 to emerald-400 */
+  background: linear-gradient(to right, #5eead4, #34d399) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
 }
 
 html.dark .card-description {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .card-content {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .card-footer {
-  color: #e5e7eb !important; /* gray-200 */
-} 
+  color: #e5e7eb !important;
+}

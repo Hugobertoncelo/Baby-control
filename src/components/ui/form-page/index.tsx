@@ -12,11 +12,6 @@ import {
   FormPageTab,
 } from "./form-page.types";
 
-/**
- * FormPageHeader component
- *
- * The header section of the form page with title, description, and close button
- */
 export function FormPageHeader({
   title,
   description,
@@ -40,11 +35,6 @@ export function FormPageHeader({
   );
 }
 
-/**
- * FormPageContent component
- *
- * The main content area of the form page
- */
 export function FormPageContent({ children, className }: FormPageContentProps) {
   const { theme } = useTheme();
   return (
@@ -54,11 +44,6 @@ export function FormPageContent({ children, className }: FormPageContentProps) {
   );
 }
 
-/**
- * FormPageFooter component
- *
- * The footer section of the form page, typically containing action buttons
- */
 export function FormPageFooter({ children, className }: FormPageFooterProps) {
   const { theme } = useTheme();
   return (
@@ -68,11 +53,6 @@ export function FormPageFooter({ children, className }: FormPageFooterProps) {
   );
 }
 
-/**
- * FormPageTabs component
- *
- * Tab navigation component for form pages
- */
 export function FormPageTabs({
   tabs,
   activeTab,
@@ -104,7 +84,7 @@ export function FormPageTabs({
             onClick={() => onTabChange(tab.id)}
             className={cn(
               tabStyles.tabButton,
-              "form-page-tab-button relative", // Added relative for badge positioning
+              "form-page-tab-button relative",
               isActive && tabStyles.tabButtonActive,
               isActive && "form-page-tab-button-active"
             )}
@@ -113,7 +93,6 @@ export function FormPageTabs({
             aria-selected={isActive}
             aria-controls={`tabpanel-${tab.id}`}
           >
-            {/* Icon */}
             {IconComponent && (
               <IconComponent
                 className={cn(tabStyles.tabIcon, "form-page-tab-icon")}
@@ -126,18 +105,14 @@ export function FormPageTabs({
                 className={cn(tabStyles.tabImage, "form-page-tab-image")}
               />
             )}
-
-            {/* Label */}
             <span>{tab.label}</span>
-
-            {/* Notification Badge */}
             {tab.notificationCount && tab.notificationCount > 0 && (
               <span
                 className={cn(
                   tabStyles.notificationBadge,
                   "form-page-tab-notification-badge"
                 )}
-                aria-label={`${tab.notificationCount} notifications`}
+                aria-label={`${tab.notificationCount} notificações`}
               >
                 {tab.notificationCount > 99 ? "99+" : tab.notificationCount}
               </span>
@@ -149,18 +124,6 @@ export function FormPageTabs({
   );
 }
 
-/**
- * FormPage component
- *
- * A full-screen form page that slides in from the right side of the screen.
- * It contains a header, scrollable content area, and a footer for action buttons.
- *
- * Can be used with or without tabs. When tabs are provided, it will render
- * a tabbed interface. Otherwise, it renders the children directly.
- *
- * On mobile, the form content is centered, while on larger screens (>600px),
- * the form content is left-aligned.
- */
 export function FormPage({
   isOpen,
   onClose,
@@ -175,10 +138,8 @@ export function FormPage({
 }: FormPageProps) {
   const { theme } = useTheme();
 
-  // State to track if we're in a browser environment
   const [mounted, setMounted] = useState(false);
 
-  // Internal state for uncontrolled tab mode
   const [internalActiveTab, setInternalActiveTab] = useState<string>(() => {
     if (tabs && tabs.length > 0) {
       return defaultActiveTab || tabs[0].id;
@@ -186,11 +147,9 @@ export function FormPage({
     return "";
   });
 
-  // Determine if we're in controlled or uncontrolled mode
   const isControlled = activeTab !== undefined && onTabChange !== undefined;
   const currentActiveTab = isControlled ? activeTab : internalActiveTab;
 
-  // Handle tab change
   const handleTabChange = (tabId: string) => {
     if (isControlled && onTabChange) {
       onTabChange(tabId);
@@ -199,13 +158,11 @@ export function FormPage({
     }
   };
 
-  // Set mounted state to true after component mounts
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
 
-  // Close the form page when pressing Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -215,7 +172,6 @@ export function FormPage({
 
     window.addEventListener("keydown", handleKeyDown);
 
-    // Prevent scrolling when form page is open
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -228,15 +184,12 @@ export function FormPage({
     };
   }, [isOpen, onClose]);
 
-  // Find the active tab content
   const activeTabContent = tabs?.find(
     (tab) => tab.id === currentActiveTab
   )?.content;
 
-  // Content to be rendered
   const content = (
     <>
-      {/* Overlay */}
       <div
         className={cn(
           formPageStyles.overlay,
@@ -245,10 +198,9 @@ export function FormPage({
         )}
         onClick={onClose}
         aria-hidden="true"
-        style={{ isolation: "isolate" }} // Create a new stacking context
+        style={{ isolation: "isolate" }}
       />
 
-      {/* Form Page Panel */}
       <div
         className={cn(
           formPageStyles.container,
@@ -260,8 +212,8 @@ export function FormPage({
         )}
         role="dialog"
         aria-modal="true"
-        aria-label="Form page"
-        style={{ isolation: "isolate" }} // Create a new stacking context
+        aria-label="Página do formulário"
+        style={{ isolation: "isolate" }}
       >
         <FormPageHeader
           title={title}
@@ -269,7 +221,6 @@ export function FormPage({
           onClose={onClose}
         />
 
-        {/* Tab navigation (if tabs are provided) */}
         {tabs && tabs.length > 0 && (
           <div className="px-4 pt-2">
             <FormPageTabs
@@ -280,31 +231,26 @@ export function FormPage({
           </div>
         )}
 
-        {/* Content area */}
         <div className={cn(formPageStyles.content, "form-page-content")}>
           {tabs && tabs.length > 0 ? (
-            // Render active tab content with proper padding
             <div
               role="tabpanel"
               id={`tabpanel-${currentActiveTab}`}
               aria-labelledby={`tab-${currentActiveTab}`}
-              className="p-2 pb-20" // Add padding and bottom space for footer
+              className="p-2 pb-20"
             >
               {activeTabContent}
             </div>
           ) : (
-            // Render children directly when no tabs
             <div className={formPageStyles.formContent}>{children}</div>
           )}
         </div>
 
-        {/* Always render children when tabs are provided (for footer) */}
         {tabs && tabs.length > 0 && children}
       </div>
     </>
   );
 
-  // Use createPortal to render at the root level when in browser environment
   return mounted && typeof document !== "undefined"
     ? createPortal(content, document.body)
     : null;

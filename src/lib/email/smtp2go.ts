@@ -8,7 +8,7 @@ export const sendWithSmtp2goApi = async (
 
   const body = {
     sender: from,
-    to: [to], // SMTP2GO API expects an array of strings
+    to: [to],
     subject,
     text_body: text,
     html_body: html,
@@ -32,7 +32,7 @@ export const sendWithSmtp2goApi = async (
       const errorMessage =
         data?.data?.error ||
         data?.data?.failures?.[0]?.error ||
-        "Failed to send email with SMTP2GO";
+        "Falha ao enviar e-mail com SMTP2GO";
       return { success: false, error: errorMessage };
     }
   } catch (error) {

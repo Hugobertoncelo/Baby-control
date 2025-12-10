@@ -1,83 +1,81 @@
-/* Dark mode overrides for Checkbox component */
 html.dark .checkbox {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #4b5563 !important; /* gray-600 */
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
 }
 
 html.dark .checkbox[data-state="checked"] {
-  background-color: #5eead4 !important; /* teal-300 */
-  border-color: #5eead4 !important; /* teal-300 */
+  background-color: #5eead4 !important;
+  border-color: #5eead4 !important;
 }
 
 html.dark .checkbox-check {
-  color: #1f2937 !important; /* gray-800 */
+  color: #1f2937 !important;
 }
 
 html.dark .checkbox:focus-visible {
-  outline: 2px solid #5eead4 !important; /* teal-300 */
+  outline: 2px solid #5eead4 !important;
   outline-offset: 2px !important;
 }
 
-/* Variant-specific dark mode styles from checkbox.styles.ts */
 html.dark .checkbox-default[data-state="checked"] {
-  background-color: #5eead4 !important; /* teal-300 */
-  border-color: #5eead4 !important; /* teal-300 */
+  background-color: #5eead4 !important;
+  border-color: #5eead4 !important;
 }
 
 html.dark .checkbox-default:not([data-state="checked"]) {
-  border-color: #4b5563 !important; /* gray-600 */
+  border-color: #4b5563 !important;
 }
 
 html.dark .checkbox-primary[data-state="checked"] {
-  background-color: #5eead4 !important; /* teal-300 */
-  border-color: #5eead4 !important; /* teal-300 */
+  background-color: #5eead4 !important;
+  border-color: #5eead4 !important;
 }
 
 html.dark .checkbox-primary:not([data-state="checked"]) {
-  border-color: #0d9488 !important; /* teal-600 */
+  border-color: #0d9488 !important;
 }
 
 html.dark .checkbox-secondary[data-state="checked"] {
-  background-color: #94a3b8 !important; /* slate-400 */
-  border-color: #94a3b8 !important; /* slate-400 */
+  background-color: #94a3b8 !important;
+  border-color: #94a3b8 !important;
 }
 
 html.dark .checkbox-secondary:not([data-state="checked"]) {
-  border-color: #475569 !important; /* slate-600 */
+  border-color: #475569 !important;
 }
 
 html.dark .checkbox-success[data-state="checked"] {
-  background-color: #34d399 !important; /* emerald-400 */
-  border-color: #34d399 !important; /* emerald-400 */
+  background-color: #34d399 !important;
+  border-color: #34d399 !important;
 }
 
 html.dark .checkbox-success:not([data-state="checked"]) {
-  border-color: #059669 !important; /* emerald-600 */
+  border-color: #059669 !important;
 }
 
 html.dark .checkbox-warning[data-state="checked"] {
-  background-color: #fbbf24 !important; /* amber-400 */
-  border-color: #fbbf24 !important; /* amber-400 */
+  background-color: #fbbf24 !important;
+  border-color: #fbbf24 !important;
 }
 
 html.dark .checkbox-warning:not([data-state="checked"]) {
-  border-color: #d97706 !important; /* amber-600 */
+  border-color: #d97706 !important;
 }
 
 html.dark .checkbox-danger[data-state="checked"] {
-  background-color: #f87171 !important; /* red-400 */
-  border-color: #f87171 !important; /* red-400 */
+  background-color: #f87171 !important;
+  border-color: #f87171 !important;
 }
 
 html.dark .checkbox-danger:not([data-state="checked"]) {
-  border-color: #dc2626 !important; /* red-600 */
+  border-color: #dc2626 !important;
 }
 
 html.dark .checkbox-info[data-state="checked"] {
-  background-color: #60a5fa !important; /* blue-400 */
-  border-color: #60a5fa !important; /* blue-400 */
+  background-color: #60a5fa !important;
+  border-color: #60a5fa !important;
 }
 
 html.dark .checkbox-info:not([data-state="checked"]) {
-  border-color: #2563eb !important; /* blue-600 */
+  border-color: #2563eb !important;
 }

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { cn } from '@/src/lib/utils';
+import React from "react";
+import { cn } from "@/src/lib/utils";
 
 interface YearSelectorPageProps {
   currentYear: number;
-  variant?: 'default' | 'compact' | 'date-time-picker';
+  variant?: "default" | "compact" | "date-time-picker";
   onYearSelect: (year: number) => void;
   minYear?: number;
   maxYear?: number;
@@ -16,7 +16,7 @@ export function YearSelectorPage({
   currentYear,
   onYearSelect,
   maxYear = new Date().getFullYear(),
-  decadeStart
+  decadeStart,
 }: YearSelectorPageProps) {
   const currentDecadeStart = decadeStart || Math.floor(currentYear / 12) * 12;
 
@@ -24,7 +24,6 @@ export function YearSelectorPage({
     onYearSelect(year);
   };
 
-  // Generate years for current page
   const years = [];
   for (let i = 0; i < 12; i++) {
     const year = currentDecadeStart + i;
@@ -44,8 +43,8 @@ export function YearSelectorPage({
             className={cn(
               "h-12 w-full rounded-md text-sm font-medium transition-colors",
               "flex items-center justify-center",
-              year === currentYear 
-                ? "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200" 
+              year === currentYear
+                ? "bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200"
                 : "hover:bg-teal-50 hover:text-teal-700 dark:hover:bg-teal-900 dark:hover:text-teal-200 text-gray-700 dark:text-gray-300"
             )}
           >

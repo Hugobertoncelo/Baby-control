@@ -1,14 +1,7 @@
-/**
- * Activity tile styles using TailwindCSS classes
- * Defines all visual variations of the activity tile component
- *
- * This follows the project's design system and is consistent with other UI components
- */
 export const activityTileStyles = {
   base: "group transition-colors duration-200 cursor-pointer",
   container: "flex items-center justify-center px-6 py-3 overflow-hidden",
 
-  // Button styles for each variant when used as a button
   button: {
     base: "h-24 relative cursor-pointer rounded-lg drop-shadow-lg overflow-hidden hover:transition-all duration-200",
     variants: {
@@ -55,7 +48,6 @@ export const activityTileStyles = {
       milestone: "text-pink-600",
       default: "text-gray-800",
     },
-    // Default icon paths for each variant
     defaultIcons: {
       sleep: "/crib-128.png",
       feed: "/bottle-128.png",

@@ -1,64 +1,60 @@
-/* Dark mode overrides for DropdownMenu component */
 html.dark .dropdown-menu-content {
-  background-color: #1f2937 ; /* gray-800 */
-  border-color: #374151 ; /* gray-700 */
+  background-color: #1f2937;
+  border-color: #374151;
 }
 
 html.dark .dropdown-menu-item {
-  color: #e5e7eb ; /* gray-200 */
+  color: #e5e7eb;
 }
 
 html.dark .dropdown-menu-item:hover {
-  background-color: #374151 ; /* gray-700 */
-  color: #10b981 ; /* emerald-300 */
+  background-color: #374151;
+  color: #10b981;
 }
 
-/* Make focus state match hover state in dark mode */
 html.dark .dropdown-menu-item:focus {
-  background-color: #374151 !important; /* gray-700 - same as hover */
-  color: #10b981 !important; /* emerald-300 - same as hover */
+  background-color: #374151 !important;
+  color: #10b981 !important;
   outline: none !important;
 }
 
 html.dark .dropdown-menu-label {
-  color: #e5e7eb ; /* gray-200 */
+  color: #e5e7eb;
 }
 
 html.dark .dropdown-menu-separator {
-  background-color: #374151 ; /* gray-700 */
+  background-color: #374151;
 }
 
 html.dark .dropdown-menu-shortcut {
-  color: #9ca3af ; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .dropdown-menu-icon {
-  color: #9ca3af ; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .dropdown-menu-check-icon {
-    color: #10b981 ; /* emerald-300 */
+  color: #10b981;
 }
 
 html.dark .dropdown-menu-circle-icon {
-  fill: #10b981 ; /* emerald-300 */
+  fill: #10b981;
 }
 
-/* Additional dark mode styles for menu button */
 html.dark .dropdown-menu-button {
-  border-color: #10b981 ; /* emerald-300 */
-  background-color: transparent ;
+  border-color: #10b981;
+  background-color: transparent;
 }
 
 html.dark .dropdown-menu-button:hover {
-  background-color: #374151 ; /* gray-700 */
+  background-color: #374151;
 }
 
 html.dark .dropdown-menu-button-icon {
-  color: #10b981 ; /* emerald-300 */
+  color: #10b981;
 }
 
-/* Dark mode styles for drag handle */
 html.dark .dropdown-menu-drag-handle {
-  color: #6b7280 ; /* gray-500 */
+  color: #6b7280;
 }

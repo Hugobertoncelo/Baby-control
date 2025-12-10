@@ -9,13 +9,16 @@ export const sendEmail = async (props: SendEmailProps) => {
   const emailConfig = await prisma.emailConfig.findFirst();
 
   if (!emailConfig) {
-    return { success: false, error: "Email configuration not found." };
+    return { success: false, error: "Configuração de e-mail não encontrada." };
   }
 
   switch (emailConfig.providerType) {
     case "SENDGRID":
       if (!emailConfig.sendGridApiKey) {
-        return { success: false, error: "SendGrid API key is not configured." };
+        return {
+          success: false,
+          error: "Chave de API do SendGrid não está configurada.",
+        };
       }
       const decryptedSendGridKey = isEncrypted(emailConfig.sendGridApiKey)
         ? decrypt(emailConfig.sendGridApiKey)
@@ -24,7 +27,10 @@ export const sendEmail = async (props: SendEmailProps) => {
 
     case "SMTP2GO":
       if (!emailConfig.smtp2goApiKey) {
-        return { success: false, error: "SMTP2GO API key is not configured." };
+        return {
+          success: false,
+          error: "Chave de API do SMTP2GO não está configurada.",
+        };
       }
       const decryptedSmtp2goKey = isEncrypted(emailConfig.smtp2goApiKey)
         ? decrypt(emailConfig.smtp2goApiKey)
@@ -40,7 +46,7 @@ export const sendEmail = async (props: SendEmailProps) => {
       ) {
         return {
           success: false,
-          error: "Manual SMTP settings are incomplete.",
+          error: "As configurações SMTP manuais estão incompletas.",
         };
       }
       const decryptedPassword = isEncrypted(emailConfig.password)
@@ -61,6 +67,6 @@ export const sendEmail = async (props: SendEmailProps) => {
       });
 
     default:
-      return { success: false, error: "Unsupported email provider." };
+      return { success: false, error: "Provedor de e-mail não suportado." };
   }
 };

@@ -1,15 +1,5 @@
-import { cva } from "class-variance-authority"
+import { cva } from "class-variance-authority";
 
-/**
- * Toast variant styles using class-variance-authority
- * Defines all visual variations of the toast component
- *
- * This uses TailwindCSS classes for styling and follows the project's design system
- * When adapting to React Native, these styles will need to be converted to React Native StyleSheet
- * or a compatible styling solution like NativeWind
- *
- * @see https://cva.style/docs for more information on class-variance-authority
- */
 export const toastVariants = cva(
   "relative flex items-start gap-3 rounded-lg border p-4 shadow-lg transition-all duration-300 ease-in-out",
   {
@@ -28,11 +18,8 @@ export const toastVariants = cva(
       variant: "info",
     },
   }
-)
+);
 
-/**
- * Toast icon container styles
- */
 export const toastIconVariants = cva("flex-shrink-0", {
   variants: {
     variant: {
@@ -45,18 +32,16 @@ export const toastIconVariants = cva("flex-shrink-0", {
   defaultVariants: {
     variant: "info",
   },
-})
+});
 
-/**
- * Toast close button styles
- */
 export const toastCloseButtonVariants = cva(
   "absolute top-2 right-2 rounded-md p-1 transition-colors hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2",
   {
     variants: {
       variant: {
         info: "text-blue-600 focus:ring-blue-500 dark:text-blue-400",
-        success: "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-400",
+        success:
+          "text-emerald-600 focus:ring-emerald-500 dark:text-emerald-400",
         warning: "text-amber-600 focus:ring-amber-500 dark:text-amber-400",
         error: "text-red-600 focus:ring-red-500 dark:text-red-400",
       },
@@ -65,5 +50,4 @@ export const toastCloseButtonVariants = cva(
       variant: "info",
     },
   }
-)
-
+);

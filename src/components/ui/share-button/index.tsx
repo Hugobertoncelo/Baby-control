@@ -58,21 +58,11 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
         if (hasShare) {
           try {
             const isCallable = typeof navigator.share === "function";
-            console.log("Web Share API detection:", {
-              hasNavigator,
-              hasShare,
-              isCallable,
-            });
             setSupportsNativeShare(isCallable);
           } catch (error) {
-            console.log("Web Share API check failed:", error);
             setSupportsNativeShare(false);
           }
         } else {
-          console.log("Web Share API not available:", {
-            hasNavigator,
-            hasShare,
-          });
           setSupportsNativeShare(false);
         }
       };
@@ -105,7 +95,6 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
             }
           }
         } catch (error) {
-          console.error("Error generating share URL:", error);
           const currentDomain = window.location.host;
           const currentProtocol = window.location.protocol;
           const url = `${currentProtocol}//${currentDomain}/${familySlug}${urlSuffix}`;
@@ -123,7 +112,9 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
 
       const shareData = {
         title: `${familyName || "Baby Control"} - Login da família`,
-        text: `Junte-se ao ${familyName || "family"} baby control`,
+        text: `Junte-se à família ${
+          familyName || "Baby Control"
+        } no Baby Control`,
         url: shareUrl,
       };
 
@@ -131,12 +122,7 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
         try {
           await navigator.share(shareData);
           return;
-        } catch (error) {
-          console.log(
-            "Native share cancelled or failed, falling back to clipboard:",
-            error
-          );
-        }
+        } catch (error) {}
       }
 
       const hasClipboardAPI =
@@ -149,9 +135,7 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
           await navigator.clipboard.writeText(shareUrl);
           showSuccessToast();
           return;
-        } catch (error) {
-          console.error("Clipboard API failed:", error);
-        }
+        } catch (error) {}
       }
 
       try {
@@ -173,11 +157,10 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
           throw new Error("execCommand copy failed");
         }
       } catch (error) {
-        console.error("All copy methods failed:", error);
         if (typeof prompt === "function") {
-          prompt("Copy this URL:", shareUrl);
+          prompt("Copie esta URL:", shareUrl);
         } else {
-          alert(`Share this URL: ${shareUrl}`);
+          alert(`Compartilhe esta URL: ${shareUrl}`);
         }
       }
     };
@@ -231,10 +214,10 @@ const ShareButton = React.forwardRef<HTMLButtonElement, ShareButtonProps>(
           {showText && (
             <span className="ml-1">
               {copied
-                ? "Copied!"
+                ? "Copiado!"
                 : supportsNativeShare
                 ? "Compartilhar"
-                : "Cópia"}
+                : "Copiar"}
             </span>
           )}
         </Comp>

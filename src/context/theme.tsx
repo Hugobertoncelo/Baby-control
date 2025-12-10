@@ -14,42 +14,32 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Initialize useSystemTheme state - default to false
   const [useSystemTheme, setUseSystemTheme] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false; // Default for SSR
+    if (typeof window === "undefined") return false;
     const savedUseSystemTheme = localStorage.getItem("useSystemTheme");
     return savedUseSystemTheme === null
       ? false
       : savedUseSystemTheme === "true";
   });
 
-  // Initialize theme state based on localStorage, system preference, or default
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "light"; // Default for SSR
-
-    // If using system theme, check system preference
+    if (typeof window === "undefined") return "light";
     if (useSystemTheme) {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
     }
-
-    // Otherwise use saved theme or default to light
     const savedTheme = localStorage.getItem("theme") as Theme;
     return savedTheme || "light";
   });
 
-  // Effect to apply theme class to HTML element and listen for system changes
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Apply the current theme state to the DOM
       if (theme === "dark") {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
-
-      // Listener for system theme changes - only active when useSystemTheme is true
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const handleChange = (e: MediaQueryListEvent) => {
         if (useSystemTheme) {
@@ -57,17 +47,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           setTheme(systemTheme);
         }
       };
-
       mediaQuery.addEventListener("change", handleChange);
       return () => mediaQuery.removeEventListener("change", handleChange);
     }
-  }, [theme, useSystemTheme]); // Re-run this effect when theme or useSystemTheme changes
+  }, [theme, useSystemTheme]);
 
-  // Update theme based on system preference when useSystemTheme changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (useSystemTheme) {
-        // If using system theme, update theme based on system preference
         const systemTheme: Theme = window.matchMedia(
           "(prefers-color-scheme: dark)"
         ).matches
@@ -75,7 +62,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           : "light";
         setTheme(systemTheme);
       } else {
-        // If not using system theme, use the saved theme or default to light
         const savedTheme = localStorage.getItem("theme") as Theme;
         if (savedTheme) {
           setTheme(savedTheme);
@@ -86,26 +72,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-
-    // Only save to localStorage if not using system theme
     if (!useSystemTheme) {
       localStorage.setItem("theme", newTheme);
     }
-
-    // Update the theme state, triggering the useEffect to update the DOM
     setTheme(newTheme);
   };
 
   const toggleUseSystemTheme = () => {
     const newUseSystemTheme = !useSystemTheme;
-
-    // Save the preference to localStorage
     localStorage.setItem("useSystemTheme", String(newUseSystemTheme));
-
-    // Update the state
     setUseSystemTheme(newUseSystemTheme);
-
-    // If switching to system theme, update theme immediately based on system preference
     if (newUseSystemTheme && typeof window !== "undefined") {
       const systemTheme: Theme = window.matchMedia(
         "(prefers-color-scheme: dark)"
@@ -128,7 +104,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error("useTheme deve ser usado dentro de um ThemeProvider");
   }
   return context;
 }

@@ -39,9 +39,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   };
 
   const getNextTheme = () => {
-    if (!isHydrated) return "dark";
-    if (useSystemTheme) return "light";
-    if (theme === "light") return "dark";
+    if (!isHydrated) return "escuro";
+    if (useSystemTheme) return "claro";
+    if (theme === "light") return "escuro";
     return "sistema";
   };
 
@@ -57,9 +57,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   };
 
   const getCurrentThemeLabel = () => {
-    if (!isHydrated) return "Light";
+    if (!isHydrated) return "Claro";
     if (useSystemTheme) return "Sistema";
-    return theme === "light" ? "Light" : "Dark";
+    return theme === "light" ? "Claro" : "Escuro";
   };
 
   if (variant === "light") {
@@ -71,8 +71,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           "theme-toggle-button-light",
           className
         )}
-        aria-label={`Mudar para ${getNextTheme()} mode`}
-        title={`Mudar para ${getNextTheme()} mode`}
+        aria-label={`Mudar para ${getNextTheme()} modo`}
+        title={`Mudar para ${getNextTheme()} modo`}
         {...props}
       >
         <span className="theme-icon-container-light">
@@ -95,8 +95,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
             "theme-toggle-button",
             className
           )}
-          aria-label={`Mudar para ${getNextTheme()} mode`}
-          title={`Mudar para ${getNextTheme()} mode`}
+          aria-label={`Mudar para ${getNextTheme()} modo`}
+          title={`Mudar para ${getNextTheme()} modo`}
           {...props}
         >
           <span className="theme-icon-container">

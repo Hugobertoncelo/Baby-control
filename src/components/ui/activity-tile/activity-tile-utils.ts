@@ -8,9 +8,6 @@ import {
 } from "@/app/api/types";
 import { useTimezone } from "@/app/context/timezone";
 
-/**
- * Gets the activity time from different activity types
- */
 export const getActivityTime = (activity: ActivityType): string => {
   if ("time" in activity && activity.time) {
     return activity.time;
@@ -24,9 +21,6 @@ export const getActivityTime = (activity: ActivityType): string => {
   return new Date().toISOString();
 };
 
-/**
- * Determines the variant based on the activity type
- */
 export const getActivityVariant = (
   activity: ActivityType
 ):
@@ -54,10 +48,6 @@ export const getActivityVariant = (
   return "default";
 };
 
-/**
- * Generates a description for the activity
- * This is a React hook that uses the timezone context
- */
 export const useActivityDescription = () => {
   const {
     formatDateTime,
@@ -65,31 +55,25 @@ export const useActivityDescription = () => {
     formatDuration: formatDurationTime,
   } = useTimezone();
 
-  /**
-   * Formats duration in minutes to HH:MM format with parentheses
-   */
   const formatDuration = (minutes: number): string => {
     return `(${formatDurationTime(minutes)})`;
   };
 
-  /**
-   * Gets the description for an activity
-   */
   const getActivityDescription = (activity: ActivityType) => {
     if ("type" in activity) {
       if ("duration" in activity) {
         const startTimeFormatted = activity.startTime
           ? formatDateTime(activity.startTime)
-          : "unknown";
+          : "desconhecido";
         const endTimeFormatted = activity.endTime
           ? formatDateTime(activity.endTime)
-          : "ongoing";
+          : "em andamento";
         const duration = activity.duration
           ? ` ${formatDuration(activity.duration)}`
           : "";
         const location =
           activity.location === "OTHER"
-            ? "Other"
+            ? "Outro"
             : activity.location
                 ?.split("_")
                 .map(
@@ -98,13 +82,12 @@ export const useActivityDescription = () => {
                 )
                 .join(" ");
 
-        // Extract just the time part from the end time
         const endTimeOnly = activity.endTime
           ? formatTime(activity.endTime)
-          : "ongoing";
+          : "em andamento";
 
         return {
-          type: `${activity.type === "NAP" ? "Nap" : "Night Sleep"}${
+          type: `${activity.type === "NAP" ? "Soneca" : "Sono Noturno"}${
             location ? ` - ${location}` : ""
           }`,
           details: `${startTimeFormatted} - ${endTimeOnly}${duration}`,
@@ -114,11 +97,11 @@ export const useActivityDescription = () => {
         const formatFeedType = (type: string) => {
           switch (type) {
             case "BREAST":
-              return "Breast";
+              return "Amamentação";
             case "BOTTLE":
-              return "Bottle";
+              return "Mamadeira";
             case "SOLIDS":
-              return "Solid Food";
+              return "Alimento Sólido";
             default:
               return type
                 .split("_")
@@ -132,9 +115,9 @@ export const useActivityDescription = () => {
         const formatBreastSide = (side: string) => {
           switch (side) {
             case "LEFT":
-              return "Left";
+              return "Esquerdo";
             case "RIGHT":
-              return "Right";
+              return "Direito";
             default:
               return side
                 .split("_")
@@ -149,16 +132,16 @@ export const useActivityDescription = () => {
         let details = "";
         if (activity.type === "BREAST") {
           const side = activity.side
-            ? `Side: ${formatBreastSide(activity.side)}`
+            ? `Lado: ${formatBreastSide(activity.side)}`
             : "";
           const duration = activity.amount ? `${activity.amount} min` : "";
           details = [side, duration].filter(Boolean).join(", ");
         } else if (activity.type === "BOTTLE") {
-          details = `${activity.amount || "unknown"} oz`;
+          details = `${activity.amount || "desconhecido"} oz`;
         } else if (activity.type === "SOLIDS") {
-          details = `${activity.amount || "unknown"} g`;
+          details = `${activity.amount || "desconhecido"} g`;
           if (activity.food) {
-            details += ` of ${activity.food}`;
+            details += ` de ${activity.food}`;
           }
         }
 
@@ -172,11 +155,11 @@ export const useActivityDescription = () => {
         const formatDiaperType = (type: string) => {
           switch (type) {
             case "WET":
-              return "Wet";
+              return "Molhada";
             case "DIRTY":
-              return "Dirty";
+              return "Suja";
             case "BOTH":
-              return "Wet and Dirty";
+              return "Molhada e Suja";
             default:
               return type
                 .split("_")
@@ -192,11 +175,11 @@ export const useActivityDescription = () => {
             case "NORMAL":
               return "Normal";
             case "LOOSE":
-              return "Loose";
+              return "Mole";
             case "FIRM":
-              return "Firm";
+              return "Firme";
             case "OTHER":
-              return "Other";
+              return "Outro";
             default:
               return condition
                 .split("_")
@@ -210,13 +193,13 @@ export const useActivityDescription = () => {
         const formatDiaperColor = (color: string) => {
           switch (color) {
             case "YELLOW":
-              return "Yellow";
+              return "Amarelo";
             case "BROWN":
-              return "Brown";
+              return "Marrom";
             case "GREEN":
-              return "Green";
+              return "Verde";
             case "OTHER":
-              return "Other";
+              return "Outro";
             default:
               return color
                 .split("_")
@@ -254,11 +237,10 @@ export const useActivityDescription = () => {
           ? activity.content.substring(0, 50) + "..."
           : activity.content;
       return {
-        type: activity.category || "Note",
+        type: activity.category || "Nota",
         details: `${time} - ${truncatedContent}`,
       };
     }
-    // Type guard for BathLogResponse
     const isBathLog = (activity: ActivityType): activity is BathLogResponse => {
       return "soapUsed" in activity || "shampooUsed" in activity;
     };
@@ -267,12 +249,11 @@ export const useActivityDescription = () => {
       const time = formatDateTime(activity.time);
       const notes = activity.notes ? ` - ${activity.notes}` : "";
       return {
-        type: "Bath",
+        type: "Banho",
         details: `${time}${notes}`,
       };
     }
 
-    // Type guard for PumpLogResponse
     const isPumpLog = (activity: ActivityType): activity is PumpLogResponse => {
       return "leftAmount" in activity || "rightAmount" in activity;
     };
@@ -284,18 +265,15 @@ export const useActivityDescription = () => {
 
       let details = startTime;
 
-      // Add total amount if available
       if (activity.totalAmount) {
         const amountStr = `${activity.totalAmount} ${
           activity.unitAbbr || "oz"
         }`;
         details += details ? ` - ${amountStr}` : amountStr;
-      }
-      // Otherwise add left and right amounts if available
-      else if (activity.leftAmount || activity.rightAmount) {
+      } else if (activity.leftAmount || activity.rightAmount) {
         const amounts = [];
-        if (activity.leftAmount) amounts.push(`L: ${activity.leftAmount}`);
-        if (activity.rightAmount) amounts.push(`R: ${activity.rightAmount}`);
+        if (activity.leftAmount) amounts.push(`E: ${activity.leftAmount}`);
+        if (activity.rightAmount) amounts.push(`D: ${activity.rightAmount}`);
 
         if (amounts.length > 0) {
           const amountStr = `${amounts.join(", ")} ${
@@ -305,36 +283,30 @@ export const useActivityDescription = () => {
         }
       }
 
-      // Add notes if available
       const notes = activity.notes ? ` - ${activity.notes}` : "";
 
       return {
-        type: "Pump",
+        type: "Bombear",
         details: `${details}${notes}`,
       };
     }
 
     return {
-      type: "Activity",
-      details: "logged",
+      type: "Atividade",
+      details: "registrada",
     };
   };
 
   return { getActivityDescription };
 };
 
-/**
- * Legacy function for backward compatibility
- * @deprecated Use useActivityDescription().getActivityDescription() instead
- */
 export const getActivityDescription = (activity: ActivityType) => {
-  // This is a placeholder that will show a warning in the console
   console.warn(
-    "getActivityDescription is deprecated. Use useActivityDescription().getActivityDescription() instead."
+    "getActivityDescription está obsoleto. Use useActivityDescription().getActivityDescription() em vez disso."
   );
 
   return {
     type: getActivityVariant(activity),
-    details: "Please update to use useActivityDescription hook",
+    details: "Por favor, atualize para usar o hook useActivityDescription",
   };
 };

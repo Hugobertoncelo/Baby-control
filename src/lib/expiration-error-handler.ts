@@ -1,34 +1,3 @@
-/**
- * Utility function for handling account expiration errors in forms
- *
- * This function centralizes the logic for detecting and displaying account expiration errors,
- * reducing code duplication across forms and making it easier to maintain and update messages.
- *
- * @param response - The fetch Response object from the API call (must be a 403 error)
- * @param showToast - The showToast function from useToast hook
- * @param context - Optional context string for customizing messages (e.g., "managing contacts", "tracking baths")
- * @returns Promise<{ isExpirationError: boolean; errorData?: any }> - Returns object with isExpirationError flag and parsed errorData
- *
- * @example
- * ```tsx
- * import { useToast } from '@/src/components/ui/toast';
- * import { handleExpirationError } from '@/src/lib/expiration-error-handler';
- *
- * const { showToast } = useToast();
- *
- * const response = await fetch('/api/some-endpoint', { ... });
- * if (!response.ok) {
- *   if (response.status === 403) {
- *     const { isExpirationError, errorData } = await handleExpirationError(response, showToast, 'managing contacts');
- *     if (isExpirationError) {
- *       return; // Don't close form on expiration error
- *     }
- *     // Use errorData for other 403 errors if needed
- *   }
- *   // Handle other errors...
- * }
- * ```
- */
 export async function handleExpirationError(
   response: Response,
   showToast: (props: {
@@ -44,7 +13,6 @@ export async function handleExpirationError(
   }) => void,
   context?: string
 ): Promise<{ isExpirationError: boolean; errorData?: any }> {
-  // Only handle 403 errors (account expiration)
   if (response.status !== 403) {
     return { isExpirationError: false };
   }
@@ -52,12 +20,10 @@ export async function handleExpirationError(
   const errorData = await response.json();
   const expirationInfo = errorData.data?.expirationInfo;
 
-  // If there's no expiration info, it's not an expiration error
   if (!expirationInfo) {
     return { isExpirationError: false, errorData };
   }
 
-  // Determine user type from JWT token
   let isAccountUser = false;
   let isSysAdmin = false;
   try {
@@ -68,60 +34,51 @@ export async function handleExpirationError(
       isAccountUser = decodedPayload.isAccountAuth || false;
       isSysAdmin = decodedPayload.isSysAdmin || false;
     }
-  } catch (error) {
-    // Removidos todos os console.error
-  }
+  } catch (error) {}
 
-  // Determine expiration type and message
   let variant: "warning" | "error" = "warning";
-  let title = "Account Expired";
+  let title = "Conta expirada";
   let message =
-    errorData.error || "Your account has expired. Please upgrade to continue.";
+    errorData.error || "Sua conta expirou. Faça o upgrade para continuar.";
 
-  // Build context-specific message suffix
   const contextSuffix = context ? ` ${context}` : "";
 
   if (expirationInfo?.type === "TRIAL_EXPIRED") {
-    title = "Free Trial Ended";
+    title = "Período de teste encerrado";
     message = isAccountUser
-      ? `Your free trial has ended. Upgrade to continue${contextSuffix}.`
-      : `The account owner's free trial has ended. Please contact them to upgrade.`;
+      ? `Seu período de teste gratuito terminou. Faça o upgrade para continuar${contextSuffix}.`
+      : `O período de teste gratuito do proprietário da conta terminou. Entre em contato para fazer o upgrade.`;
   } else if (expirationInfo?.type === "PLAN_EXPIRED") {
-    title = "Subscription Expired";
+    title = "Assinatura expirada";
     message = isAccountUser
-      ? `Your subscription has expired. Please renew to continue${contextSuffix}.`
-      : `The account owner's subscription has expired. Please contact them to renew.`;
+      ? `Sua assinatura expirou. Renove para continuar${contextSuffix}.`
+      : `A assinatura do proprietário da conta expirou. Entre em contato para renovar.`;
   } else if (expirationInfo?.type === "NO_PLAN") {
-    title = "No Active Subscription";
+    title = "Sem assinatura ativa";
     message = isAccountUser
-      ? `Subscribe now to continue${contextSuffix}.`
-      : `The account owner needs to subscribe. Please contact them to upgrade.`;
+      ? `Assine agora para continuar${contextSuffix}.`
+      : `O proprietário da conta precisa assinar. Entre em contato para fazer o upgrade.`;
   }
 
-  // Show toast notification with appropriate action
   if (isAccountUser && !isSysAdmin) {
-    // Account user: show upgrade button that opens PaymentModal
     showToast({
       variant,
       title,
       message,
       duration: 6000,
       action: {
-        label: "Upgrade Now",
+        label: "Fazer upgrade agora",
         onClick: () => {
-          // Dispatch event to open PaymentModal (layout listens for this)
           window.dispatchEvent(new CustomEvent("openPaymentModal"));
         },
       },
     });
   } else {
-    // Caretaker or system user: show message without upgrade button
     showToast({
       variant,
       title,
       message,
       duration: 6000,
-      // No action button for caretakers
     });
   }
 

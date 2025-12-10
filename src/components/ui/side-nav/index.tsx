@@ -24,10 +24,9 @@ import {
   SideNavItemProps,
 } from "./side-nav.types";
 import { ReactNode } from "react";
-import "./side-nav.css"; // Import the CSS file with dark mode overrides
+import "./side-nav.css";
 import packageInfo from "@/package.json";
 
-// Interface for the FooterButton component
 interface FooterButtonProps {
   icon: ReactNode;
   label: string;
@@ -35,7 +34,6 @@ interface FooterButtonProps {
   ariaLabel?: string;
 }
 
-// Interface for account status
 interface AccountStatus {
   accountId: string;
   email: string;
@@ -61,11 +59,6 @@ interface AccountStatus {
     | "no_family";
 }
 
-/**
- * FooterButton component
- *
- * A button used in the footer of the side navigation
- */
 const FooterButton: React.FC<FooterButtonProps> = ({
   icon,
   label,
@@ -84,11 +77,6 @@ const FooterButton: React.FC<FooterButtonProps> = ({
   );
 };
 
-/**
- * SideNavTrigger component
- *
- * A button that toggles the side navigation menu
- */
 export const SideNavTrigger: React.FC<SideNavTriggerProps> = ({
   onClick,
   isOpen,
@@ -105,11 +93,6 @@ export const SideNavTrigger: React.FC<SideNavTriggerProps> = ({
   );
 };
 
-/**
- * SideNavItem component
- *
- * An individual navigation item in the side navigation menu
- */
 export const SideNavItem: React.FC<SideNavItemProps> = ({
   path,
   label,
@@ -124,7 +107,7 @@ export const SideNavItem: React.FC<SideNavItemProps> = ({
         sideNavStyles.navItem,
         isActive && sideNavStyles.navItemActive,
         className,
-        isActive && "active" // Add active class for CSS targeting
+        isActive && "active"
       )}
       onClick={() => onClick(path)}
     >
@@ -134,16 +117,6 @@ export const SideNavItem: React.FC<SideNavItemProps> = ({
   );
 };
 
-/**
- * SideNav component
- *
- * A responsive side navigation menu that slides in from the left
- */
-/**
- * SideNav component
- *
- * A responsive side navigation menu that slides in from the left
- */
 export const SideNav: React.FC<SideNavProps> = ({
   isOpen,
   onClose,
@@ -168,7 +141,6 @@ export const SideNav: React.FC<SideNavProps> = ({
   );
   const [isAccountAuth, setIsAccountAuth] = useState<boolean>(false);
 
-  // Fetch account status if in SaaS mode and authenticated
   useEffect(() => {
     const fetchAccountStatus = async () => {
       if (!isSaasMode) return;
@@ -179,7 +151,6 @@ export const SideNav: React.FC<SideNavProps> = ({
         return;
       }
 
-      // Check if this is account-based authentication
       try {
         const payload = authToken.split(".")[1];
         const decodedPayload = JSON.parse(atob(payload));
@@ -188,7 +159,6 @@ export const SideNav: React.FC<SideNavProps> = ({
 
         if (!isAccountBased) return;
 
-        // Fetch account status
         const response = await fetch("/api/accounts/status", {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -201,15 +171,12 @@ export const SideNav: React.FC<SideNavProps> = ({
             setAccountStatus(data.data);
           }
         }
-      } catch (error) {
-        console.error("Error fetching account status:", error);
-      }
+      } catch (error) {}
     };
 
     fetchAccountStatus();
   }, [isSaasMode]);
 
-  // Check if system is in dark mode
   useEffect(() => {
     if (typeof window !== "undefined") {
       const darkModeMediaQuery = window.matchMedia(
@@ -227,7 +194,6 @@ export const SideNav: React.FC<SideNavProps> = ({
     }
   }, []);
 
-  // Close the side nav when pressing Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen && !nonModal) {
@@ -237,7 +203,6 @@ export const SideNav: React.FC<SideNavProps> = ({
 
     window.addEventListener("keydown", handleKeyDown);
 
-    // Prevent scrolling when side nav is open in modal mode
     if (isOpen && !nonModal) {
       document.body.style.overflow = "hidden";
     } else {
@@ -252,7 +217,6 @@ export const SideNav: React.FC<SideNavProps> = ({
 
   return (
     <>
-      {/* Overlay - only shown in modal mode */}
       {!nonModal && (
         <div
           className={cn(
@@ -264,7 +228,6 @@ export const SideNav: React.FC<SideNavProps> = ({
         />
       )}
 
-      {/* Side Navigation Panel */}
       <div
         className={cn(
           nonModal ? sideNavStyles.containerNonModal : sideNavStyles.container,
@@ -273,13 +236,12 @@ export const SideNav: React.FC<SideNavProps> = ({
               ? sideNavStyles.containerOpen
               : sideNavStyles.containerClosed),
           className,
-          "side-nav" // Add this class for direct CSS targeting
+          "side-nav"
         )}
         role={nonModal ? "navigation" : "dialog"}
         aria-modal={nonModal ? "false" : "true"}
-        aria-label="Main navigation"
+        aria-label="Navegação principal"
       >
-        {/* Header - matching the structure of the green bar in the main layout */}
         <header className="w-full bg-white sticky top-0 z-40 side-nav-header">
           <div className="mx-auto">
             <div
@@ -289,11 +251,10 @@ export const SideNav: React.FC<SideNavProps> = ({
               )}
             >
               <div className="flex items-center gap-3 flex-1">
-                {/* Logo positioned to center between app name and family name */}
                 <div className="flex items-center">
                   <Image
                     src="/sprout-128.png"
-                    alt="Sprout Logo"
+                    alt="Logo Sprout"
                     width={40}
                     height={40}
                     className={sideNavStyles.logo}
@@ -301,7 +262,6 @@ export const SideNav: React.FC<SideNavProps> = ({
                   />
                 </div>
 
-                {/* App name and family name container */}
                 <div className="flex flex-col justify-center flex-1">
                   {isSaasMode ? (
                     <button
@@ -309,7 +269,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                         window.location.href = "/";
                       }}
                       className="text-left cursor-pointer hover:opacity-80 transition-opacity"
-                      aria-label="Go to home page"
+                      aria-label="Ir para a página inicial"
                     >
                       <span
                         className={cn(
@@ -328,7 +288,6 @@ export const SideNav: React.FC<SideNavProps> = ({
                     </span>
                   )}
 
-                  {/* Family name with share button */}
                   {familyName && (
                     <div className="flex items-center gap-2 mt-1">
                       <Label className="text-sm text-gray-600 truncate">
@@ -349,7 +308,6 @@ export const SideNav: React.FC<SideNavProps> = ({
                 </div>
               </div>
 
-              {/* Only show close button in modal mode */}
               {!nonModal && (
                 <button
                   onClick={onClose}
@@ -357,7 +315,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                     sideNavStyles.closeButton,
                     "side-nav-close-button"
                   )}
-                  aria-label="Close navigation"
+                  aria-label="Fechar navegação"
                 >
                   <X size={20} />
                 </button>
@@ -366,7 +324,6 @@ export const SideNav: React.FC<SideNavProps> = ({
           </div>
         </header>
 
-        {/* Navigation Items */}
         <nav className={sideNavStyles.navItems}>
           <SideNavItem
             path="/log-entry"
@@ -391,34 +348,30 @@ export const SideNav: React.FC<SideNavProps> = ({
           />
         </nav>
 
-        {/* Version display at bottom of nav items */}
         <div className="w-full text-center mb-4">
           <span
             className="text-xs text-gray-500 cursor-pointer hover:text-teal-600 transition-colors"
             onClick={() => setShowChangelog(true)}
-            aria-label="View changelog"
+            aria-label="Ver histórico de alterações"
           >
             v{packageInfo.version}
           </span>
 
-          {/* Feedback link - only shown in SaaS mode */}
           {isSaasMode && (
             <div className="mt-2">
               <button
                 className="flex items-center justify-center w-full text-xs text-gray-500 hover:text-emerald-600 transition-colors cursor-pointer"
                 onClick={() => setShowFeedback(true)}
-                aria-label="Provide feedback about the app"
+                aria-label="Enviar feedback sobre o app"
               >
                 <MessageSquare className="h-3 w-3 mr-1" />
-                Send Feedback
+                Enviar feedback
               </button>
             </div>
           )}
 
-          {/* Trial information and payment button - only shown in SaaS mode for accounts in trial */}
           {isSaasMode && isAccountAuth && accountStatus && (
             <>
-              {/* Show trial info if user is in trial and not a beta participant */}
               {accountStatus.trialEnds &&
                 !accountStatus.subscriptionActive &&
                 !accountStatus.betaparticipant &&
@@ -438,7 +391,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                       >
                         <Clock className="h-4 w-4 mr-1" />
                         <span className="text-xs font-medium">
-                          Trial Version
+                          Versão de avaliação
                         </span>
                       </div>
                       <div className="text-center">
@@ -448,7 +401,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                             "side-nav-trial-text"
                           )}
                         >
-                          Ending:{" "}
+                          Término:{" "}
                           {new Date(accountStatus.trialEnds).toLocaleDateString(
                             "pt-BR",
                             {
@@ -465,7 +418,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                         onClick={() => setShowPaymentModal(true)}
                       >
                         <CreditCard className="h-3 w-3 mr-1" />
-                        Buy Now
+                        Comprar agora
                       </Button>
                     </div>
                   </div>
@@ -474,21 +427,18 @@ export const SideNav: React.FC<SideNavProps> = ({
           )}
         </div>
 
-        {/* Changelog Modal */}
         <ChangelogModal
           open={showChangelog}
           onClose={() => setShowChangelog(false)}
           version={packageInfo.version}
         />
 
-        {/* Feedback Form - only shown in SaaS mode */}
         {isSaasMode && (
           <FeedbackForm
             isOpen={showFeedback}
             onClose={() => setShowFeedback(false)}
             onSuccess={() => {
               setShowFeedback(false);
-              // Optionally close the side nav after successful feedback submission
               if (!nonModal) {
                 onClose();
               }

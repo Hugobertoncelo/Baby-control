@@ -19,4 +19,4 @@ export interface SmtpEmailProps extends BaseEmailProps {
   tls?: {
     rejectUnauthorized: boolean;
   };
-} 
+}

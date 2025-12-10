@@ -1,7 +1,6 @@
-/* Dark mode overrides for FormPage component */
 html.dark .form-page-container {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
 html.dark .form-page-overlay {
@@ -9,88 +8,82 @@ html.dark .form-page-overlay {
 }
 
 html.dark .form-page-header {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 html.dark .form-page-title {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .form-page-description {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .form-page-close-button {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .form-page-close-button:hover {
-  color: #e5e7eb !important; /* gray-200 */
-  background-color: #374151 !important; /* gray-700 */
+  color: #e5e7eb !important;
+  background-color: #374151 !important;
 }
 
 html.dark .form-page-footer {
-  background-color: #1f2937 !important; /* gray-800 */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
-/* Form label styling for dark mode */
 html.dark .form-label {
-  color: #9ca3af !important; /* gray-400 - lighter color for form labels */
+  color: #9ca3af !important;
 }
 
-/* Tab navigation styling for dark mode */
 html.dark .form-page-tab-container {
-  border-color: #374151 !important; /* gray-700 */
+  border-color: #374151 !important;
 }
 
 html.dark .form-page-tab-button {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .form-page-tab-button:hover {
-  color: #e5e7eb !important; /* gray-200 */
-  background-color: #374151 !important; /* gray-700 */
+  color: #e5e7eb !important;
+  background-color: #374151 !important;
 }
 
 html.dark .form-page-tab-button:focus {
-  border-bottom-color: #5eead4 !important; /* teal-300 */
+  border-bottom-color: #5eead4 !important;
 }
 
 html.dark .form-page-tab-button-active {
-  color: #5eead4 !important; /* teal-300 */
-  background-color: rgba(13, 148, 136, 0.2) !important; /* teal-600 with opacity */
-  border-color: #5eead4 !important; /* teal-300 */
+  color: #5eead4 !important;
+  background-color: rgba(13, 148, 136, 0.2) !important;
+  border-color: #5eead4 !important;
 }
 
 html.dark .form-page-tab-button-active:hover {
-  color: #7dd3fc !important; /* sky-300 */
-  background-color: rgba(13, 148, 136, 0.3) !important; /* teal-600 with more opacity */
+  color: #7dd3fc !important;
+  background-color: rgba(13, 148, 136, 0.3) !important;
 }
 
-/* Hide scrollbars for tab container while maintaining functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none;
 }
 
-/* Improve touch scrolling on mobile devices */
 .-webkit-overflow-scrolling-touch {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Ensure tab container has proper touch behavior */
 .form-page-tab-container {
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
 }
 
-/* Notification badge styling for dark mode */
 html.dark .form-page-tab-notification-badge {
-  background-color: #dc2626 !important; /* red-600 for better contrast in dark mode */
+  background-color: #dc2626 !important;
   color: #ffffff !important;
 }

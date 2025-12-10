@@ -1,4 +1,3 @@
-/* Theme toggle styles */
 .theme-toggle-container {
   display: flex;
   flex-direction: column;
@@ -12,21 +11,18 @@
   width: 100%;
 }
 
-/* Theme toggle button */
 .theme-toggle-button {
   width: 100%;
   display: flex;
   align-items: center;
 }
 
-/* Light variant button */
 .theme-toggle-button-light {
   display: flex;
   align-items: center;
   padding: 4px;
 }
 
-/* Theme icon container and styling */
 .theme-icon-container {
   display: flex;
   align-items: center;
@@ -34,7 +30,6 @@
   margin-right: 12px;
 }
 
-/* Light variant icon container - smaller margin */
 .theme-icon-container-light {
   display: flex;
   align-items: center;
@@ -49,10 +44,9 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: #6b7280; /* gray-500 */
+  color: #6b7280;
 }
 
-/* Light variant icon - smaller */
 .theme-icon-light {
   position: relative;
   display: flex;
@@ -60,12 +54,11 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  color: #6b7280; /* gray-500 - visible in light mode */
+  color: #6b7280;
 }
 
-/* Circle indicator for active theme */
 .theme-icon::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 28px;
   height: 28px;
@@ -74,113 +67,104 @@
   transition: all 0.2s ease;
 }
 
-/* Light variant - no circle indicator */
 .theme-icon-light::before {
   display: none;
 }
 
-/* Active theme indicators - light mode styles */
 .active-light::before {
-  border-color: #0ea5e9; /* sky-500 */
-  background-color: rgba(14, 165, 233, 0.1); /* sky-500 with opacity */
+  border-color: #0ea5e9;
+  background-color: rgba(14, 165, 233, 0.1);
 }
 
 .active-dark::before {
-  border-color: #6366f1; /* indigo-500 */
-  background-color: rgba(99, 102, 241, 0.1); /* indigo-500 with opacity */
+  border-color: #6366f1;
+  background-color: rgba(99, 102, 241, 0.1);
 }
 
 .active-system::before {
-  border-color: #10b981; /* emerald-500 */
-  background-color: rgba(16, 185, 129, 0.1); /* emerald-500 with opacity */
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
 }
 
-/* Theme info text styling */
 .theme-info {
   display: flex;
   flex-direction: column;
 }
 
-/* Light variant theme info - single line with smaller text */
 .theme-info-light {
   display: flex;
   flex-direction: column;
 }
 
 .current-theme {
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #111827; /* gray-900 */
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
 }
 
-/* Light variant current theme - smaller text */
 .current-theme-light {
-  font-size: 0.75rem; /* text-xs */
-  font-weight: 500; /* font-medium */
-  color: #6b7280; /* gray-500 - visible in light mode */
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
 }
 
 .next-theme {
-  font-size: 0.75rem; /* text-xs */
-  color: #6b7280; /* gray-500 */
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
-/* Dark mode overrides */
 html.dark .theme-toggle-button {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .theme-toggle-button:hover {
-  background-color: #374151 !important; /* gray-700 */
-  color: #e5e7eb !important; /* gray-200 - keep same color on hover */
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
 }
 
-/* Dark mode overrides for light variant */
 html.dark .theme-toggle-button-light {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .theme-toggle-button-light:hover {
-  color: #5eead4 !important; /* teal-300 - just color change, no background */
+  color: #5eead4 !important;
 }
 
 html.dark .theme-icon {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .theme-icon-light {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
 html.dark .current-theme {
-  color: #f3f4f6; /* gray-100 */
+  color: #f3f4f6;
 }
 
 html.dark .current-theme-light {
-  color: #f3f4f6; /* gray-100 */
+  color: #f3f4f6;
 }
 
 html.dark .next-theme {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
 }
 
-/* Active theme indicators - dark mode styles */
 html.dark .active-light::before {
-  border-color: #38bdf8; /* sky-400 */
-  background-color: rgba(56, 189, 248, 0.15); /* sky-400 with opacity */
+  border-color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.15);
 }
 
 html.dark .active-dark::before {
-  border-color: #818cf8; /* indigo-400 */
-  background-color: rgba(129, 140, 248, 0.15); /* indigo-400 with opacity */
+  border-color: #818cf8;
+  background-color: rgba(129, 140, 248, 0.15);
 }
 
 html.dark .active-system::before {
-  border-color: #34d399; /* emerald-400 */
-  background-color: rgba(52, 211, 153, 0.15); /* emerald-400 with opacity */
+  border-color: #34d399;
+  background-color: rgba(52, 211, 153, 0.15);
 }
 
-/* Responsive adjustments */
 @media (max-width: 639px) {
   .theme-toggle-row {
     flex-direction: column;

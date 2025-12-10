@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/src/lib/utils"
-import { useTheme } from "@/src/context/theme"
+import * as React from "react";
+import { cn } from "@/src/lib/utils";
+import { useTheme } from "@/src/context/theme";
 
-import { toastVariants, toastIconVariants, toastCloseButtonVariants } from "./toast.styles"
-import { ToastProps, ToastVariant } from "./toast.types"
-import "./toast.css"
+import {
+  toastVariants,
+  toastIconVariants,
+  toastCloseButtonVariants,
+} from "./toast.styles";
+import { ToastProps } from "./toast.types";
+import "./toast.css";
 
-/**
- * Default icons for each toast variant
- */
-const defaultIcons: Record<ToastVariant, React.ReactNode> = {
+const defaultIcons = {
   info: (
     <svg
       className="w-5 h-5"
@@ -72,11 +73,8 @@ const defaultIcons: Record<ToastVariant, React.ReactNode> = {
       />
     </svg>
   ),
-}
+};
 
-/**
- * Close icon for dismissible toasts
- */
 const CloseIcon = () => (
   <svg
     className="w-4 h-4"
@@ -91,32 +89,8 @@ const CloseIcon = () => (
       d="M6 18L18 6M6 6l12 12"
     />
   </svg>
-)
+);
 
-/**
- * Toast component for displaying temporary notifications
- *
- * This component follows the project's design system and is designed to be
- * cross-platform compatible with minimal changes required for React Native.
- *
- * Features:
- * - Multiple variants (info, success, warning, error)
- * - Auto-dismiss with configurable duration
- * - Manual dismissal support
- * - Dark mode support
- * - Accessible with proper ARIA attributes
- * - Responsive design
- *
- * @example
- * ```tsx
- * <Toast
- *   variant="success"
- *   message="Changes saved successfully!"
- *   duration={3000}
- *   onDismiss={() => console.log("Dismissed")}
- * />
- * ```
- */
 const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
   (
     {
@@ -133,11 +107,10 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
     },
     ref
   ) => {
-    const { theme } = useTheme()
-    const [isVisible, setIsVisible] = React.useState(true)
-    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+    const { theme } = useTheme();
+    const [isVisible, setIsVisible] = React.useState(true);
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-    // Add dark mode specific class based on variant
     const darkModeClass =
       variant === "info"
         ? "toast-dark-info"
@@ -147,35 +120,34 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         ? "toast-dark-warning"
         : variant === "error"
         ? "toast-dark-error"
-        : ""
+        : "";
 
-    // Handle auto-dismiss
     React.useEffect(() => {
       if (duration && duration > 0 && isVisible) {
         timeoutRef.current = setTimeout(() => {
-          handleDismiss()
-        }, duration)
+          handleDismiss();
+        }, duration);
       }
 
       return () => {
         if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
+          clearTimeout(timeoutRef.current);
         }
-      }
-    }, [duration, isVisible])
+      };
+    }, [duration, isVisible]);
 
     const handleDismiss = React.useCallback(() => {
-      setIsVisible(false)
-      // Small delay to allow exit animation
+      setIsVisible(false);
       setTimeout(() => {
-        onDismiss?.()
-      }, 300)
-    }, [onDismiss])
+        onDismiss?.();
+      }, 300);
+    }, [onDismiss]);
 
-    const displayIcon = icon !== undefined ? icon : defaultIcons[variant || "info"]
+    const displayIcon =
+      icon !== undefined ? icon : defaultIcons[variant || "info"];
 
     if (!isVisible) {
-      return null
+      return null;
     }
 
     return (
@@ -184,7 +156,9 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         className={cn(
           toastVariants({ variant }),
           darkModeClass,
-          isVisible ? "toast-enter animate-in slide-in-from-top-5 fade-in-0" : "toast-exit",
+          isVisible
+            ? "toast-enter animate-in slide-in-from-top-5 fade-in-0"
+            : "toast-exit",
           className
         )}
         role="alert"
@@ -192,14 +166,9 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
         aria-atomic="true"
         {...props}
       >
-        {/* Icon */}
         <div className={cn(toastIconVariants({ variant }))}>{displayIcon}</div>
-
-        {/* Content */}
         <div className="flex-1 min-w-0">
-          {title && (
-            <div className="text-sm font-semibold mb-1">{title}</div>
-          )}
+          {title && <div className="text-sm font-semibold mb-1">{title}</div>}
           <div className="text-sm">{message}</div>
           {action && (
             <button
@@ -210,24 +179,21 @@ const Toast = React.forwardRef<HTMLDivElement, ToastProps>(
             </button>
           )}
         </div>
-
-        {/* Close button */}
         {dismissible && (
           <button
             onClick={handleDismiss}
             className={cn(toastCloseButtonVariants({ variant }))}
-            aria-label="Dismiss toast"
+            aria-label="Fechar notificação"
           >
             <CloseIcon />
           </button>
         )}
       </div>
-    )
+    );
   }
-)
-Toast.displayName = "Toast"
+);
+Toast.displayName = "Toast";
 
-export { Toast, toastVariants, toastIconVariants, toastCloseButtonVariants }
-export { ToastProvider, useToast } from "./toast-provider"
-export type { ToastProps, ToastVariant }
-
+export { Toast, toastVariants, toastIconVariants, toastCloseButtonVariants };
+export { ToastProvider, useToast } from "./toast-provider";
+export type { ToastProps };

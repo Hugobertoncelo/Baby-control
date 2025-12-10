@@ -19,6 +19,6 @@ export const statusBubbleStyles = {
     },
     default: {
       bgColor: "bg-gray-500 text-white",
-    }
-  }
+    },
+  },
 } as const;

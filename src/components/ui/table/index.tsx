@@ -4,8 +4,20 @@ import { tableStyles } from "./table.styles";
 import { useTheme } from "@/src/context/theme";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Search,
+} from "lucide-react";
 import "./table.css";
 import {
   TableProps,
@@ -84,11 +96,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
   ({ className, ...props }, ref) => {
     const { theme } = useTheme();
     return (
-      <tr
-        ref={ref}
-        className={cn(tableStyles.row, className)}
-        {...props}
-      />
+      <tr ref={ref} className={cn(tableStyles.row, className)} {...props} />
     );
   }
 );
@@ -122,22 +130,33 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
 );
 TableCell.displayName = "TableCell";
 
-const TableCaption = React.forwardRef<HTMLTableCaptionElement, TableCaptionProps>(
-  ({ className, ...props }, ref) => {
-    const { theme } = useTheme();
-    return (
-      <caption
-        ref={ref}
-        className={cn(tableStyles.caption, className, "table-caption-dark")}
-        {...props}
-      />
-    );
-  }
-);
+const TableCaption = React.forwardRef<
+  HTMLTableCaptionElement,
+  TableCaptionProps
+>(({ className, ...props }, ref) => {
+  const { theme } = useTheme();
+  return (
+    <caption
+      ref={ref}
+      className={cn(tableStyles.caption, className, "table-caption-dark")}
+      {...props}
+    />
+  );
+});
 TableCaption.displayName = "TableCaption";
 
 const TableSearch = React.forwardRef<HTMLInputElement, TableSearchProps>(
-  ({ value, onSearchChange, placeholder = "Search...", className, disabled, ...props }, ref) => {
+  (
+    {
+      value,
+      onSearchChange,
+      placeholder = "Pesquisar...",
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     const { theme } = useTheme();
     return (
       <div className={cn(tableStyles.searchContainer, className)}>
@@ -163,7 +182,7 @@ TableSearch.displayName = "TableSearch";
 const TableTabs = React.forwardRef<HTMLDivElement, TableTabsProps>(
   ({ tabs, activeTab, onTabChange, className, disabled, ...props }, ref) => {
     const { theme } = useTheme();
-    
+
     return (
       <div
         ref={ref}
@@ -178,17 +197,20 @@ const TableTabs = React.forwardRef<HTMLDivElement, TableTabsProps>(
               onClick={() => !disabled && !tab.disabled && onTabChange(tab.id)}
               disabled={disabled || tab.disabled}
               data-state={activeTab === tab.id ? "active" : "inactive"}
-              className={cn(
-                tableStyles.tabsTrigger,
-                "table-tabs-trigger-dark"
-              )}
+              className={cn(tableStyles.tabsTrigger, "table-tabs-trigger-dark")}
             >
               {tab.label}
-              {typeof tab.count === 'number' && (
-                <span className={cn(
-                  activeTab === tab.id ? tableStyles.tabBadgeActive : tableStyles.tabBadge,
-                  activeTab === tab.id ? "table-tab-badge-active-dark" : "table-tab-badge-dark"
-                )}>
+              {typeof tab.count === "number" && (
+                <span
+                  className={cn(
+                    activeTab === tab.id
+                      ? tableStyles.tabBadgeActive
+                      : tableStyles.tabBadge,
+                    activeTab === tab.id
+                      ? "table-tab-badge-active-dark"
+                      : "table-tab-badge-dark"
+                  )}
+                >
                   {tab.count}
                 </span>
               )}
@@ -202,67 +224,87 @@ const TableTabs = React.forwardRef<HTMLDivElement, TableTabsProps>(
 TableTabs.displayName = "TableTabs";
 
 const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationProps>(
-  ({ currentPage, totalPages, totalItems, pageSize, onPageChange, className, disabled, ...props }, ref) => {
+  (
+    {
+      currentPage,
+      totalPages,
+      totalItems,
+      pageSize,
+      onPageChange,
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     const { theme } = useTheme();
-    
+
     const startItem = (currentPage - 1) * pageSize + 1;
     const endItem = Math.min(currentPage * pageSize, totalItems);
-    
+
     const generatePageNumbers = () => {
       const pages = [];
       const maxVisiblePages = 5;
-      
+
       if (totalPages <= maxVisiblePages) {
         for (let i = 1; i <= totalPages; i++) {
           pages.push(i);
         }
       } else {
-        const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        const startPage = Math.max(
+          1,
+          currentPage - Math.floor(maxVisiblePages / 2)
+        );
         const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-        
+
         for (let i = startPage; i <= endPage; i++) {
           pages.push(i);
         }
       }
-      
+
       return pages;
     };
-    
+
     const pageNumbers = generatePageNumbers();
-    
+
     return (
       <div
         ref={ref}
         className={cn(tableStyles.paginationContainer, className)}
         {...props}
       >
-        <div className={cn(tableStyles.paginationInfo, "table-pagination-info-dark")}>
-          Showing {startItem} to {endItem} of {totalItems} entries
+        <div
+          className={cn(
+            tableStyles.paginationInfo,
+            "table-pagination-info-dark"
+          )}
+        >
+          Exibindo {startItem} a {endItem} de {totalItems} registros
         </div>
-        
+
         <div className={tableStyles.paginationControls}>
           <button
             onClick={() => onPageChange(1)}
             disabled={disabled || currentPage === 1}
             className="h-9 w-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             style={{
-              color: disabled || currentPage === 1 ? '#9ca3af' : 'currentColor'
+              color: disabled || currentPage === 1 ? "#9ca3af" : "currentColor",
             }}
           >
             <ChevronsLeft className="h-4 w-4" />
           </button>
-          
+
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={disabled || currentPage === 1}
             className="h-9 w-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             style={{
-              color: disabled || currentPage === 1 ? '#9ca3af' : 'currentColor'
+              color: disabled || currentPage === 1 ? "#9ca3af" : "currentColor",
             }}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          
+
           {pageNumbers.map((page) => (
             <button
               key={page}
@@ -271,8 +313,8 @@ const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationProps>(
               data-current={page === currentPage}
               className={cn(
                 "h-9 w-9 flex items-center justify-center rounded text-sm font-medium border table-page-btn",
-                page === currentPage 
-                  ? "bg-teal-600 text-white hover:bg-teal-700 border-teal-600" 
+                page === currentPage
+                  ? "bg-teal-600 text-white hover:bg-teal-700 border-teal-600"
                   : "bg-white text-gray-900 border-gray-300 hover:bg-gray-50 shadow-sm",
                 disabled && "opacity-50 cursor-not-allowed"
               )}
@@ -280,24 +322,30 @@ const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationProps>(
               {page}
             </button>
           ))}
-          
+
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={disabled || currentPage === totalPages}
             className="h-9 w-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             style={{
-              color: disabled || currentPage === totalPages ? '#9ca3af' : 'currentColor'
+              color:
+                disabled || currentPage === totalPages
+                  ? "#9ca3af"
+                  : "currentColor",
             }}
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-          
+
           <button
             onClick={() => onPageChange(totalPages)}
             disabled={disabled || currentPage === totalPages}
             className="h-9 w-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded"
             style={{
-              color: disabled || currentPage === totalPages ? '#9ca3af' : 'currentColor'
+              color:
+                disabled || currentPage === totalPages
+                  ? "#9ca3af"
+                  : "currentColor",
             }}
           >
             <ChevronsRight className="h-4 w-4" />
@@ -310,24 +358,41 @@ const TablePagination = React.forwardRef<HTMLDivElement, TablePaginationProps>(
 TablePagination.displayName = "TablePagination";
 
 const TablePageSize = React.forwardRef<HTMLDivElement, TablePageSizeProps>(
-  ({ pageSize, pageSizeOptions = [5, 10, 20, 50, 100], onPageSizeChange, className, disabled, ...props }, ref) => {
+  (
+    {
+      pageSize,
+      pageSizeOptions = [5, 10, 20, 50, 100],
+      onPageSizeChange,
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     const { theme } = useTheme();
-    
+
     return (
       <div
         ref={ref}
         className={cn(tableStyles.pageSizeContainer, className)}
         {...props}
       >
-        <span className={cn(tableStyles.pageSizeLabel, "table-pagesize-label-dark")}>
-          Show
+        <span
+          className={cn(tableStyles.pageSizeLabel, "table-pagesize-label-dark")}
+        >
+          Exibir
         </span>
         <Select
           value={pageSize.toString()}
           onValueChange={(value) => onPageSizeChange(parseInt(value))}
           disabled={disabled}
         >
-          <SelectTrigger className={cn(tableStyles.pageSizeSelect, "table-pagesize-select-dark")}>
+          <SelectTrigger
+            className={cn(
+              tableStyles.pageSizeSelect,
+              "table-pagesize-select-dark"
+            )}
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -338,8 +403,10 @@ const TablePageSize = React.forwardRef<HTMLDivElement, TablePageSizeProps>(
             ))}
           </SelectContent>
         </Select>
-        <span className={cn(tableStyles.pageSizeLabel, "table-pagesize-label-dark")}>
-          entries
+        <span
+          className={cn(tableStyles.pageSizeLabel, "table-pagesize-label-dark")}
+        >
+          registros
         </span>
       </div>
     );
@@ -360,4 +427,4 @@ export {
   TableTabs,
   TablePagination,
   TablePageSize,
-}; 
+};

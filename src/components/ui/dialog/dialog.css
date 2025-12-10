@@ -1,26 +1,25 @@
-/* Dark mode overrides for Dialog component */
 html.dark .dialog-overlay {
   background-color: rgba(0, 0, 0, 0.6) !important;
 }
 
 html.dark .dialog-content {
-  background-color: rgba(31, 41, 55, 0.95) !important; /* gray-800 with opacity */
-  border-color: #374151 !important; /* gray-700 */
+  background-color: rgba(31, 41, 55, 0.95) !important;
+  border-color: #374151 !important;
 }
 
 html.dark .dialog-close-button {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }
 
 html.dark .dialog-close-button:hover {
-  color: #e5e7eb !important; /* gray-200 */
-  background-color: rgba(55, 65, 81, 0.8) !important; /* gray-700 with opacity */
+  color: #e5e7eb !important;
+  background-color: rgba(55, 65, 81, 0.8) !important;
 }
 
 html.dark .dialog-title {
-  color: #e5e7eb !important; /* gray-200 */
+  color: #e5e7eb !important;
 }
 
 html.dark .dialog-description {
-  color: #9ca3af !important; /* gray-400 */
+  color: #9ca3af !important;
 }

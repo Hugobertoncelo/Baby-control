@@ -1,29 +1,26 @@
-/* Dark mode overrides for Toast component */
 html.dark .toast-dark-info {
-  background-color: rgba(30, 58, 138, 0.95); /* blue-900/95 */
-  border-color: #1e3a8a; /* blue-800 */
-  color: #dbeafe; /* blue-100 */
+  background-color: rgba(30, 58, 138, 0.95);
+  border-color: #1e3a8a;
+  color: #dbeafe;
 }
 
 html.dark .toast-dark-success {
-  background-color: rgba(6, 78, 59, 0.95); /* emerald-900/95 */
-  border-color: #065f46; /* emerald-800 */
-  color: #d1fae5; /* emerald-100 */
+  background-color: rgba(6, 78, 59, 0.95);
+  color: #d1fae5;
 }
 
 html.dark .toast-dark-warning {
-  background-color: rgba(120, 53, 15, 0.95); /* amber-900/95 */
-  border-color: #78350f; /* amber-800 */
-  color: #fef3c7; /* amber-100 */
+  background-color: rgba(120, 53, 15, 0.95);
+  border-color: #78350f;
+  color: #fef3c7;
 }
 
 html.dark .toast-dark-error {
-  background-color: rgba(127, 29, 29, 0.95); /* red-900/95 */
-  border-color: #7f1d1d; /* red-800 */
-  color: #fee2e2; /* red-100 */
+  background-color: rgba(127, 29, 29, 0.95);
+  border-color: #7f1d1d;
+  color: #fee2e2;
 }
 
-/* Toast animation classes */
 @keyframes slide-in-from-top {
   from {
     transform: translateY(-100%);
@@ -54,7 +51,6 @@ html.dark .toast-dark-error {
   animation: slide-out-to-top 0.3s ease-in;
 }
 
-/* Toast container positioning */
 .toast-container {
   position: fixed;
   top: 1rem;
@@ -73,7 +69,6 @@ html.dark .toast-dark-error {
   pointer-events: auto;
 }
 
-/* Responsive adjustments */
 @media (max-width: 640px) {
   .toast-container {
     top: 0.5rem;
@@ -83,4 +78,3 @@ html.dark .toast-dark-error {
     max-width: none;
   }
 }
-

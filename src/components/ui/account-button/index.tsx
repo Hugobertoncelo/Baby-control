@@ -203,13 +203,15 @@ export function AccountButton({
       const data = await response.json();
 
       if (data.success) {
-        alert("Verification email sent! Please check your inbox.");
+        alert(
+          "E-mail de verificação enviado! Por favor, verifique sua caixa de entrada."
+        );
       } else {
-        alert(data.error || "Failed to send verification email.");
+        alert(data.error || "Falha ao enviar o e-mail de verificação.");
       }
     } catch (error) {
       console.error("Resend verification error:", error);
-      alert("Network error. Please try again.");
+      alert("Erro de rede. Tente novamente.");
     }
   };
 
@@ -265,7 +267,7 @@ export function AccountButton({
                 </p>
                 {accountStatus.betaparticipant && (
                   <div className="beta-badge">
-                    <span className="beta-badge-text">✨ Beta User</span>
+                    <span className="beta-badge-text">✨ Usuário beta</span>
                   </div>
                 )}
               </div>
@@ -274,17 +276,17 @@ export function AccountButton({
               </p>
               {accountStatus.betaparticipant && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 font-medium italic">
-                  Thank you for being a beta user! 🙏
+                  Obrigado por ser um usuário beta! 🙏
                 </p>
               )}
               {!accountStatus.verified && (
                 <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                  ⚠️ Email verification required
+                  ⚠️ Verificação de e-mail necessária
                 </p>
               )}
               {accountStatus.verified && !accountStatus.hasFamily && (
                 <p className="text-xs text-green-600 dark:text-green-400 font-medium">
-                  ✅ Ready to setup family
+                  ✅ Pronto para configurar a família
                 </p>
               )}
             </div>
@@ -295,7 +297,7 @@ export function AccountButton({
             <>
               <DropdownMenuItem onClick={handleResendVerification}>
                 <Mail className="w-4 h-4 mr-2" />
-                Resend Verification Email
+                Reenviar e-mail de verificação
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -308,7 +310,7 @@ export function AccountButton({
                 className="family-setup-gradient focus:family-setup-gradient"
               >
                 <Users className="w-4 h-4 mr-2" />
-                Set up your family
+                Configure sua família
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -320,12 +322,12 @@ export function AccountButton({
             }}
           >
             <Settings className="w-4 h-4 mr-2" />
-            Account Settings
+            Configurações de Conta
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setShowFeedback(true)}>
             <MessageSquare className="w-4 h-4 mr-2" />
-            Send Feedback
+            Enviar comentários
           </DropdownMenuItem>
 
           {!hideFamilyDashboardLink &&
@@ -335,7 +337,7 @@ export function AccountButton({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleFamilyLink}>
                   <Home className="w-4 h-4 mr-2" />
-                  Go to Family Dashboard
+                  Vá para o Painel da Família
                 </DropdownMenuItem>
               </>
             )}
@@ -343,7 +345,7 @@ export function AccountButton({
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
-            Log out
+            Sair
           </DropdownMenuItem>
         </DropdownMenuContent>
 
