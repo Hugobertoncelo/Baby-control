@@ -512,7 +512,7 @@ const GiveMedicineForm: React.FC<GiveMedicineFormProps> = ({
               </div>
 
               <div>
-                <Label htmlFor="notes">Notas (optional)</Label>
+                <Label htmlFor="notes">Notas (opcional)</Label>
                 <Textarea
                   id="notes-give-medicine-form"
                   name="notes"

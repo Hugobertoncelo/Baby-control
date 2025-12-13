@@ -243,7 +243,7 @@ const ManageMedicinesTab: React.FC<ManageMedicinesTabProps> = ({
               Gerenciar medicamentos
             </h3>
             <div className={cn(styles.showInactiveContainer)}>
-              <Label htmlFor="show-inactive">Show Inactive</Label>
+              <Label htmlFor="show-inactive">Mostrar inativo</Label>
               <Switch
                 id="show-inactive"
                 checked={showInactive}

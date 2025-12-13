@@ -489,7 +489,7 @@ const MedicineForm: React.FC<MedicineFormProps> = ({
 
                 <div className="text-xs text-gray-500">
                   {doseTimeUnit === "hours"
-                    ? "Enter the minimum time in hours (e.g., 6 for Insira o tempo mínimo em horas (por exemplo, 6 para 6 horas, 0,5 para 30 minutos).6 hours, 0.5 for 30 minutes)"
+                    ? "Insira o tempo mínimo em horas (por exemplo, 6 para Insira o tempo mínimo em horas (por exemplo, 6 para 6 horas, 0,5 para 30 minutos).6 horas, 0,5 para 30 minutos)"
                     : "Insira o tempo mínimo em dias (por exemplo, 1 para 1 dia, 0,5 para 12 horas)."}
                 </div>
               </div>
