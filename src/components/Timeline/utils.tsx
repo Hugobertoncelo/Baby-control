@@ -594,7 +594,7 @@ export const getActivityDescription = (
               )
               .join(" ");
       return {
-        type: activity.type === "NAP" ? "Berço" : "Noite de sono",
+        type: activity.type === "NAP" ? "Soneca" : "Noite de sono",
         details: `${startTimeFormatted} - ${endTimeFormatted
           .split(" ")
           .slice(-2)
